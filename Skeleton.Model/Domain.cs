@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using Skeleton.Model.NamingConventions;
 
 namespace Skeleton.Model
 {
@@ -9,15 +10,18 @@ namespace Skeleton.Model
     {
         public ITypeProvider TypeProvider { get; }
         
+        public INamingConvention NamingConvention { get; }
+        
         public Settings Settings { get; }
 
-        public Domain(Settings settings, ITypeProvider typeProvider)
+        public Domain(Settings settings, ITypeProvider typeProvider, INamingConvention namingConvention)
         {
             Settings = settings;
             Types = new List<ApplicationType>();
             Operations = new List<Operation>();
             ResultTypes = new List<ResultType>();
             TypeProvider = typeProvider;
+            NamingConvention = namingConvention;
         }
 
         public List<ApplicationType> Types { get;  }

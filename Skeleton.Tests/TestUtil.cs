@@ -3,6 +3,7 @@ using System.IO.Abstractions;
 using Skeleton.Model;
 using Moq;
 using Newtonsoft.Json.Linq;
+using Skeleton.Model.NamingConventions;
 
 namespace Skeleton.Tests
 {
@@ -13,7 +14,7 @@ namespace Skeleton.Tests
         public static Domain CreateTestDomain(IFileSystem fs)
         {
             var mockTypeProvider = new Mock<ITypeProvider>();
-            var domain = new Domain(new Settings(fs), mockTypeProvider.Object);
+            var domain = new Domain(new Settings(fs), mockTypeProvider.Object, new SnakeCaseNamingConvention());
             var userType = new ApplicationType("user", TestNamespace, domain);
             var userIdField = new Field(userType) { Name = "id", ClrType = typeof(int), ProviderTypeName = "integer", IsKey = true, IsRequired = true };
             userType.Fields.Add(userIdField);

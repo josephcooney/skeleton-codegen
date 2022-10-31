@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO.Abstractions;
+using Skeleton.Model.NamingConventions;
 
 namespace Skeleton.Model
 {
@@ -67,6 +68,8 @@ namespace Skeleton.Model
         public int? TestDataSize { get; set; }
         
         public string AdminRoleName { get; set; }
+        
+        public NamingConventionSettings NamingConventionSettings { get; set; }
 
         public string ResolveClientAppDirectory() => !string.IsNullOrEmpty(ClientAppDirectory)
             ? ClientAppDirectory

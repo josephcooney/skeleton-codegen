@@ -1,6 +1,6 @@
-﻿namespace Skeleton.Model;
+﻿namespace Skeleton.Model.NamingConventions;
 
-public class NamingConvention
+public class NamingConventionSettings
 {
     public DbNamingConvention DbNamingConvention { get; set; }
     

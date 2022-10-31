@@ -11,6 +11,7 @@ using DbUp.Support;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
+using Skeleton.Model.NamingConventions;
 
 namespace Skeleton.SqlServer;
 
@@ -264,10 +265,30 @@ public class SqlServerTypeProvider : ITypeProvider
     {
         GetDbName();
         
-        var domain = new Domain(settings, this);
+        var domain = new Domain(settings, this, CreateNamingConvention(settings));
         domain.Types.AddRange(GetTypes(settings.ExcludedSchemas, domain));
 
         return domain;
+    }
+
+    private INamingConvention CreateNamingConvention(Settings settings)
+    {
+        if (settings.NamingConventionSettings == null)
+        {
+            return new PascalCaseNamingConvention();
+        }
+
+        switch (settings.NamingConventionSettings.DbNamingConvention)
+        {
+            case DbNamingConvention.ProviderDefault:
+            case DbNamingConvention.PascalCase:
+                return new PascalCaseNamingConvention();
+
+            case DbNamingConvention.SnakeCase:
+                return new SnakeCaseNamingConvention();
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 
     private void GetDbName()
@@ -296,7 +317,7 @@ public class SqlServerTypeProvider : ITypeProvider
 
     public void DropGeneratedOperations(Settings settings, StringBuilder sb)
     {
-        var dom = new Domain(settings, this);
+        var dom = new Domain(settings, this, CreateNamingConvention(settings));
         GetOperationsInternal(dom, false);
         foreach (var operation in dom.Operations.Where(a => a.IsGenerated))
         {
