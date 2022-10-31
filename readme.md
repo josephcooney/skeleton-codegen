@@ -50,11 +50,11 @@ To test out Skeleton using the Survey sample application perform the following s
   }
 }
 ```
-7. Run the Skeleton console by navigating to the Skeleton.Console app build output directory and running `Skeleton -u -react -c survey -n --tmplt <path to template project from step 6 above> --brand-color #5FD980` 
+7. Run the Skeleton console by navigating to the Skeleton.Console app build output directory and running `skeleton-codegen -u -react -c survey -n --tmplt <path to template project from step 6 above> --brand-color #5FD980` 
 1. Open the root location specified in the config file you created in step 6 above, and open the `appsettings.json`. Fix up the connection string. The script `001 - survey.sql` creates a user called survey_web_user, and generates a random password for the user which it prints to the output. Assuming you're connecting to a local postgres db running on the standard port the connection string would be `"Server=127.0.0.1;Port=5432;Database=survey;User Id=survey_web_user;Password=<output from script>;"`
 1. Build your new application. Building the app for the first time takes a while, because it does an NPM restore to build the react front-end.
 1. To re-generate your app after a db schema change run the .sql file located in .sql file `./Skeleton.Tests/scripts/survey/002 - additional fields.sql`
-1. Re-generate your application from the Skeleton.Console folder (the same location as step 7 above) by running `Skeleton -u -react -c survey -del`
+1. Re-generate your application from the Skeleton.Console folder (the same location as step 7 above) by running `skeleton-codegen -u -react -c survey -del`
 
 ### Command-Line Arguments ###
 ```
