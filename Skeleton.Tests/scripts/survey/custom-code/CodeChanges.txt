@@ -1,0 +1,54 @@
+﻿// connection string "Server=127.0.0.1;Port=5432;Database=survey;User Id=survey_web_user;Password=So9mx11enPpV4sraq;"
+
+
+// added to program.cs
+
+                .UseKestrel(options =>
+                {
+                    options.Listen(IPAddress.Any, 5001, listenOptions =>
+                    {
+                        listenOptions.Protocols = HttpProtocols.Http1;
+                        listenOptions.UseHttps(@"e:\black.pfx", "TestCertificate123");
+                    });
+                })
+
+// change launchesettings.json 
+
+"applicationUrl": "https://black:5001;http://black:5000",
+
+// added to startup.cs - replace line that says .AddApiAuthorization<ApplicationUser, ApplicationDbContext>() with this
+
+            var spaClient = ClientBuilder.IdentityServerSPA("SurveyApp")
+                .WithRedirectUri("/authentication/login-callback")
+                .WithLogoutRedirectUri("/authentication/logout-callback").Build();
+            spaClient.AllowedScopes = new List<string>(){"SurveyAppAPI",
+                IdentityServerConstants.StandardScopes.OpenId,
+                IdentityServerConstants.StandardScopes.Profile};
+            
+            services.AddIdentityServer()
+                .AddApiAuthorization<ApplicationUser, ApplicationDbContext>()
+                .AddInMemoryClients(new List<Client>() {new Client
+                {
+                    ClientId = "SurveyAppMobile",
+                    ClientName = "Mobile Application",
+                    RedirectUris = {"black.demo:/oauthredirect"},
+                    PostLogoutRedirectUris = { "black.demo:/logout" },
+	
+                    AllowedGrantTypes = GrantTypes.CodeAndClientCredentials,
+                    AllowAccessTokensViaBrowser = true,
+                    RequireConsent = false,
+                    RequireClientSecret = false,
+                    RequirePkce = true,
+
+                    AllowOfflineAccess = true,
+                    RefreshTokenUsage = TokenUsage.ReUse,
+
+                    AllowedScopes = {
+                        "SurveyAppAPI",
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile
+                    }
+                },
+                    spaClient
+                });
+

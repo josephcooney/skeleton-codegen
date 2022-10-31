@@ -1,0 +1,7 @@
+﻿                                {/* generated routes */}
+{{#each IncludedTypes}}
+{{#if GenerateUI}}
+                                <Route path='/{{kb_case Name}}/*' element={<{{cs_name Name}}Component />} />
+{{/if}}
+{{/each}}
+                                {/* end generated routes */}

@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>Skeleton</AssemblyName>
+    <RootNamespace>Skeleton.Console</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.0.0" />
+    <PackageReference Include="Mono.Options" Version="5.3.0.1" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+    <PackageReference Include="System.IO.Abstractions" Version="12.2.19" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Skeleton.Flutter\Skeleton.Flutter.csproj" />
+    <ProjectReference Include="..\Skeleton.Model\Skeleton.Model.csproj" />
+    <ProjectReference Include="..\Skeleton.OpenApi\Skeleton.OpenApi.csproj" />
+    <ProjectReference Include="..\Skeleton.Postgres\Skeleton.Postgres.csproj" />
+    <ProjectReference Include="..\Skeleton.ProjectGeneration\Skeleton.ProjectGeneration.csproj" />
+    <ProjectReference Include="..\Skeleton.SqlServer\Skeleton.SqlServer.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="desk.codegen.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="sqltest.codegen.json" />
+    <Content Include="sqltest.codegen.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,35 @@
+﻿@using {{Namespace}}.Data.Result
+@model List<{{cs_name DisplayTypeName}}>
+@{
+    ViewData["Title"] = "{{hmn Type}}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>{{HumanizedNamePlural}}</h1>
+
+<table>
+    <tr>
+    {{#each DisplayFields}}
+        <th>{{DisplayName}}</th>
+    {{/each}}
+	<th>Edit</th>
+	{{#if CanDelete}}
+	<th>Delete</th>
+	{{/if}}
+    </tr>
+    @foreach(var m in Model)
+    {
+        <tr>
+        {{#each DisplayFields}}
+            <td>@m.{{cs_name Name}}</td>
+        {{/each}}
+			<td>@Html.ActionLink("Edit", "Edit", new { {{cml_case IdentityField.Name}} = m.{{cs_name IdentityField.Name}} }, null)</td>
+			{{#if CanDelete}}
+			<td>@Html.ActionLink("Delete", "Delete", new { {{cml_case IdentityField.Name}} = m.{{cs_name IdentityField.Name}} }, null)</td>
+			{{/if}}
+        </tr>
+    }
+</table>
+<div>
+  @Html.ActionLink("Add New {{hmn Type}}", "Add")
+</div>

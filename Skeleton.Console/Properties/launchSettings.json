@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Generator.Console": {
+      "commandName": "Project",
+      "commandLineArgs": "-u -c sqltest"
+    }
+  }
+}

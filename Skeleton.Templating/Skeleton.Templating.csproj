@@ -1,0 +1,133 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>default</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Classes\Class.handlebars" />
+    <None Remove="Classes\ControllerTemplate.txt" />
+    <None Remove="Classes\EditViewModelTemplate.txt" />
+    <None Remove="Classes\RelatedFieldListItemTemplate.txt" />
+    <None Remove="Classes\RepositoryBaseTemplate.txt" />
+    <None Remove="Classes\RepositoryModuleTemplate.txt" />
+    <None Remove="Classes\RepositoryTemplate.txt" />
+    <None Remove="Classes\ReturnType.handlebars" />
+    <None Remove="Classes\WebApi\ApiAttachmentController.handlebars" />
+    <None Remove="Classes\WebApi\ApiRequestModel.handlebars" />
+    <None Remove="DatabaseFunctions\DeleteSoftTemplate.txt" />
+    <None Remove="DatabaseFunctions\DeleteTemplate.txt" />
+    <None Remove="DatabaseFunctions\InsertTemplate.txt" />
+    <None Remove="DatabaseFunctions\SearchTemplate.txt" />
+    <None Remove="DatabaseFunctions\SecurityPolicyTemplate.txt" />
+    <None Remove="DatabaseFunctions\SelectAllForDisplayTemplate.txt" />
+    <None Remove="DatabaseFunctions\SelectAllForDisplayViaLinkTemplate.txt" />
+    <None Remove="DatabaseFunctions\SelectAllTemplate.txt" />
+    <None Remove="DatabaseFunctions\SelectByForeignKeyTemplate.txt" />
+    <None Remove="DatabaseFunctions\Templates\DisplayType.handlebars" />
+    <None Remove="DatabaseFunctions\Templates\ResultType.handlebars" />
+    <None Remove="DatabaseFunctions\Templates\SelectAllForDisplayByForeignKeyTemplate.handlebars" />
+    <None Remove="DatabaseFunctions\UpdateTemplate.txt" />
+    <None Remove="MvcViews\EditTemplate.handlebars" />
+    <None Remove="MvcViews\IndexTemplate.handlebars" />
+    <None Remove="ReactClient\ReactAddPageTemplate.txt" />
+    <None Remove="ReactClient\ReactComponentTemplate.txt" />
+    <None Remove="ReactClient\ReactConfirmDeletePageTemplate.txt" />
+    <None Remove="ReactClient\ReactListAllEntitiesPageTemplate.txt" />
+    <None Remove="ReactClient\ReactListPageTemplate.txt" />
+    <None Remove="ReactClient\ReactSelectTemplate.txt" />
+    <None Remove="ReactClient\Templates\AddEdit\ReactAddEditPageRendering.handlebars" />
+    <None Remove="ReactClient\Templates\AppImports.handlebars" />
+    <None Remove="ReactClient\Templates\AppRoutes.handlebars" />
+    <None Remove="ReactClient\Templates\List\ReactListHeader.handlebars" />
+    <None Remove="ReactClient\Templates\List\ReactListRow.handlebars" />
+    <None Remove="ReactClient\Templates\ReactDetailPage.handlebars" />
+    <None Remove="ReactClient\Templates\ReactListRenderingTemplate.txt" />
+    <None Remove="ReactClient\Templates\ReactRegularUserHome.handlebars" />
+    <None Remove="ReactClient\Templates\ReactSearchControl.handlebars" />
+    <None Remove="ReactClient\TypeScriptApiClientModelTemplate.txt" />
+    <None Remove="ReactClient\TypeScriptApiClientResultTemplate.txt" />
+    <None Remove="ReactClient\TypeScriptApiClientTemplate.txt" />
+    <None Remove="ReactClient\TypeScriptModelValidatorTemplate.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Classes\WebApi\ApiAttachmentController.handlebars" />
+    <EmbeddedResource Include="ReactClient\Templates\AddEdit\ReactAddEditPageRendering.handlebars" />
+    <EmbeddedResource Include="ReactClient\Templates\AppRoutes.handlebars" />
+    <EmbeddedResource Include="ReactClient\Templates\List\ReactListHeader.handlebars" />
+    <EmbeddedResource Include="ReactClient\Templates\List\ReactListRow.handlebars" />
+    <EmbeddedResource Include="ReactClient\Templates\ReactComponent.handlebars" />
+    <EmbeddedResource Include="ReactClient\Templates\ReactConfirmDeletePage.handlebars" />
+    <EmbeddedResource Include="ReactClient\Templates\ReactDetailPage.handlebars" />
+    <None Remove="DatabaseFunctions\Templates\InsertType.handlebars" />
+    <None Remove="DatabaseFunctions\Templates\InsertBulkTemplate.handlebars" />
+    <None Remove="Classes\Repository\TestRepository.handlebars" />
+    <EmbeddedResource Include="Classes\Repository\TestRepository.handlebars" />
+    <None Remove="DatabaseFunctions\Templates\Select\SelectAllPagedTemplate.handlebars" />
+    <None Remove="DatabaseFunctions\Templates\Select\SelectPagedForDisplay.handlebars" />
+    <None Remove="DatabaseFunctions\Templates\Select\SelectPagedForDisplayByForeignKey.handlebars" />
+    <None Remove="TestData\TestData.handlebars" />
+    <EmbeddedResource Include="TestData\TestData.handlebars" />
+    <None Remove="Classes\WebApi\ApiAttachmentRequestModel.handlebars" />
+    <EmbeddedResource Include="Classes\WebApi\ApiAttachmentRequestModel.handlebars" />
+    <None Remove="ReactClient\Templates\ReactLeftNav.handlebars" />
+    <EmbeddedResource Include="ReactClient\Templates\ReactLeftNavItems.handlebars" />
+    <None Remove="ReactClient\Templates\ReactDetailDisplay.handlebars" />
+    <EmbeddedResource Include="ReactClient\Templates\ReactDetailDisplay.handlebars" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Classes\Mvc\RelatedFieldListItem.handlebars" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Classes\Mvc\Controller.handlebars" />
+    <EmbeddedResource Include="Classes\WebApi\ApiController.handlebars" />
+    <EmbeddedResource Include="Classes\Mvc\EditViewModel.handlebars" />
+    <EmbeddedResource Include="Classes\Repository\RepositoryBase.handlebars" />
+    <EmbeddedResource Include="Classes\Repository\RepositoryModule.handlebars" />
+    <EmbeddedResource Include="Classes\ReturnType.handlebars" />
+    <EmbeddedResource Include="Classes\Repository\Repository.handlebars" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Classes\Class.handlebars" />
+    <EmbeddedResource Include="Classes\WebApi\ApiRequestModel.handlebars" />
+    <EmbeddedResource Include="MvcViews\EditTemplate.handlebars" />
+    <EmbeddedResource Include="MvcViews\IndexTemplate.handlebars" />
+    <EmbeddedResource Include="ReactClient\Templates\AddEdit\ReactAddEditPage.handlebars" />
+    <EmbeddedResource Include="ReactClient\Templates\List\ReactListPage.handlebars" />
+    <EmbeddedResource Include="ReactClient\Templates\List\ReactListRendering.handlebars" />
+    <EmbeddedResource Include="ReactClient\Templates\ReactRegularUserHome.handlebars" />
+    <EmbeddedResource Include="ReactClient\Templates\ReactSearchControl.handlebars" />
+    <EmbeddedResource Include="ReactClient\Templates\ReactSelectControl.handlebars" />
+    <EmbeddedResource Include="ReactClient\Templates\ApiClient\ApiClientModel.handlebars" />
+    <EmbeddedResource Include="ReactClient\Templates\ApiClient\ApiClientResult.handlebars" />
+    <EmbeddedResource Include="ReactClient\Templates\ApiClient\ApiClient.handlebars" />
+    <EmbeddedResource Include="ReactClient\Templates\ApiClient\ModelValidator.handlebars" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Bogus" Version="33.0.2" />
+    <PackageReference Include="Handlebars.Net" Version="1.9.5" />
+    <PackageReference Include="Npgsql" Version="4.1.3.1" />
+    <PackageReference Include="Pluralize.NET" Version="1.0.2" />
+    <PackageReference Include="Serilog" Version="2.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="ReactClient\Templates\AppImports.handlebars" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Skeleton.Model\Skeleton.Model.csproj" />
+  </ItemGroup>
+
+</Project>

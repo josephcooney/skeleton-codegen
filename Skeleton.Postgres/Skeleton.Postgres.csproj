@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>default</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql" Version="4.1.4" />
+    <PackageReference Include="Serilog" Version="2.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Skeleton.Model\Skeleton.Model.csproj" />
+    <ProjectReference Include="..\Skeleton.Templating\Skeleton.Templating.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\DeleteSoftTemplate.handlebars" />
+    <EmbeddedResource Include="Templates\DeleteTemplate.handlebars" />
+    <EmbeddedResource Include="Templates\DisplayType.handlebars" />
+    <EmbeddedResource Include="Templates\InsertManyTemplate.handlebars" />
+    <EmbeddedResource Include="Templates\InsertTemplate.handlebars" />
+    <EmbeddedResource Include="Templates\InsertType.handlebars" />
+    <EmbeddedResource Include="Templates\ResultType.handlebars" />
+    <EmbeddedResource Include="Templates\SearchTemplate.handlebars" />
+    <EmbeddedResource Include="Templates\SecurityPolicyTemplate.handlebars" />
+    <EmbeddedResource Include="Templates\Select\SelectAllForDisplayByForeignKeyTemplate.handlebars" />
+    <EmbeddedResource Include="Templates\Select\SelectAllForDisplayTemplate.handlebars" />
+    <EmbeddedResource Include="Templates\Select\SelectAllForDisplayViaLinkTemplate.handlebars" />
+    <EmbeddedResource Include="Templates\Select\SelectAllTemplate.handlebars" />
+    <EmbeddedResource Include="Templates\Select\SelectByForeignKeyTemplate.handlebars" />
+    <EmbeddedResource Include="Templates\Select\SelectPaged.handlebars" />
+    <EmbeddedResource Include="Templates\Select\SelectPagedByForeignKey.handlebars" />
+    <EmbeddedResource Include="Templates\Select\SelectPagedForDisplay.handlebars" />
+    <EmbeddedResource Include="Templates\Select\SelectPagedForDisplayByForeignKey.handlebars" />
+    <EmbeddedResource Include="Templates\UpdateTemplate.handlebars" />
+  </ItemGroup>
+
+</Project>
