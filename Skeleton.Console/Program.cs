@@ -87,14 +87,27 @@ namespace Skeleton.Console
 
         private static void WriteLogo()
         {
-            var fg = System.Console.ForegroundColor;
-            var bg = System.Console.BackgroundColor;
-            System.Console.ForegroundColor = ConsoleColor.Red;
-            System.Console.BackgroundColor = ConsoleColor.Black;
-            System.Console.Write("B");
-            System.Console.ForegroundColor = fg;
-            System.Console.BackgroundColor = bg;
-            System.Console.WriteLine("adass");
+            var logo = @"
+                     *&@@@@@@@@@@@@@@@@(.                   
+                 /@@@@#,              /@@@@&                
+              .@@@%                       *@@@(             
+             @@@*                            &@@.           
+            @@@                               (@@*          
+           (@@.                                &@@          
+           #@@     %@@@@@(          @@@@@@.    %@@          
+           (@@.   #@@@@@@@#        @@@@@@@@.   &@@          
+            @@@   (@@@@@@@/        @@@@@@@@   *@@(          
+             @@@,   &@@@&     &*    ,@@@@*   %@@*           
+              @@&            @@@/           *@@*            
+              @@@           @@@@@*          /@@,            
+              ,@@%                         ,@@@             
+                #@@@@@@               (@@@@@@.              
+                     *@@@   @*  &/  &@@&                    
+                      *@@@&&@@&&@@&&@@@                     
+                         **, ,** ,**                                                                        
+";
+            System.Console.WriteLine(logo);
+            System.Console.WriteLine("Skeleton");
         }
 
         private static Settings ParseArguments(string[] args)
