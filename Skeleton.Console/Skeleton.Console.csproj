@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-    <AssemblyName>Skeleton</AssemblyName>
+    <AssemblyName>skeleton-codegen</AssemblyName>
     <RootNamespace>Skeleton.Console</RootNamespace>
   </PropertyGroup>
 
@@ -36,9 +36,6 @@
 
   <ItemGroup>
     <None Remove="sqltest.codegen.json" />
-    <Content Include="sqltest.codegen.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
 </Project>
