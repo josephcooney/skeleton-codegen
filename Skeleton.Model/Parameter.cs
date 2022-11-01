@@ -29,6 +29,15 @@ namespace Skeleton.Model
 
         public virtual Field RelatedTypeField { get; set; }
 
+        public void UpdateFromField(Field field)
+        {
+            RelatedTypeField = field;
+            if (ClrType != field.ClrType)
+            {
+                ClrType = field.ClrType;
+            }
+        }
+
         public bool IsNullable
         {
             get

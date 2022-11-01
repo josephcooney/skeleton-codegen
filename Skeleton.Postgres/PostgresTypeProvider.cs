@@ -23,7 +23,7 @@ namespace Skeleton.Postgres
     {
         private readonly string _connectionString;
         private static Dictionary<string, NpgsqlDbType> _postgresNpgSqlTypes;
-        
+        private INamingConvention _namingConvention;        
 
         static PostgresTypeProvider()
         {
@@ -82,7 +82,8 @@ namespace Skeleton.Postgres
 
         public Domain GetDomain(Settings settings)
         {
-            var domain = new Domain(settings, this, CreateNamingConvention(settings));
+            _namingConvention = CreateNamingConvention(settings);
+            var domain = new Domain(settings, this, _namingConvention);
             domain.Types.AddRange(GetTypes(settings.ExcludedSchemas, domain));
 
             return domain;
@@ -1732,7 +1733,7 @@ AND KCU1.TABLE_SCHEMA = '{type.Namespace}'
                 var fld = op.RelatedType.Fields.FirstOrDefault(f => f.Name == prm.Name);
                 if (fld != null)
                 {
-                    UpdateParamFromField(prm, fld);
+                    prm.UpdateFromField(fld);
                 }
                 else
                 {
@@ -1744,10 +1745,10 @@ AND KCU1.TABLE_SCHEMA = '{type.Namespace}'
                     {
                         // since this matching above is done by name, it misses some things e.g. where the parameter is called id_param and the field is called id.
                         // here we 'fall back' to try to fix that
-                        var paramFld = op.RelatedType.Fields.FirstOrDefault(f => f.Name + "_param" == prm.Name);
+                        var paramFld = op.RelatedType.Fields.FirstOrDefault(f => _namingConvention.CreateParameterNameFromFieldName(f.Name) == prm.Name);
                         if (paramFld != null)
                         {
-                            UpdateParamFromField(prm, paramFld);
+                            prm.UpdateFromField(paramFld);
                         }
                     }
                 }
@@ -1764,15 +1765,6 @@ AND KCU1.TABLE_SCHEMA = '{type.Namespace}'
             }
 
             op.RelatedType = appType;
-        }
-
-        private static void UpdateParamFromField(Parameter prm, Field fld)
-        {
-            prm.RelatedTypeField = fld;
-            if (prm.ClrType != fld.ClrType)
-            {
-                prm.ClrType = fld.ClrType;
-            }
         }
         
         private const string ProceduresQuery =

@@ -31,4 +31,9 @@ public class PascalCaseNamingConvention : INamingConvention
         items.Reverse();
         return items.ToArray();
     }
+
+    public string CreateParameterNameFromFieldName(string fieldName)
+    {
+        return fieldName + "Param";
+    }
 }

@@ -337,9 +337,36 @@ public class SqlServerTypeProviderTests : DbTestBase
             var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
             provider.GetOperations(model);
-            model.Operations.Count.ShouldBe(1);
-            var op = model.Operations.First();
+            model.Operations.Count.ShouldBe(2);
+            var op = model.Operations.First(o => o.Name == "ProductSelectAllForDisplay");
             op.RelatedType.ShouldBe(model.Types.SingleOrDefault(t => t.Name == "Product"));
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
+    
+    [Fact]
+    public void CanAugmentStoredProcedureParameterInformationWithDetailsFromDomainType()
+    {
+        var testDbInfo = CreateTestDatabase(TestDbWithRelatedEntitiesAndFunctions);
+        try
+        {
+            var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()));
+            provider.GetOperations(model);
+            model.Operations.Count.ShouldBe(2);
+            
+            var op = model.Operations.First(o => o.Name == "ProductSelectAllForDisplayByCategoryId");
+            op.RelatedType.ShouldBe(model.Types.SingleOrDefault(t => t.Name == "Product"));
+            op.Parameters.Count.ShouldBe(1);
+            op.Parameters[0].RelatedTypeField.ShouldNotBeNull();
+            
+            var product = model.Types.First(t => t.Name == "Product");
+            var categoryField = product.GetFieldByName("Category");
+            op.Parameters[0].RelatedTypeField.ShouldBe(categoryField);
+
         }
         finally
         {
@@ -428,6 +455,27 @@ public class SqlServerTypeProviderTests : DbTestBase
         GO
         
         EXEC sys.sp_addextendedproperty 'codegen_meta', N'{""applicationtype"":""Product""}', 'schema', N'dbo', 'procedure', N'ProductSelectAllForDisplay';
+        GO    
+            
+        create procedure ProductSelectAllForDisplayByCategoryId 
+            @Category int
+            AS
+            BEGIN
+                SELECT p.Id,
+                p.Category,
+                pc.Name as CategoryName,
+                p.Name,
+                p.Description,
+                p.Materials,
+                p.UnitPrice,
+                p.Created
+                FROM Product p inner join ProductCategory PC on p.Category = PC.Id
+                WHERE p.Category = @Category
+            END;
+        GO
+        
+        EXEC sys.sp_addextendedproperty 'codegen_meta', N'{""applicationtype"":""Product""}', 'schema', N'dbo', 'procedure', N'ProductSelectAllForDisplayByCategoryId';
+        GO
     ";
     
     public const string TestDbWithCalculatedColumn = @"

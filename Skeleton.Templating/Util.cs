@@ -222,7 +222,7 @@ namespace Skeleton.Templating
 
             Handlebars.RegisterHelper("get_ts_type", (writer, context, parameters) =>
             {
-                if (parameters == null || parameters.Length == 0 || parameters[0] == null)
+                if (parameters == null || parameters.Length == 0 || parameters[0] == null || parameters[0] is not System.Type)
                 {
                     writer.Write("ERROR: No type provided");
                     return;

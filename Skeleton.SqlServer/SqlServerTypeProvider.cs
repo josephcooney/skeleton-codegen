@@ -24,7 +24,8 @@ public class SqlServerTypeProvider : ITypeProvider
     }
     
     private readonly string _connectionString;
-    private string _databaseName = string.Empty; 
+    private string _databaseName = string.Empty;
+    private INamingConvention _namingConvention;
     
     private readonly string[] _sqlReservedWords = new[]
     {
@@ -264,8 +265,9 @@ public class SqlServerTypeProvider : ITypeProvider
     public Domain GetDomain(Settings settings)
     {
         GetDbName();
-        
-        var domain = new Domain(settings, this, CreateNamingConvention(settings));
+
+        _namingConvention = CreateNamingConvention(settings);
+        var domain = new Domain(settings, this, _namingConvention);
         domain.Types.AddRange(GetTypes(settings.ExcludedSchemas, domain));
 
         return domain;
@@ -624,8 +626,7 @@ public class SqlServerTypeProvider : ITypeProvider
                                 op.Parameters.AddRange(ReadParameters(domain, op));
                                 if (op.RelatedType != null)
                                 {
-                                    // we might not need to do this if the SQL provider gives better info about nullability than Postgres does
-                                    // FIXME TODO UpdateParameterNullabilityFromApplicationType(op);
+                                    UpdateParameterNullabilityFromApplicationType(op);
                                 }
 
                                 op.Returns = GetReturnForOperation(resultType, domain, op, routineType);
@@ -648,6 +649,42 @@ public class SqlServerTypeProvider : ITypeProvider
             }
         }
     }
+    
+    private void UpdateParameterNullabilityFromApplicationType(Operation op)
+    {
+        if (op.RelatedType == null)
+        {
+            return;
+        }
+            
+        foreach (var prm in op.Parameters)
+        {
+            var trimmedName = prm.Name.TrimStart('@');
+            var fld = op.RelatedType.Fields.FirstOrDefault(f => f.Name == trimmedName);
+            if (fld != null)
+            {
+                prm.UpdateFromField(fld);
+            }
+            else
+            {
+                if (prm.Name == Parameter.SecurityUserIdParamName && !prm.IsNullable)
+                {
+                    prm.ClrType = MakeClrTypeNullable(prm.ClrType);
+                }
+                else
+                {
+                    // since this matching above is done by name, it misses some things e.g. where the parameter is called id_param or IdParam and the field is called id.
+                    // here we 'fall back' to try to fix that
+                    var paramFld = op.RelatedType.Fields.FirstOrDefault(f => _namingConvention.CreateParameterNameFromFieldName(f.Name) == trimmedName);
+                    if (paramFld != null)
+                    {
+                        prm.UpdateFromField(paramFld);
+                    }
+                }
+            }
+        }
+    }
+    
 
     private OperationReturn GetReturnForOperation(string? resultType, Domain domain, Operation op, string routineType)
     {

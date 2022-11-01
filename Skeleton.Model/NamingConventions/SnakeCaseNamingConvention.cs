@@ -13,4 +13,9 @@ public class SnakeCaseNamingConvention : INamingConvention
     {
         return name.Split('_');
     }
+
+    public string CreateParameterNameFromFieldName(string fieldName)
+    {
+        return fieldName + "_param";
+    }
 }
