@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Skeleton.SqlServer", "Skele
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Skeleton.SqlServer.Tests", "Skeleton.SqlServer.Tests\Skeleton.SqlServer.Tests.csproj", "{6B9050B4-151C-47B2-B37C-4AA64E482022}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Skeleton.Model.Tests", "Skeleton.Model.Tests\Skeleton.Model.Tests.csproj", "{4F9C6BCD-697B-437F-AB33-9FDCB454E73A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,6 +76,10 @@ Global
 		{6B9050B4-151C-47B2-B37C-4AA64E482022}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B9050B4-151C-47B2-B37C-4AA64E482022}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B9050B4-151C-47B2-B37C-4AA64E482022}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F9C6BCD-697B-437F-AB33-9FDCB454E73A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F9C6BCD-697B-437F-AB33-9FDCB454E73A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F9C6BCD-697B-437F-AB33-9FDCB454E73A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F9C6BCD-697B-437F-AB33-9FDCB454E73A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

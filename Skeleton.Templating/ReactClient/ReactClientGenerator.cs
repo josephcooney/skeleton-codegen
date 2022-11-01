@@ -13,7 +13,7 @@ namespace Skeleton.Templating.ReactClient
     {
         public override List<CodeFile> Generate(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
 
             foreach (var type in domain.FilteredTypes)
@@ -30,7 +30,7 @@ namespace Skeleton.Templating.ReactClient
 
         public List<CodeFile> GenerateClientModels(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
             
             foreach (var type in domain.FilteredTypes)
@@ -69,7 +69,7 @@ namespace Skeleton.Templating.ReactClient
 
         public List<CodeFile> GenerateComponents(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
             
             var leftNavItems = new CodeFile { Name = "LeftNavItems.tsx", Contents = GenerateLeftNavItems(domain) };

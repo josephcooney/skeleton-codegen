@@ -22,7 +22,7 @@ namespace Skeleton.Templating.DatabaseFunctions
 
         public List<CodeFile> Generate(Domain domain, Settings settings)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
 
             var files = new List<CodeFile>();
 

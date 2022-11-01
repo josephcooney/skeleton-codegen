@@ -13,7 +13,7 @@ namespace Skeleton.Templating.Classes
     {
         public List<CodeFile> GenerateDomain(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
 
             foreach (var type in domain.Types)
@@ -30,7 +30,7 @@ namespace Skeleton.Templating.Classes
 
         public List<CodeFile> GenerateRepositories(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
 
             foreach (var type in domain.Types.OrderBy(t => t.Name))
@@ -51,7 +51,7 @@ namespace Skeleton.Templating.Classes
         
         public List<CodeFile> GenerateTestRepositories(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
 
             foreach (var type in domain.Types.OrderBy(t => t.Name))
@@ -72,7 +72,7 @@ namespace Skeleton.Templating.Classes
 
         public List<CodeFile> GenerateRepositoryInfrastructure(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
 
             var file = new CodeFile { Name = "RepositoryBase.cs", Contents = GenerateRepoBase(domain) };
@@ -86,7 +86,7 @@ namespace Skeleton.Templating.Classes
 
         public List<CodeFile> GenerateReturnTypes(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
 
             foreach (var type in domain.ResultTypes)
@@ -103,7 +103,7 @@ namespace Skeleton.Templating.Classes
 
         public List<CodeFile> GenerateControllers(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
 
             foreach (var type in domain.Types)
@@ -120,7 +120,7 @@ namespace Skeleton.Templating.Classes
 
         public List<CodeFile> GenerateWebApiControllers(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
 
             foreach (var type in domain.Types)
@@ -137,7 +137,7 @@ namespace Skeleton.Templating.Classes
 
         public List<CodeFile> GenerateEditModels(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
 
             foreach (var type in domain.Types)
@@ -160,7 +160,7 @@ namespace Skeleton.Templating.Classes
 
         public List<CodeFile> GenerateWebApiModels(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
 
             foreach (var type in domain.Types)

@@ -9,6 +9,7 @@ using Skeleton.Model;
 using HandlebarsDotNet;
 using Pluralize.NET;
 using Serilog;
+using Skeleton.Model.NamingConventions;
 
 namespace Skeleton.Templating
 {
@@ -71,9 +72,10 @@ namespace Skeleton.Templating
             }
         }
 
-        public static void RegisterHelpers(ITypeProvider typeProvider)
+        public static void RegisterHelpers(Domain domain)
         {
-            _typeProvider = typeProvider;
+            _typeProvider = domain.TypeProvider;
+            _namingConvention = domain.NamingConvention;
             
             Handlebars.RegisterHelper("format_clr_type", (writer, context, parameters) =>
             {
@@ -115,7 +117,7 @@ namespace Skeleton.Templating
                     catch (Exception ex)
                     {
                         writer.Write($"Error Formatting CS Name: {name}");
-                        Log.Error("Error Formatting CSharp Name", ex);
+                        Log.Error(ex, "Error Formatting CSharp Name {Name}", name);
                     }
                     return;
                 }
@@ -332,7 +334,11 @@ namespace Skeleton.Templating
 
         public static string CSharpNameFromName(string name)
         {
-            var parts = name.Split('_');
+            var parts = _namingConvention.GetNameParts(name);
+            if (parts.Length == 0)
+            {
+                return name;
+            }
             return string.Join("", parts.Select(p => char.ToUpperInvariant(p[0]) + p.Substring(1)));
         }
 
@@ -390,8 +396,16 @@ namespace Skeleton.Templating
 
         public static string HumanizeName(string name)
         {
-            var parts = name.Split('_');
-            return string.Join(" ", parts.Select(p => char.ToUpperInvariant(p[0]) + p.Substring(1)));
+            try
+            {
+                var parts = _namingConvention.GetNameParts(name);
+                return string.Join(" ", parts.Select(p => char.ToUpperInvariant(p[0]) + p.Substring(1)));
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Unable to humanize name {Name}", name);
+                throw;
+            }
         }
 
         public static string Pluralize(string name)
@@ -461,6 +475,7 @@ namespace Skeleton.Templating
         }
 
         private static ITypeProvider _typeProvider;
+        private static INamingConvention _namingConvention;
 
         private static Dictionary<System.Type, string> _typeScriptTypes;
 

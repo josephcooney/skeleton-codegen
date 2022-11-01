@@ -2,5 +2,5 @@
 
 public interface INamingConvention
 {
-    
+    string[] GetNameParts(string name);
 }

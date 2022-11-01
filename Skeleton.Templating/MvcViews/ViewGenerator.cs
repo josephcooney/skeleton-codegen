@@ -9,7 +9,7 @@ namespace Skeleton.Templating.MvcViews
     {
         public List<CodeFile> Generate(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
 
             var files = new List<CodeFile>();
 

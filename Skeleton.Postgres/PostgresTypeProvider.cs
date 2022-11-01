@@ -92,16 +92,16 @@ namespace Skeleton.Postgres
         {
             if (settings.NamingConventionSettings == null)
             {
-                return new SnakeCaseNamingConvention();
+                return new SnakeCaseNamingConvention(null);
             }
 
             switch (settings.NamingConventionSettings.DbNamingConvention)
             {
                 case DbNamingConvention.ProviderDefault:
                 case DbNamingConvention.SnakeCase:
-                    return new SnakeCaseNamingConvention();
+                    return new SnakeCaseNamingConvention(settings.NamingConventionSettings);
                 case DbNamingConvention.PascalCase:
-                    return new PascalCaseNamingConvention();
+                    return new PascalCaseNamingConvention(settings.NamingConventionSettings);
                 default:
                     throw new ArgumentOutOfRangeException();
             }

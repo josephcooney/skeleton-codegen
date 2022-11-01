@@ -275,17 +275,17 @@ public class SqlServerTypeProvider : ITypeProvider
     {
         if (settings.NamingConventionSettings == null)
         {
-            return new PascalCaseNamingConvention();
+            return new PascalCaseNamingConvention(null);
         }
 
         switch (settings.NamingConventionSettings.DbNamingConvention)
         {
             case DbNamingConvention.ProviderDefault:
             case DbNamingConvention.PascalCase:
-                return new PascalCaseNamingConvention();
+                return new PascalCaseNamingConvention(settings.NamingConventionSettings);
 
             case DbNamingConvention.SnakeCase:
-                return new SnakeCaseNamingConvention();
+                return new SnakeCaseNamingConvention(settings.NamingConventionSettings);
             default:
                 throw new ArgumentOutOfRangeException();
         }
