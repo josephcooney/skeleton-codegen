@@ -404,12 +404,12 @@ public class SqlServerTypeProvider : ITypeProvider
 
     public bool IsDateOnly(string typeName)
     {
-        throw new NotImplementedException();
+        return typeName.ToLowerInvariant() == "date";
     }
 
     public bool IsTimeOnly(string typeName)
     {
-        throw new NotImplementedException();
+        return typeName.ToLowerInvariant() == "time";
     }
 
     public void AddTestData(List<CodeFile> scripts)

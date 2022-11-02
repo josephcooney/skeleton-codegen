@@ -42,7 +42,6 @@ namespace Skeleton.Model
             }
         } 
         
-
         public dynamic Attributes { get; set; }
 
         public Field GetFieldByName(string name)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Serilog;
 using Skeleton.Model;
 
 namespace Skeleton.Templating.ReactClient.Adapters
@@ -38,11 +39,19 @@ namespace Skeleton.Templating.ReactClient.Adapters
                 if (operations.Count() > 1)
                 {
                     var distinctReturnTypes = operations.Where(o => o.Returns.SimpleReturnType != _type /* exclude functions that just do a 'basic' return - we want the 'select_for_display' variation */).Select(o => o.Returns.SimpleReturnType).Distinct();
+                    if (distinctReturnTypes.Count() == 0)
+                    {
+                        // this is a weird case where there isn't a 'display' variant 
+                        return null;
+                    }
+                    
                     if (distinctReturnTypes.Count() == 1)
                     {
                         return distinctReturnTypes.First();
                     }
 
+                    Log.Error("There are multiple operations to return {TypeName} from linking field {LinkingFieldName} with different return types. Operation names are {OperationNames}", _type.Name, _linkingField.Name, operations.Select(o => o.Name).ToList());
+                    
                     throw new InvalidOperationException($"There are multiple operations to return {_type.Name} from linking field {_linkingField.Name} with different return types.");
                 }
 

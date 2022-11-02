@@ -337,7 +337,7 @@ public class SqlServerTypeProviderTests : DbTestBase
             var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
             provider.GetOperations(model);
-            model.Operations.Count.ShouldBe(2);
+            model.Operations.Count.ShouldBe(3);
             var op = model.Operations.First(o => o.Name == "ProductSelectAllForDisplay");
             op.RelatedType.ShouldBe(model.Types.SingleOrDefault(t => t.Name == "Product"));
         }
@@ -356,7 +356,7 @@ public class SqlServerTypeProviderTests : DbTestBase
             var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
             provider.GetOperations(model);
-            model.Operations.Count.ShouldBe(2);
+            model.Operations.Count.ShouldBe(3);
             
             var op = model.Operations.First(o => o.Name == "ProductSelectAllForDisplayByCategoryId");
             op.RelatedType.ShouldBe(model.Types.SingleOrDefault(t => t.Name == "Product"));
@@ -367,6 +367,27 @@ public class SqlServerTypeProviderTests : DbTestBase
             var categoryField = product.GetFieldByName("Category");
             op.Parameters[0].RelatedTypeField.ShouldBe(categoryField);
 
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
+    
+    [Fact]
+    public void CanAugmentSimpleStoredProcedureReturnInformationWithDetailsFromDomainType()
+    {
+        var testDbInfo = CreateTestDatabase(TestDbWithRelatedEntitiesAndFunctions);
+        try
+        {
+            var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()));
+            provider.GetOperations(model);
+            model.Operations.Count.ShouldBe(3);
+            var op = model.Operations.First(o => o.Name == "ProductSelectAll");
+            op.RelatedType.ShouldBe(model.Types.SingleOrDefault(t => t.Name == "Product"));
+            var product = model.Types.First(t => t.Name == "Product");
+            op.Returns.SimpleReturnType.ShouldBe(product);
         }
         finally
         {
@@ -455,7 +476,23 @@ public class SqlServerTypeProviderTests : DbTestBase
         GO
         
         EXEC sys.sp_addextendedproperty 'codegen_meta', N'{""applicationtype"":""Product""}', 'schema', N'dbo', 'procedure', N'ProductSelectAllForDisplay';
-        GO    
+        GO
+        
+        create procedure ProductSelectAll AS
+            BEGIN
+                SELECT p.Id,
+                p.Category,
+                p.Name,
+                p.Description,
+                p.Materials,
+                p.UnitPrice,
+                p.Created
+                FROM Product p
+            END;
+        GO
+        
+        EXEC sys.sp_addextendedproperty 'codegen_meta', N'{""applicationtype"":""Product""}', 'schema', N'dbo', 'procedure', N'ProductSelectAll';
+        GO
             
         create procedure ProductSelectAllForDisplayByCategoryId 
             @Category int
