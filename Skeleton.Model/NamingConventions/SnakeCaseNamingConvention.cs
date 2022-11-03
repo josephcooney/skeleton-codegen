@@ -1,4 +1,6 @@
-﻿namespace Skeleton.Model.NamingConventions;
+﻿using System.Linq;
+
+namespace Skeleton.Model.NamingConventions;
 
 public class SnakeCaseNamingConvention : INamingConvention
 {
@@ -6,7 +8,14 @@ public class SnakeCaseNamingConvention : INamingConvention
 
     public SnakeCaseNamingConvention(NamingConventionSettings settings)
     {
-        _settings = settings;
+        if (settings != null)
+        {
+            _settings = settings;
+        }
+        else
+        {
+            _settings = new NamingConventionSettings() { CreatedUserFieldNames = new[]{"created_by"}, ModifiedUserFieldNames = new[]{"modified_by"} };
+        }
     }
 
     public string[] GetNameParts(string name)
@@ -17,5 +26,12 @@ public class SnakeCaseNamingConvention : INamingConvention
     public string CreateParameterNameFromFieldName(string fieldName)
     {
         return fieldName + "_param";
+    }
+    
+    public string SecurityUserIdParameterName => "security_user_id_param";
+    public bool IsTrackingUserFieldName(string fieldName)
+    {
+        return _settings.CreatedUserFieldNames.Contains(fieldName) ||
+               _settings.ModifiedUserFieldNames.Contains(fieldName);
     }
 }

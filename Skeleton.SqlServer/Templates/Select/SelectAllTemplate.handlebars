@@ -2,7 +2,7 @@
 
 CREATE OR ALTER PROCEDURE {{{escape_sql_keyword Namespace}}}.{{FunctionName}}
 {{#each SelectInputFields}}
-{{{escape_sql_keyword Name}}} {{ProviderTypeName}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}}
+@{{{Name}}} {{ProviderTypeName}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}}
 {{/each}}
 AS
     BEGIN

@@ -667,7 +667,7 @@ public class SqlServerTypeProvider : ITypeProvider
             }
             else
             {
-                if (prm.Name == Parameter.SecurityUserIdParamName && !prm.IsNullable)
+                if (prm.Name == _namingConvention.SecurityUserIdParameterName && !prm.IsNullable)
                 {
                     prm.ClrType = MakeClrTypeNullable(prm.ClrType);
                 }
@@ -774,7 +774,7 @@ public class SqlServerTypeProvider : ITypeProvider
         // we only care about the max length for some types - for others like int and datetime it is just telling us how much storage the type uses
         // which we don't really need to concern ourselves with
         var sizeSpecificTypes = new string[]
-            { "char", "binary", "nchar", "nvarchar", "varbinary", "varchar", "text", "ntext" };
+            { "char", "binary", "nchar", "nvarchar", "varbinary", "varchar" };
         if (sizeSpecificTypes.Contains(providerDataType))
         {
             return size;
@@ -922,7 +922,7 @@ ORDER BY r.ROUTINE_NAME, rc.ORDINAL_POSITION;";
                 {
                     while (reader.Read())
                     {
-                        var name = GetField<string>(reader, "PARAMETER_NAME");
+                        var name = GetField<string>(reader, "PARAMETER_NAME").TrimStart('@');
                         var order = GetField<int>(reader, "ORDINAL_POSITION");
                         var dataType = GetField<string>(reader, "DATA_TYPE");
                         var clrType = GetClrTypeForSqlType(dataType);

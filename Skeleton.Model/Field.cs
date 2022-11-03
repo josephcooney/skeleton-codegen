@@ -63,7 +63,7 @@ namespace Skeleton.Model
 
         public bool IsTrackingDate => IsDateTime && (Name == CreatedFieldName || Name == ModifiedFieldName || Name == SoftDeleteFieldName);
 
-        public bool IsTrackingUser => ((ReferencesType != null && ReferencesType.IsSecurityPrincipal) && (Name.StartsWith(CreatedFieldName) || Name.StartsWith(ModifiedFieldName) || (Type is ApplicationType && ((ApplicationType)Type).DeleteType == DeleteType.Soft && Name.StartsWith(DeletedFieldName))));
+        public bool IsTrackingUser => ((ReferencesType != null && ReferencesType.IsSecurityPrincipal) && (Type.Domain.NamingConvention.IsTrackingUserFieldName(Name) || (Type is ApplicationType && ((ApplicationType)Type).DeleteType == DeleteType.Soft && Name.StartsWith(DeletedFieldName))));
 
         public bool IsDelete => (ClrType == typeof(DateTime) || ClrType == typeof(DateTime?)) && Name == SoftDeleteFieldName;
 

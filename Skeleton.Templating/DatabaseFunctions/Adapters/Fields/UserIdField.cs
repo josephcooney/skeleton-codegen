@@ -10,7 +10,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         public UserIdField(Domain domain)
         {
             _domain = domain;
-            Name = Parameter.SecurityUserIdParamName;
+            Name = domain.NamingConvention.SecurityUserIdParameterName;
             ProviderTypeName = domain.UserIdentity.ProviderTypeName;
             HasDisplayName = false;
             Order = 0;

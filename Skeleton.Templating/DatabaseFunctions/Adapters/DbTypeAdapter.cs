@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Serilog;
 using Skeleton.Model;
 using Skeleton.Model.Operations;
 
@@ -449,7 +450,16 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 
         private Field GetFieldsLinkingToOwnedType(ApplicationType type)
         {
-            return type.Fields.SingleOrDefault(f => f.HasReferenceType && f.ReferencesType.Fields.Any(fld => fld.IsTrackingUser));
+            try
+            {
+                return type.Fields.SingleOrDefault(f =>
+                    f.HasReferenceType && f.ReferencesType.Fields.Any(fld => fld.IsTrackingUser));
+            }
+            catch (InvalidOperationException opEx)
+            {
+                Log.Error(opEx, "Multiple linking fields to Owned Type");
+                throw;
+            }
         }
 
         private List<Field> GetRelatingFields(ApplicationType type)

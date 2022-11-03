@@ -16,9 +16,7 @@ namespace Skeleton.Model
         public Operation Operation { get; }
         
         public dynamic Attributes { get; set; }
-
-        public const string SecurityUserIdParamName = "security_user_id_param";
-
+        
         public virtual string Name { get; set; }
 
         public virtual int Order { get; set; }
@@ -72,7 +70,7 @@ namespace Skeleton.Model
         {
             get
             {
-                return Name == SecurityUserIdParamName && (ClrType == _domain.UserIdentity.ClrType || (!ClrTypeIsNullable(_domain.UserIdentity.ClrType) && ClrType == MakeClrTypeNullable(_domain.UserIdentity.ClrType)));
+                return Name == _domain.NamingConvention.SecurityUserIdParameterName  && (ClrType == _domain.UserIdentity.ClrType || (!ClrTypeIsNullable(_domain.UserIdentity.ClrType) && ClrType == MakeClrTypeNullable(_domain.UserIdentity.ClrType)));
             }
         }
 

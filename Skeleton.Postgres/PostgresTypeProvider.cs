@@ -1737,7 +1737,7 @@ AND KCU1.TABLE_SCHEMA = '{type.Namespace}'
                 }
                 else
                 {
-                    if (prm.Name == Parameter.SecurityUserIdParamName && !prm.IsNullable)
+                    if (prm.Name == _namingConvention.SecurityUserIdParameterName && !prm.IsNullable)
                     {
                         prm.ClrType = MakeClrTypeNullable(prm.ClrType);
                     }

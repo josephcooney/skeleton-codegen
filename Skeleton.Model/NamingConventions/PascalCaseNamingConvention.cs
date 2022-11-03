@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Skeleton.Model.NamingConventions;
@@ -11,7 +12,14 @@ public class PascalCaseNamingConvention : INamingConvention
     
     public PascalCaseNamingConvention(NamingConventionSettings settings)
     {
-        _settings = settings;
+        if (settings != null)
+        {
+            _settings = settings;
+        }
+        else
+        {
+            _settings = new NamingConventionSettings() { CreatedUserFieldNames = new[]{"CreatedBy"}, ModifiedUserFieldNames = new[]{"ModifiedBy"} };
+        }
     }
 
     public string[] GetNameParts(string name)
@@ -35,5 +43,12 @@ public class PascalCaseNamingConvention : INamingConvention
     public string CreateParameterNameFromFieldName(string fieldName)
     {
         return fieldName + "Param";
+    }
+
+    public string SecurityUserIdParameterName => "SecurityUserIdParam";
+    public bool IsTrackingUserFieldName(string fieldName)
+    {
+        return _settings.CreatedUserFieldNames.Contains(fieldName) ||
+               _settings.ModifiedUserFieldNames.Contains(fieldName);
     }
 }

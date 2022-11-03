@@ -362,6 +362,7 @@ public class SqlServerTypeProviderTests : DbTestBase
             op.RelatedType.ShouldBe(model.Types.SingleOrDefault(t => t.Name == "Product"));
             op.Parameters.Count.ShouldBe(1);
             op.Parameters[0].RelatedTypeField.ShouldNotBeNull();
+            op.Parameters[0].Name.ShouldBe("Category");
             
             var product = model.Types.First(t => t.Name == "Product");
             var categoryField = product.GetFieldByName("Category");
