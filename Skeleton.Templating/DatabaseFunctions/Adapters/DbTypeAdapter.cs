@@ -87,7 +87,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         {
             get
             {
-                var field = _applicationType.Fields.FirstOrDefault(f => f.IsTrackingUser && f.Name.StartsWith(Field.CreatedFieldName));
+                var field = _applicationType.Fields.FirstOrDefault(f => f.IsTrackingUser && _domain.NamingConvention.IsCreatedByFieldName(f.Name));
                 if (field != null)
                 {
                     return _domain.TypeProvider.CreateFieldAdapter(field, this);
@@ -102,7 +102,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         {
             get
             {
-                var field = _applicationType.Fields.FirstOrDefault(f => f.IsTrackingUser && f.Name.StartsWith(Field.ModifiedFieldName));
+                var field = _applicationType.Fields.FirstOrDefault(f => f.IsTrackingUser && _domain.NamingConvention.IsModifiedByFieldName(f.Name));
                 if (field != null)
                 {
                     return _domain.TypeProvider.CreateFieldAdapter(field, this);
@@ -452,12 +452,12 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         {
             try
             {
-                return type.Fields.SingleOrDefault(f =>
+                return type.Fields.FirstOrDefault(f =>
                     f.HasReferenceType && f.ReferencesType.Fields.Any(fld => fld.IsTrackingUser));
             }
             catch (InvalidOperationException opEx)
             {
-                Log.Error(opEx, "Multiple linking fields to Owned Type");
+                Log.Error(opEx, "Multiple linking fields to Owned Type for Type {ApplicationType}", _applicationType.Name);
                 throw;
             }
         }
@@ -477,7 +477,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 
             if (HasCreatedByField)
             {
-                sb.AppendLine($"{aliasExp}{CreatedByField.Name} = {currentUserIdentifier}");
+                sb.AppendLine($"{aliasExp}{CreatedByField.Name} = {_domain.TypeProvider.FormatOperationParameterName(FunctionName, currentUserIdentifier)}");
             }
 
             if (HasCreatedByField && HasModifiedByField)
@@ -487,7 +487,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 
             if (HasModifiedByField)
             {
-                sb.AppendLine($"{aliasExp}{ModifiedByField.Name} = {currentUserIdentifier}");
+                sb.AppendLine($"{aliasExp}{ModifiedByField.Name} = {_domain.TypeProvider.FormatOperationParameterName(FunctionName, currentUserIdentifier)}");
             }
         }
     }

@@ -23,13 +23,9 @@ namespace Skeleton.Model
         public const string SoftDeleteFieldName = "deleted_date";
 
         public const string SearchFieldName = "search_content";
-
-        public const string ContentTypeFieldName = "content_type";
-
+        
         public const string IdFieldName = "id";
-
-        public const string ThumbnailFieldName = "thumbnail";
-
+        
         public const string ColorFieldType = "color";
 
         public const string ThumbnailFieldType = "thumbnail";
@@ -61,9 +57,9 @@ namespace Skeleton.Model
 
         public bool IsUserEditable => IsCallerProvided && !IsAttachmentThumbnail && !IsAttachmentContentType;
 
-        public bool IsTrackingDate => IsDateTime && (Name == CreatedFieldName || Name == ModifiedFieldName || Name == SoftDeleteFieldName);
+        public bool IsTrackingDate => IsDateTime && (Name == CreatedFieldName || Name == ModifiedFieldName || (Type is ApplicationType && ((ApplicationType)Type).DeleteType == DeleteType.Soft && Name.StartsWith(DeletedFieldName)));
 
-        public bool IsTrackingUser => ((ReferencesType != null && ReferencesType.IsSecurityPrincipal) && (Type.Domain.NamingConvention.IsTrackingUserFieldName(Name) || (Type is ApplicationType && ((ApplicationType)Type).DeleteType == DeleteType.Soft && Name.StartsWith(DeletedFieldName))));
+        public bool IsTrackingUser => (ReferencesType != null && ReferencesType.IsSecurityPrincipal) && (Type.Domain.NamingConvention.IsTrackingUserFieldName(Name));
 
         public bool IsDelete => (ClrType == typeof(DateTime) || ClrType == typeof(DateTime?)) && Name == SoftDeleteFieldName;
 
@@ -102,8 +98,7 @@ namespace Skeleton.Model
         {
             get
             {
-                return Attributes?.isContentType == true || (UnderlyingType.IsAttachment && ClrType == typeof(string) &&
-                                                             Name == ContentTypeFieldName);
+                return Attributes?.isContentType == true || (UnderlyingType.IsAttachment && ClrType == typeof(string) && Type.Domain.NamingConvention.IsCreatedByFieldName(Name));
             }
         }
 
@@ -111,8 +106,7 @@ namespace Skeleton.Model
         {
             get
             {
-                return Attributes?.type == ThumbnailFieldType || (UnderlyingType.IsAttachment && IsFile &&
-                                                                  Name == ThumbnailFieldName);
+                return Attributes?.type == ThumbnailFieldType || (UnderlyingType.IsAttachment && IsFile && Type.Domain.NamingConvention.IsThumbnailFieldName(Name));
             }
         }
 

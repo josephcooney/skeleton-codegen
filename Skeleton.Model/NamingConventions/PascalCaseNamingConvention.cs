@@ -5,9 +5,8 @@ using System.Text.RegularExpressions;
 
 namespace Skeleton.Model.NamingConventions;
 
-public class PascalCaseNamingConvention : INamingConvention
+public class PascalCaseNamingConvention : NamingConventionBase, INamingConvention
 {
-    private readonly NamingConventionSettings _settings;
     Regex _namePartRegex = new Regex(@"([A-Z][a-z]+|[A-Z]+[A-Z]|[A-Z]|[^A-Za-z]+[^A-Za-z])", RegexOptions.RightToLeft);
     
     public PascalCaseNamingConvention(NamingConventionSettings settings)
@@ -18,10 +17,15 @@ public class PascalCaseNamingConvention : INamingConvention
         }
         else
         {
-            _settings = new NamingConventionSettings() { CreatedUserFieldNames = new[]{"CreatedBy"}, ModifiedUserFieldNames = new[]{"ModifiedBy"} };
+            _settings = new NamingConventionSettings();
         }
-    }
 
+        _settings.CreatedUserFieldNames = SetDefaultIfNotProvided(_settings.CreatedUserFieldNames, "CreatedBy");
+        _settings.ModifiedUserFieldNames = SetDefaultIfNotProvided(_settings.ModifiedUserFieldNames, "ModifiedBy");
+        _settings.ThumbnailFieldNames = SetDefaultIfNotProvided(_settings.ThumbnailFieldNames, "Thumbnail");
+        _settings.ContentTypeFieldNames = SetDefaultIfNotProvided(_settings.ContentTypeFieldNames, "ContentType");
+    }
+    
     public string[] GetNameParts(string name)
     {
         if (string.IsNullOrEmpty(name))
@@ -46,9 +50,4 @@ public class PascalCaseNamingConvention : INamingConvention
     }
 
     public string SecurityUserIdParameterName => "SecurityUserIdParam";
-    public bool IsTrackingUserFieldName(string fieldName)
-    {
-        return _settings.CreatedUserFieldNames.Contains(fieldName) ||
-               _settings.ModifiedUserFieldNames.Contains(fieldName);
-    }
 }

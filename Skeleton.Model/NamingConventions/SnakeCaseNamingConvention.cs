@@ -2,10 +2,8 @@
 
 namespace Skeleton.Model.NamingConventions;
 
-public class SnakeCaseNamingConvention : INamingConvention
+public class SnakeCaseNamingConvention : NamingConventionBase, INamingConvention
 {
-    private readonly NamingConventionSettings _settings;
-
     public SnakeCaseNamingConvention(NamingConventionSettings settings)
     {
         if (settings != null)
@@ -14,8 +12,13 @@ public class SnakeCaseNamingConvention : INamingConvention
         }
         else
         {
-            _settings = new NamingConventionSettings() { CreatedUserFieldNames = new[]{"created_by"}, ModifiedUserFieldNames = new[]{"modified_by"} };
+            _settings = new NamingConventionSettings();
         }
+
+        _settings.CreatedUserFieldNames = SetDefaultIfNotProvided(_settings.CreatedUserFieldNames, "created_by");
+        _settings.ModifiedUserFieldNames = SetDefaultIfNotProvided(_settings.ModifiedUserFieldNames, "modified_by");
+        _settings.ThumbnailFieldNames = SetDefaultIfNotProvided(_settings.ThumbnailFieldNames, "thumbnail");
+        _settings.ContentTypeFieldNames = SetDefaultIfNotProvided(_settings.ContentTypeFieldNames, "content_type");
     }
 
     public string[] GetNameParts(string name)
@@ -29,9 +32,4 @@ public class SnakeCaseNamingConvention : INamingConvention
     }
     
     public string SecurityUserIdParameterName => "security_user_id_param";
-    public bool IsTrackingUserFieldName(string fieldName)
-    {
-        return _settings.CreatedUserFieldNames.Contains(fieldName) ||
-               _settings.ModifiedUserFieldNames.Contains(fieldName);
-    }
 }
