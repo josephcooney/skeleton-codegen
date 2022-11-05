@@ -208,7 +208,7 @@ public class SqlServerTypeProviderTests : DbTestBase
             operation.Parameters.Count.ShouldBe(1);
 
             var parameter = operation.Parameters.First();
-            parameter.Name.ShouldBe("@categoryId");
+            parameter.Name.ShouldBe("categoryId");
             parameter.ProviderTypeName.ShouldBe("int");
             parameter.ClrType.ShouldBe(typeof(int));
 
@@ -406,14 +406,13 @@ public class SqlServerTypeProviderTests : DbTestBase
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
             provider.GetOperations(model);
             model.Operations.Count.ShouldBe(1);
-
-            model.ResultTypes.Count.ShouldBe(1);
             
             var op = model.Operations.First();
             op.Parameters.Count.ShouldBe(3);
             var customTypeParam = op.Parameters.Single(p => p.Name == "ValidationStatusToAdd");
             customTypeParam.ProviderTypeName.ShouldBe("ValidationStatusNew");
-
+            
+            model.ResultTypes.Count(t => t.Name == customTypeParam.ProviderTypeName).ShouldBe(1);    
         }
         finally
         {

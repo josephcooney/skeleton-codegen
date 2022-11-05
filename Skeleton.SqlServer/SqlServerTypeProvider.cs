@@ -927,6 +927,18 @@ ORDER BY r.ROUTINE_NAME, rc.ORDINAL_POSITION;";
                         var dataType = GetField<string>(reader, "DATA_TYPE");
                         var clrType = GetClrTypeForSqlType(dataType);
 
+                        if (dataType == "table type")
+                        {
+                            var customTypeSchema = GetField<string>(reader, "USER_DEFINED_TYPE_SCHEMA");
+                            dataType = GetField<string>(reader, "USER_DEFINED_TYPE_NAME");
+                            clrType = typeof(ResultType);
+
+                            if (!domain.ResultTypes.Any(t => t.Name == dataType && t.Namespace == customTypeSchema))
+                            {
+                                ReadCustomOperationType(dataType, customTypeSchema, domain, op.RelatedType);
+                            }
+                        }
+                        
                         var parameter = new Parameter(domain, op) { Name = name, Order = order, ProviderTypeName = dataType, ClrType = clrType};
                         parameters.Add(parameter);
                     }
@@ -937,6 +949,67 @@ ORDER BY r.ROUTINE_NAME, rc.ORDINAL_POSITION;";
         return parameters;
     }
 
+    private void ReadCustomOperationType(string dataType, string customTypeSchema, Domain domain, ApplicationType applicationType)
+    {
+        var attributes = GetAttributes(customTypeSchema, dataType, "TYPE");
+        var appType = applicationType;
+        dynamic attribJson = null;
+        if (!string.IsNullOrEmpty(attributes))
+        {
+            attribJson = ReadAttributes(attributes);
+            if (!string.IsNullOrEmpty(attribJson?.applicationtype.ToString()))
+            {
+                appType = domain.Types.SingleOrDefault(t => t.Name == attribJson?.applicationtype.ToString());
+            }
+        }
+        
+        var result = new ResultType(dataType, customTypeSchema, applicationType, true, domain);
+        result.Attributes = attribJson;
+        
+        using (var cn = new SqlConnection(_connectionString))
+        {
+            cn.Open();
+            using (var cmd = new SqlCommand(UserDefinedTypeColumnQuery, cn))
+            {
+                cmd.Parameters.Add(new SqlParameter("@Schema", customTypeSchema));
+                cmd.Parameters.Add(new SqlParameter("@TypeName", dataType));
+                
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var fld = new Field(result);
+                        fld.Name = SanitizeFieldName(GetField<string>(reader, "name"));
+                        fld.Order = GetField<int>(reader, "column_id");
+                        fld.ProviderTypeName = GetField<string>(reader, "system_type_name");
+                        fld.ClrType = GetClrTypeForSqlType(fld.ProviderTypeName);
+                        int? maxLength = reader["max_length"] == DBNull.Value
+                            ? null
+                            : (short)reader["max_length"];
+                        fld.Size = SanitizeSize(maxLength, fld.ProviderTypeName);
+                        
+                        result.Fields.Add(fld);
+                    }
+                }
+            }
+        }
+        
+        domain.ResultTypes.Add(result);
+    }
+
+    private const string UserDefinedTypeColumnQuery = @"select
+    c.*,
+    type_name(c.system_type_id) as system_type_name
+    from sys.table_types t
+    inner join sys.schemas AS s
+        ON t.[schema_id] = s.[schema_id]
+    inner join sys.columns c
+        on c.[object_id] = t.type_table_object_id
+    where is_user_defined = 1
+        AND s.name = @Schema
+        AND t.name = @TypeName
+    ";
+    
     private dynamic? ReadAttributes(string attributes)
     {
         if (string.IsNullOrEmpty(attributes))

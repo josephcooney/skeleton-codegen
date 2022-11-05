@@ -78,6 +78,7 @@ public class PostgresTypeProviderTests
             var customTypeParam = op.Parameters.Single(p => p.Name == "government_area_to_add");
             customTypeParam.ProviderTypeName.ShouldBe("government_area_new");
             customTypeParam.ClrType.ShouldBe(typeof(ResultType));
+            model.ResultTypes.Count(t => t.Name == customTypeParam.ProviderTypeName).ShouldBe(1);
         }
         finally
         {
