@@ -40,4 +40,14 @@ public class NamingConventionBase
     {
         return _settings.ContentTypeFieldNames.Contains(fieldName);
     }
+    
+    public bool IsCreatedTimestampFieldName(string fieldName)
+    {
+        return _settings.CreatedTimestampFieldNames.Contains(fieldName);
+    }
+
+    public bool IsModifiedTimestampFieldName(string fieldName)
+    {
+        return _settings.ModifiedTimestampFieldNames.Contains(fieldName);
+    }
 }

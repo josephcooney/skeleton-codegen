@@ -32,7 +32,7 @@ namespace Skeleton.Tests
             var orderType = new ApplicationType("order", TestNamespace, domain);
             var orderIdField = new Field(orderType){Name = "id", ClrType = typeof(System.Guid), ProviderTypeName = "uuid", IsKey = true, IsRequired = true};
             orderType.Fields.Add(orderIdField);
-            orderType.Fields.Add(new Field(orderType){Name = Field.CreatedFieldName, ClrType = typeof(DateTime), ProviderTypeName = "timestamp with time zone", IsRequired = true});
+            orderType.Fields.Add(new Field(orderType){Name = "created", ClrType = typeof(DateTime), ProviderTypeName = "timestamp with time zone", IsRequired = true});
             orderType.Fields.Add(new Field(orderType) { Name = "delivery_instructions", ClrType = typeof(string), ProviderTypeName = "text", IsRequired = false });
             orderType.Fields.Add(new Field(orderType) { Name = "customer_id", ClrType = typeof(int), ProviderTypeName = "integer", IsRequired = true, ReferencesType = customerType, ReferencesTypeField = customerIdField});
             domain.Types.Add(orderType);

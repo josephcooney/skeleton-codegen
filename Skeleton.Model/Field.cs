@@ -14,10 +14,6 @@ namespace Skeleton.Model
             Type = type;
         }
 
-        public const string ModifiedFieldName = "modified";
-
-        public const string CreatedFieldName = "created";
-
         public const string DeletedFieldName = "deleted";
         
         public const string SoftDeleteFieldName = "deleted_date";
@@ -57,8 +53,12 @@ namespace Skeleton.Model
 
         public bool IsUserEditable => IsCallerProvided && !IsAttachmentThumbnail && !IsAttachmentContentType;
 
-        public bool IsTrackingDate => IsDateTime && (Name == CreatedFieldName || Name == ModifiedFieldName || (Type is ApplicationType && ((ApplicationType)Type).DeleteType == DeleteType.Soft && Name.StartsWith(DeletedFieldName)));
+        public bool IsTrackingDate => IsCreatedDate || IsModifiedDate || (Type is ApplicationType && ((ApplicationType)Type).DeleteType == DeleteType.Soft && Name.StartsWith(DeletedFieldName));
 
+        public bool IsCreatedDate => IsDate && Type.Domain.NamingConvention.IsCreatedTimestampFieldName(Name);
+
+        public bool IsModifiedDate => IsDate && Type.Domain.NamingConvention.IsModifiedTimestampFieldName(Name);
+        
         public bool IsTrackingUser => (ReferencesType != null && ReferencesType.IsSecurityPrincipal) && (Type.Domain.NamingConvention.IsTrackingUserFieldName(Name));
 
         public bool IsDelete => (ClrType == typeof(DateTime) || ClrType == typeof(DateTime?)) && Name == SoftDeleteFieldName;

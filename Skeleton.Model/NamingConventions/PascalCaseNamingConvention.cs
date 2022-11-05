@@ -24,6 +24,8 @@ public class PascalCaseNamingConvention : NamingConventionBase, INamingConventio
         _settings.ModifiedUserFieldNames = SetDefaultIfNotProvided(_settings.ModifiedUserFieldNames, "ModifiedBy");
         _settings.ThumbnailFieldNames = SetDefaultIfNotProvided(_settings.ThumbnailFieldNames, "Thumbnail");
         _settings.ContentTypeFieldNames = SetDefaultIfNotProvided(_settings.ContentTypeFieldNames, "ContentType");
+        _settings.CreatedTimestampFieldNames = SetDefaultIfNotProvided(_settings.CreatedTimestampFieldNames, "Created");
+        _settings.ModifiedTimestampFieldNames = SetDefaultIfNotProvided(_settings.ModifiedTimestampFieldNames, "Modified");
     }
     
     public string[] GetNameParts(string name)
@@ -50,4 +52,5 @@ public class PascalCaseNamingConvention : NamingConventionBase, INamingConventio
     }
 
     public string SecurityUserIdParameterName => "SecurityUserIdParam";
+
 }

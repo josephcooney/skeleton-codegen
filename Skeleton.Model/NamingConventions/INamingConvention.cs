@@ -16,4 +16,8 @@ public interface INamingConvention
     bool IsThumbnailFieldName(string fieldName);
 
     bool IsContentTypeFieldName(string fieldName);
+
+    bool IsCreatedTimestampFieldName(string fieldName);
+
+    bool IsModifiedTimestampFieldName(string fieldName);
 }
