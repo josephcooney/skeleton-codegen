@@ -395,6 +395,31 @@ public class SqlServerTypeProviderTests : DbTestBase
             DestroyTestDb(testDbInfo.dbName);
         }
     }
+
+    [Fact]
+    public void CanCreateResultTypeAsParameterForStoredProcedure()
+    {
+        var testDbInfo = CreateTestDatabase(TestDatbaseWithStoredProcThatTakesCustomInsertTypeAsParam);
+        try
+        {
+            var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()));
+            provider.GetOperations(model);
+            model.Operations.Count.ShouldBe(1);
+
+            model.ResultTypes.Count.ShouldBe(1);
+            
+            var op = model.Operations.First();
+            op.Parameters.Count.ShouldBe(3);
+            var customTypeParam = op.Parameters.Single(p => p.Name == "ValidationStatusToAdd");
+            customTypeParam.ProviderTypeName.ShouldBe("ValidationStatusNew");
+
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
     
     private const string TestDbScript = @"
         create table simple_lookup_table (
@@ -533,6 +558,61 @@ public class SqlServerTypeProviderTests : DbTestBase
             Price as (UnitPrice * Quantity)
         );
     ";
+
+    private const string TestDatbaseWithStoredProcThatTakesCustomInsertTypeAsParam = @"
+CREATE TABLE [User] (
+    Id int identity primary key NOT NULL,
+    Name text NULL,
+    IsSystem bit NOT NULL,
+    UserName nvarchar(250) NOT NULL,
+    Created datetimeoffset not null,
+    CreatedBy int NOT NULL references [User](Id),
+    CONSTRAINT UserName_Unique UNIQUE (UserName)
+);
+GO
+
+create table ValidationStatus (
+	   Id int identity primary key not null,
+	   Name varchar(50) not null,
+	   CreatedBy int not null references [User](id),
+	   Created datetimeoffset not null,
+	   ModifiedBy int references [User](id),
+	   Modified datetimeoffset
+);
+GO
+
+CREATE TYPE ValidationStatusNew AS TABLE (
+	Name varchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Created datetimeoffset NULL,
+	Modified datetimeoffset NULL
+);
+GO
+
+CREATE   PROCEDURE dbo.ValidationStatusInsert 
+    @SecurityUserIdParam int,
+    @CreatedBy int,
+    @ValidationStatusToAdd dbo.ValidationStatusNew READONLY
+AS
+    BEGIN
+
+
+        insert into ValidationStatus (
+            Name,
+            CreatedBy,
+            Created,
+            Modified
+        )
+
+        SELECT 
+        Name,
+        @CreatedBy,
+        Created,
+        Modified
+        FROM @ValidationStatusToAdd
+
+        SELECT scope_identity();
+    END;
+";
     
     private const string AndViewToSchema = @"        
         create view ProductsCreatedToday AS
