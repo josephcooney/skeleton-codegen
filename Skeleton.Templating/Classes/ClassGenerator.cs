@@ -40,7 +40,7 @@ namespace Skeleton.Templating.Classes
                     var repo = new RepositoryAdapter(domain, type);
                     if (repo.Operations.Any())
                     {
-                        var file = new CodeFile { Name = Util.CSharpNameFromName(type.Name) + "Repository.cs", Contents = GenerateRepo(repo) };
+                        var file = new CodeFile { Name = Util.CSharpNameFromName(type.Name) + "Repository.cs", Contents = GenerateRepo(repo, domain.TypeProvider) };
                         files.Add(file);
                     }
                 }
@@ -200,9 +200,9 @@ namespace Skeleton.Templating.Classes
             return Util.GetCompiledTemplate("ReturnType")(new ClassAdapter(simpleType, domain));
         }
 
-        private string GenerateRepo(RepositoryAdapter adapter)
+        private string GenerateRepo(RepositoryAdapter adapter, ITypeProvider typeProvider)
         {
-            var templateFunction = Util.GetCompiledTemplate("Repository");
+            var templateFunction =  Util.GetCompiledTemplateFromTypeProvider("Repository", typeProvider);
             try
             {
                 return templateFunction(adapter);
@@ -229,12 +229,14 @@ namespace Skeleton.Templating.Classes
         }
         private string GenerateRepoBase(Domain dom)
         {
-            return Util.GetCompiledTemplate("RepositoryBase")(dom);
+            var templateFunction =  Util.GetCompiledTemplateFromTypeProvider("RepositoryBase", dom.TypeProvider);
+            return templateFunction(dom);
         }
 
         private string GeneratRepositoryeModule(Domain domain)
         {
-            return Util.GetCompiledTemplate("RepositoryModule")(new DomainAdapter(domain));
+            var templateFunction =  Util.GetCompiledTemplateFromTypeProvider("RepositoryModule", domain.TypeProvider);
+            return templateFunction(new DomainAdapter(domain));
         }
 
         private string GenerateController(ApplicationType applicationType, Domain domain)

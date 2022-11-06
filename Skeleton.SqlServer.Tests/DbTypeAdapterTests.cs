@@ -19,9 +19,10 @@ public class DbTypeAdapterTests : DbTestBase
             var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
             var type = model.Types.First(t => t.Name == "Product");
-            var adapter = new DbTypeAdapter(type, "product_insert", OperationType.Insert, model);
+            var adapter = new DbTypeAdapter(type, "insert", OperationType.Insert, model);
             var idField = adapter.InsertFields.SingleOrDefault(f => f.Name == "Id");
             idField.ShouldBeNull();
+            adapter.FunctionName.ShouldBe("ProductInsert");
         }
         finally
         {

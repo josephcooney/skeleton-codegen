@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Skeleton.Model.NamingConventions;
 
@@ -34,4 +35,8 @@ public class SnakeCaseNamingConvention : NamingConventionBase, INamingConvention
     }
     
     public string SecurityUserIdParameterName => "security_user_id_param";
+    public string CreateNameFromFragments(List<string> fragments)
+    {
+        return string.Join('_', fragments);
+    }
 }

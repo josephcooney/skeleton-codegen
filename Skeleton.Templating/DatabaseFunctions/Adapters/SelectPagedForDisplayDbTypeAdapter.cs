@@ -6,7 +6,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 {
     public class SelectPagedForDisplayDbTypeAdapter : SelectForDisplayDbTypeAdapter
     {
-        public SelectPagedForDisplayDbTypeAdapter(ApplicationType applicationType, Domain domain) : base(applicationType, "select_paged_for_display", domain)
+        public SelectPagedForDisplayDbTypeAdapter(ApplicationType applicationType, Domain domain) : base(applicationType, new []{"select", "paged", "for", "display"}, domain)
         {
         }
         

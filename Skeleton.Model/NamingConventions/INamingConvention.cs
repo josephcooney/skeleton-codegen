@@ -1,4 +1,6 @@
-﻿namespace Skeleton.Model.NamingConventions;
+﻿using System.Collections.Generic;
+
+namespace Skeleton.Model.NamingConventions;
 
 public interface INamingConvention
 {
@@ -20,4 +22,7 @@ public interface INamingConvention
     bool IsCreatedTimestampFieldName(string fieldName);
 
     bool IsModifiedTimestampFieldName(string fieldName);
+
+    string CreateNameFromFragments(List<string> fragments);
+    bool EndsWithParts(string name, string[] parts);
 }

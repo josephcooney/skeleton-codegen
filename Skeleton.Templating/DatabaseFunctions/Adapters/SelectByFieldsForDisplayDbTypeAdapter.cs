@@ -8,7 +8,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
     {
         private readonly List<Field> _selectFields;
 
-        public SelectByFieldsForDisplayDbTypeAdapter(ApplicationType applicationType, string operation, List<Field> selectFields, Domain domain) : base(applicationType, operation, domain)
+        public SelectByFieldsForDisplayDbTypeAdapter(ApplicationType applicationType, string[] operation, List<Field> selectFields, Domain domain) : base(applicationType, operation, domain)
         {
             _selectFields = selectFields;
         }

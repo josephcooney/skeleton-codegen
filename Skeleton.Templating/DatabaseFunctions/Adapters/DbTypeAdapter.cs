@@ -11,11 +11,11 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
     public class DbTypeAdapter : IOperationPrototype
     {
         protected readonly ApplicationType _applicationType;
-        private readonly string _operation;
+        private readonly string[] _operation;
         private readonly Domain _domain;
 
 
-        public DbTypeAdapter(ApplicationType applicationType, string operation, OperationType operationType, Domain domain)
+        public DbTypeAdapter(ApplicationType applicationType, string[] operation, OperationType operationType, Domain domain)
         {
             _applicationType = applicationType;
             _operation = operation;
@@ -252,7 +252,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 
         public bool HasExcludedFields => _applicationType.Fields.Any(f => f.IsExcludedFromResults);
 
-        public virtual string FunctionName => _applicationType.Name + "_" + _operation;
+        public virtual string FunctionName => _domain.NamingConvention.CreateNameFromFragments(new List<string>(){_applicationType.Name, _operation});
 
         public OperationType OperationType { get; }
 
@@ -421,9 +421,9 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         }
 
         public string AddManyArrayItemVariableName => "item";
-        public string NewRecordParameterName => Name + "_to_add";
+        public string NewRecordParameterName =>  _domain.NamingConvention.CreateNameFromFragments(new List<string> {Name, "to", "add"});
 
-        public string NewTypeName => Name + "_new";
+        public string NewTypeName => _domain.NamingConvention.CreateNameFromFragments(new List<string> {Name, "new"});
 
         public bool UsesCustomInsertType
         {

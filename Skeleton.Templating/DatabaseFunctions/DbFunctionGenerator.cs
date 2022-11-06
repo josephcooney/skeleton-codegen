@@ -12,7 +12,7 @@ namespace Skeleton.Templating.DatabaseFunctions
     public class DbFunctionGenerator
     {
         public const string SqlExtension = ".sql";
-        public const string SelectAllForDisplayFunctionName = "select_all_for_display";
+        public static readonly string[] SelectAllForDisplayFunctionName = new []{"select", "all", "for", "display"};
         public const string SelectForDisplayFunctionName = "select_for_display";
         public const string SearchFunctionName = "search";
         public const string InsertFunctionName = "insert";
@@ -41,7 +41,7 @@ namespace Skeleton.Templating.DatabaseFunctions
                         files.Add(GenerateSecurityPoicy(type, domain));
                     }
 
-                    var adapter = new DbTypeAdapter(type, UpdateFunctionName, OperationType.Update, domain);
+                    var adapter = new DbTypeAdapter(type, new []{UpdateFunctionName}, OperationType.Update, domain);
                     if (domain.TypeProvider.GenerateCustomTypes && adapter.HasExcludedFields)
                     {
                         files.Add(GenerateResultType(type, domain));
@@ -174,43 +174,43 @@ namespace Skeleton.Templating.DatabaseFunctions
 
         private CodeFile GenerateSelectByRelatedTypeFunction(ApplicationType type, Field field, Domain domain)
         {
-            var adapter = new SelectByFieldsDbTypeAdapter(type, $"select_by_{field.Name}", new List<Field> { field }, OperationType.Select, domain, false);
+            var adapter = new SelectByFieldsDbTypeAdapter(type, new []{"select", "by", field.Name}, new List<Field> { field }, OperationType.Select, domain, false);
             return GenerateTemplateFromAdapter(adapter, "SelectByForeignKeyTemplate");
         }
         
         private CodeFile GeneratePagedSelectByRelatedTypeFunction(ApplicationType type, Field field, Domain domain)
         {
-            var adapter = new SelectPagedByFieldsDbTypeAdapter(type, $"select_paged_by_{field.Name}", new List<Field> { field }, OperationType.Select, domain);
+            var adapter = new SelectPagedByFieldsDbTypeAdapter(type, new []{"select", "paged", "by", field.Name}, new List<Field> { field }, OperationType.Select, domain);
             return GenerateTemplateFromAdapter(adapter, "SelectPagedByForeignKey");
         }
 
         private CodeFile GenerateSelectAllForDisplayByRelatedTypeFunction(ApplicationType type, Field field, Domain domain)
         {
-            var adapter = new SelectByFieldsForDisplayDbTypeAdapter(type, $"select_for_display_by_{field.Name}", new List<Field> { field }, domain);
+            var adapter = new SelectByFieldsForDisplayDbTypeAdapter(type, new []{"select", "for", "display", "by", field.Name}, new List<Field> { field }, domain);
             return GenerateTemplateFromAdapter(adapter, "SelectAllForDisplayByForeignKeyTemplate");
         }
         
         private CodeFile GeneratePagedSelectForDisplayByRelatedTypeFunction(ApplicationType type, Field field, Domain domain)
         {
-            var adapter = new SelectPagedByFieldsForDisplayDbTypeAdapter(type, $"select_paged_for_display_by_{field.Name}", new List<Field> { field }, domain);
+            var adapter = new SelectPagedByFieldsForDisplayDbTypeAdapter(type, new []{"select", "paged", "for", "display", "by", field.Name}, new List<Field> { field }, domain);
             return GenerateTemplateFromAdapter(adapter, "SelectPagedForDisplayByForeignKey");
         }
 
         private CodeFile GenerateSelectByPrimaryKeyFunction(ApplicationType type, Field field, Domain domain)
         {
-            var adapter = new SelectByFieldsDbTypeAdapter(type, $"select_by_{field.Name}", new List<Field> {field}, OperationType.Select, domain, true);
+            var adapter = new SelectByFieldsDbTypeAdapter(type, new []{"select", "by", field.Name}, new List<Field> {field}, OperationType.Select, domain, true);
             return GenerateTemplateFromAdapter(adapter, "SelectByForeignKeyTemplate");
         }
 
         private CodeFile GenerateSelectByConstraint(ApplicationType type, Constraint constraint, Domain domain)
         {
-            var adapter = new SelectByFieldsDbTypeAdapter(type, $"select_by_{constraint.Name}", constraint.Fields, OperationType.Select, domain, false);
+            var adapter = new SelectByFieldsDbTypeAdapter(type, new []{"select", "by", constraint.Name}, constraint.Fields, OperationType.Select, domain, false);
             return GenerateTemplateFromAdapter(adapter, "SelectByForeignKeyTemplate");
         }
 
         private CodeFile GenerateInsertFunction(ApplicationType applicationType, Domain domain)
         {
-            var adapter = new DbTypeAdapter(applicationType, "insert", OperationType.Insert, domain);
+            var adapter = new DbTypeAdapter(applicationType, new []{"insert"}, OperationType.Insert, domain);
             if (adapter.AddMany)
             {
                 return GenerateTemplateFromAdapter(adapter, DbTemplates.InsertMany);
@@ -223,7 +223,7 @@ namespace Skeleton.Templating.DatabaseFunctions
 
         private CodeFile GenerateSelectAllFunction(ApplicationType applicationType, Domain domain)
         {
-            var adapter = new DbTypeAdapter(applicationType, "select_all", OperationType.Select, domain);
+            var adapter = new DbTypeAdapter(applicationType, new []{"select", "all"}, OperationType.Select, domain);
             return GenerateTemplateFromAdapter(adapter, "SelectAllTemplate");
         }
 
@@ -235,19 +235,19 @@ namespace Skeleton.Templating.DatabaseFunctions
         
         private CodeFile GenerateDisplayType(ApplicationType type, Domain domain)
         {
-            var adapter = new SelectForDisplayDbTypeAdapter(type, "display", domain);
+            var adapter = new SelectForDisplayDbTypeAdapter(type, new []{"display"} , domain);
             return GenerateTemplateFromAdapter(adapter, "DisplayType");
         }
 
         private CodeFile GenerateResultType(ApplicationType applicationType, Domain domain)
         {
-            var adapter = new DbTypeAdapter(applicationType, "result", OperationType.None, domain);
+            var adapter = new DbTypeAdapter(applicationType, new []{"result"} , OperationType.None, domain);
             return GenerateTemplateFromAdapter(adapter, "ResultType");
         }
         
         private CodeFile GenerateInsertType(ApplicationType applicationType, Domain domain)
         {
-            var adapter = new DbTypeAdapter(applicationType, "new", OperationType.Insert, domain);
+            var adapter = new DbTypeAdapter(applicationType, new []{"new"}, OperationType.Insert, domain);
             return GenerateTemplateFromAdapter(adapter, "InsertType");
         }
 
@@ -265,19 +265,19 @@ namespace Skeleton.Templating.DatabaseFunctions
 
         private CodeFile GenerateSearchFunction(ApplicationType applicationType, Domain domain)
         {
-            var adapter = new SelectForDisplayDbTypeAdapter(applicationType, SearchFunctionName, domain);
+            var adapter = new SelectForDisplayDbTypeAdapter(applicationType, new []{SearchFunctionName}, domain);
             return GenerateTemplateFromAdapter(adapter, "SearchTemplate");
         }
 
         private CodeFile GenerateDeleteFunction(ApplicationType applicationType, Domain domain)
         {
-            var adapter = new DbTypeAdapter(applicationType, DeleteOperationName, OperationType.Delete, domain);
+            var adapter = new DbTypeAdapter(applicationType, new []{DeleteOperationName}, OperationType.Delete, domain);
             return GenerateTemplateFromAdapter(adapter, "DeleteTemplate");
         }
 
         private CodeFile GenerateSoftDeleteFunction(ApplicationType type, Domain domain)
         {
-            var adapter = new DbTypeAdapter(type, DeleteOperationName, OperationType.Delete, domain);
+            var adapter = new DbTypeAdapter(type, new []{DeleteOperationName}, OperationType.Delete, domain);
             return GenerateTemplateFromAdapter(adapter, DbTemplates.DeleteSoft);
         }
 

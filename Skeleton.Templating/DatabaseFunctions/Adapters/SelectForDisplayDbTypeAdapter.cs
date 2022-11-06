@@ -14,7 +14,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         private List<IPseudoField> _fields;
         private FieldEntityAliasDictionary _aliases = new FieldEntityAliasDictionary();
 
-        public SelectForDisplayDbTypeAdapter(ApplicationType applicationType, string operation, Domain domain) : base(applicationType, operation, OperationType.Select, domain)
+        public SelectForDisplayDbTypeAdapter(ApplicationType applicationType, string[] operation, Domain domain) : base(applicationType, operation, OperationType.Select, domain)
         {
             try
             {

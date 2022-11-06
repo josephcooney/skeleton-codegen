@@ -82,6 +82,7 @@ namespace Skeleton.Model
                     return bareName;
                 }
 
+                Log.Warning("Unable to determine bare name for operation {OperationName}", Name);
                 return null;
             }
         } 

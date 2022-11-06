@@ -339,7 +339,8 @@ namespace Skeleton.Templating
             {
                 return name;
             }
-            return string.Join("", parts.Select(p => char.ToUpperInvariant(p[0]) + p.Substring(1)));
+
+            return PascalCaseNamingConvention.PascalCaseName(parts);
         }
 
         public static string CamelCase(string name)

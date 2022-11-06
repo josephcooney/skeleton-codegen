@@ -22,6 +22,9 @@
       <EmbeddedResource Include="Templates\InsertManyTemplate.handlebars" />
       <EmbeddedResource Include="Templates\InsertTemplate.handlebars" />
       <EmbeddedResource Include="Templates\InsertType.handlebars" />
+      <EmbeddedResource Include="Templates\Repository\Repository.handlebars" />
+      <EmbeddedResource Include="Templates\Repository\RepositoryBase.handlebars" />
+      <EmbeddedResource Include="Templates\Repository\RepositoryModule.handlebars" />
       <EmbeddedResource Include="Templates\SearchTemplate.handlebars" />
       <EmbeddedResource Include="Templates\SecurityPolicyTemplate.handlebars" />
       <EmbeddedResource Include="Templates\Select\SelectAllForDisplayByForeignKeyTemplate.handlebars" />

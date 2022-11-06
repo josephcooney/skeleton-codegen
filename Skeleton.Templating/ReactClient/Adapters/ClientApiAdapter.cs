@@ -56,7 +56,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
         {
             get
             {
-                var selectAllOp = Operations.FirstOrDefault(op => op.Name.EndsWith(DbFunctionGenerator.SelectAllForDisplayFunctionName));
+                var selectAllOp = Operations.FirstOrDefault(op => _domain.NamingConvention.EndsWithParts(op.Name, DbFunctionGenerator.SelectAllForDisplayFunctionName));
                 // TODO - fall back to "select_all" operation?
                 if (selectAllOp == null)
                 {

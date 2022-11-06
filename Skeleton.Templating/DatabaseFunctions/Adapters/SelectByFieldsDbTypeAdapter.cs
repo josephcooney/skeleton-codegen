@@ -10,7 +10,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         private readonly bool _isSelectByPrimaryKey;
         private readonly List<Field> _selectFields;
 
-        public SelectByFieldsDbTypeAdapter(ApplicationType applicationType, string operation, List<Field> selectFields, OperationType operationType, Domain domain, bool isSelectByPrimaryKey) : base(applicationType, operation, operationType, domain)
+        public SelectByFieldsDbTypeAdapter(ApplicationType applicationType, string[] operation, List<Field> selectFields, OperationType operationType, Domain domain, bool isSelectByPrimaryKey) : base(applicationType, operation, operationType, domain)
         {
             _isSelectByPrimaryKey = isSelectByPrimaryKey;
             _selectFields = selectFields.Where(f => f != null).ToList();

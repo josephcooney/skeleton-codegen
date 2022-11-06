@@ -416,6 +416,7 @@ public class SqlServerTypeProviderTests : DbTestBase
             
             op.SingleResult.ShouldBe(true);
             op.Returns.ClrReturnType.ShouldBe(typeof(int));
+            op.BareName.ShouldBe("Insert");
         }
         finally
         {
