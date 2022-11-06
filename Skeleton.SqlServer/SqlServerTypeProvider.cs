@@ -692,15 +692,62 @@ public class SqlServerTypeProvider : ITypeProvider
         if (routineType == OperationTypes.Procedure)
         {
             var fields = GetReturnFieldsForProcedure(op);
-            // TODO - see if a single value is returned
-            return GetReturnForOperationFromFields(domain, op, fields);
+            if (fields.Count == 1)
+            {
+                if (op.Attributes?.single_result == true)
+                {
+                    return new OperationReturn()
+                    {
+                        ReturnType = ReturnType.Primitive,
+                        ClrReturnType = fields.First().ClrType,
+                        Multiple = false
+                    };
+                }
+                else
+                {
+                    return new OperationReturn()
+                    {
+                        ReturnType = ReturnType.Primitive,
+                        ClrReturnType = fields.First().ClrType, // should this be 'array' of is multiple enough to cover it
+                        Multiple = true
+                    };
+                }
+            }
+            else
+            {
+                return GetReturnForOperationFromFields(domain, op, fields);
+            }
         }
         else
         {
             if (resultType == "TABLE")
             {
                 var fields = GetReturnFieldsForFunction(op);
-                return GetReturnForOperationFromFields(domain, op, fields);
+                if (fields.Count == 1)
+                {
+                    if (op.Attributes?.single_result == true)
+                    {
+                        return new OperationReturn()
+                        {
+                            ReturnType = ReturnType.Primitive,
+                            ClrReturnType = fields.First().ClrType,
+                            Multiple = false
+                        };
+                    }
+                    else
+                    {
+                        return new OperationReturn()
+                        {
+                            ReturnType = ReturnType.Primitive,
+                            ClrReturnType = fields.First().ClrType, // should this be 'array' of is multiple enough to cover it
+                            Multiple = true
+                        };
+                    }
+                }
+                else
+                {
+                    return GetReturnForOperationFromFields(domain, op, fields);
+                }
             }
             else
             {
@@ -830,14 +877,13 @@ public class SqlServerTypeProvider : ITypeProvider
                 }
 
                 domain.ResultTypes.Add(result);
+                
+                return new OperationReturn()
                 {
-                    return new OperationReturn()
-                    {
-                        ReturnType = ReturnType.CustomType,
-                        SimpleReturnType = result,
-                        Multiple = true
-                    };
-                }
+                    ReturnType = ReturnType.CustomType,
+                    SimpleReturnType = result,
+                    Multiple = true
+                };
             }
             else
             {

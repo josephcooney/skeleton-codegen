@@ -399,7 +399,7 @@ public class SqlServerTypeProviderTests : DbTestBase
     [Fact]
     public void CanCreateResultTypeAsParameterForStoredProcedure()
     {
-        var testDbInfo = CreateTestDatabase(TestDatbaseWithStoredProcThatTakesCustomInsertTypeAsParam);
+        var testDbInfo = CreateTestDatabase(TestDatabaseWithStoredProcThatTakesCustomInsertTypeAsParam);
         try
         {
             var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
@@ -412,7 +412,10 @@ public class SqlServerTypeProviderTests : DbTestBase
             var customTypeParam = op.Parameters.Single(p => p.Name == "ValidationStatusToAdd");
             customTypeParam.ProviderTypeName.ShouldBe("ValidationStatusNew");
             
-            model.ResultTypes.Count(t => t.Name == customTypeParam.ProviderTypeName).ShouldBe(1);    
+            model.ResultTypes.Count(t => t.Name == customTypeParam.ProviderTypeName).ShouldBe(1);
+            
+            op.SingleResult.ShouldBe(true);
+            op.Returns.ClrReturnType.ShouldBe(typeof(int));
         }
         finally
         {
@@ -558,7 +561,7 @@ public class SqlServerTypeProviderTests : DbTestBase
         );
     ";
 
-    private const string TestDatbaseWithStoredProcThatTakesCustomInsertTypeAsParam = @"
+    private const string TestDatabaseWithStoredProcThatTakesCustomInsertTypeAsParam = @"
 CREATE TABLE [User] (
     Id int identity primary key NOT NULL,
     Name text NULL,
@@ -609,8 +612,12 @@ AS
         Modified
         FROM @ValidationStatusToAdd
 
-        SELECT scope_identity();
+        SELECT cast(scope_identity() as integer);
     END;
+GO
+
+EXEC sys.sp_addextendedproperty 'codegen_meta', N'{""applicationtype"":""ValidationStatus"", ""single_result"":true}', 'schema', N'dbo', 'procedure', N'ValidationStatusInsert';
+GO
 ";
     
     private const string AndViewToSchema = @"        

@@ -187,5 +187,13 @@ More info is available [in this quick-start](https://docs.microsoft.com/en-us/az
 | Non-integer primary keys | ✅ | ✅                             |
 | Composite Primary Keys | ❌ | ❌                             |
 | Functions | ✅ | ✅                             |
-| Stored Procedures | N/A | ✅                             |
+| Stored Procedures | N/A | ✅ (see details below)         |
 | Views | ? | Excluded from generated model |
+
+### T-SQL Stored Procedure Support
+Stored procedures offer a lot of options in T-SQL (for example you can return values using a SELECT, as output parameters, and using the RETURN statement). There are many stored procedure features that might not work in Skeleton. The following should work.
+- simple parameters
+- table valued parameters
+- returning a single set of results via a SELECT statement in the stored proceudre
+
+If there are features you think are essential which we don't support please send a PR.
