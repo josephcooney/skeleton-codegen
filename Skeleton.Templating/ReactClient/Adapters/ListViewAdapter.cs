@@ -96,7 +96,10 @@ namespace Skeleton.Templating.ReactClient.Adapters
                     return Operations.First();
                 }
 
-                var selectAll = Operations.FirstOrDefault(op => op.Name.EndsWith(DbFunctionGenerator.SelectAllForDisplayFunctionName));
+                var nameSuffix =
+                    _domain.NamingConvention.CreateNameFromFragments(DbFunctionGenerator.SelectAllForDisplayFunctionName
+                        .ToList());
+                var selectAll = Operations.FirstOrDefault(op => op.Name.EndsWith(nameSuffix));
 
                 if (selectAll != null)
                 {

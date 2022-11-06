@@ -252,8 +252,16 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 
         public bool HasExcludedFields => _applicationType.Fields.Any(f => f.IsExcludedFromResults);
 
-        public virtual string FunctionName => _domain.NamingConvention.CreateNameFromFragments(new List<string>(){_applicationType.Name, _operation});
-
+        public virtual string FunctionName
+        {
+            get
+            {
+                var fragments = new List<string>() { _applicationType.Name };
+                fragments.AddRange(_operation);
+                return _domain.NamingConvention.CreateNameFromFragments(fragments);
+            }
+        }
+        
         public OperationType OperationType { get; }
 
         public string ShortName => _applicationType.Name[0].ToString().ToLowerInvariant();

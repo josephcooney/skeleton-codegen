@@ -24,5 +24,4 @@ public interface INamingConvention
     bool IsModifiedTimestampFieldName(string fieldName);
 
     string CreateNameFromFragments(List<string> fragments);
-    bool EndsWithParts(string name, string[] parts);
 }

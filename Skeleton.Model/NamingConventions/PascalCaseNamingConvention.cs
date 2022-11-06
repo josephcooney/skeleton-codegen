@@ -57,25 +57,7 @@ public class PascalCaseNamingConvention : NamingConventionBase, INamingConventio
     {
         return PascalCaseName(fragments);
     }
-
-    public bool EndsWithParts(string name, string[] parts)
-    {
-        var nameParts = GetNameParts(name).Reverse().ToList();
-        var partsReversed = parts.Reverse();
-        var index = 0;
-        foreach (var part in partsReversed)
-        {
-            if (nameParts.IndexOf(part) != index)
-            {
-                return false;
-            }
-
-            index++;
-        }
-
-        return true;
-    }
-
+    
     public static string PascalCaseName(IEnumerable<string> parts)
     {
         return string.Join("", parts.Select(p => char.ToUpperInvariant(p[0]) + p.Substring(1)));

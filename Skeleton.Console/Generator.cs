@@ -332,7 +332,12 @@ namespace Skeleton.Console
             {
                 if (applicationType.Fields.Count == 0)
                 {
-                    Log.Warning($"Type {applicationType.Name} has no fields.");
+                    Log.Warning("Type {ApplicationType} has no fields.", applicationType.Name);
+                }
+
+                if (applicationType.Fields.Any(f => string.IsNullOrEmpty(f.Name)))
+                {
+                    Log.Warning("Type {ApplicationType} has a field with no name", applicationType.Name);
                 }
 
                 if (string.IsNullOrEmpty(applicationType.Namespace))
@@ -354,13 +359,20 @@ namespace Skeleton.Console
             {
                 if (resultType.Fields.Count == 0)
                 {
-                    Log.Warning($"Result Type {resultType.Name} has no fields");
+                    Log.Warning("Result type {ResultType} has no fields", resultType.Name);
+                }
+                
+                if (resultType.Fields.Any(f => string.IsNullOrEmpty(f.Name)))
+                {
+                    Log.Warning("Result type {ResultType} has a field with no name", resultType.Name);
                 }
 
                 var operations = domain.Operations.Where(o => o.Returns.SimpleReturnType == resultType);
-                if (operations.Count() == 0)
+                var parameters = domain.Operations.SelectMany(o => o.Parameters).Where(p =>
+                    p.ClrType == typeof(ResultType) && p.ProviderTypeName == resultType.Name);
+                if (operations.Count() == 0 && parameters.Count() == 0)
                 {
-                    Log.Warning($"Result Type {resultType.Name} is not returned by any operations");
+                    Log.Warning("Result Type {ResultType} is not returned by, or used as a parameter in any operations", resultType.Name);
                 }
             }
 

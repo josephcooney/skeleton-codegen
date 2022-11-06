@@ -16,7 +16,7 @@ namespace Skeleton.Tests.Templating.DatabaseFunctions.Adapters
         {
             var domain = TestUtil.CreateTestDomain(new MockFileSystem());
             var orderType = domain.Types.Single(t => t.Name == "order");
-            var adapter = new SelectPagedByFieldsDbTypeAdapter(orderType, "test", new List<Field>(orderType.Fields),
+            var adapter = new SelectPagedByFieldsDbTypeAdapter(orderType, new []{"test"}, new List<Field>(orderType.Fields),
                 OperationType.Select, domain);
 
             adapter.SelectFieldsWithIndices.Count.Should().BeGreaterThan(1);
