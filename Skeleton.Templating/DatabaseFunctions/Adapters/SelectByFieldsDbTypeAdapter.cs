@@ -49,7 +49,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
             {
                 if (HasExcludedFields)
                 {
-                    return $"{Name}_result";
+                    return Domain.NamingConvention.CreateResultTypeNameForOperation(Name);
                 }
                 else
                 {

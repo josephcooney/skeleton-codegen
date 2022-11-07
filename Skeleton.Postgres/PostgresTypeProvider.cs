@@ -1402,7 +1402,7 @@ namespace Skeleton.Postgres
                 else
                 {
                     // instead of using an attribute here we could do some fancy inferencing too
-                    var name = operation.Name + "_result";
+                    var name = domain.NamingConvention.CreateResultTypeNameForOperation(operation.Name);
                     if (operation.CustomReturnTypeName != null)
                     {
                         name = operation.CustomReturnTypeName;

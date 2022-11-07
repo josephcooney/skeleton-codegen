@@ -1,8 +1,9 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Skeleton.Model.NamingConventions;
 
-public class NamingConventionBase 
+public abstract class NamingConventionBase 
 {
     protected NamingConventionSettings _settings;
     
@@ -50,4 +51,11 @@ public class NamingConventionBase
     {
         return _settings.ModifiedTimestampFieldNames.Contains(fieldName);
     }
+
+    public string CreateResultTypeNameForOperation(string operationName)
+    {
+        return CreateNameFromFragments(new List<string>() { operationName, "result" }); // the literal string "result" here could be come a config setting
+    }
+    
+    public abstract string CreateNameFromFragments(List<string> fragments);
 }

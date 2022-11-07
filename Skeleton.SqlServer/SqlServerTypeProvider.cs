@@ -844,7 +844,7 @@ public class SqlServerTypeProvider : ITypeProvider
         else
         {
             // instead of using an attribute here we could do some fancy inferencing too
-            var name = op.Name + "_result";
+            var name = domain.NamingConvention.CreateResultTypeNameForOperation(op.Name);
             if (op.CustomReturnTypeName != null)
             {
                 name = op.CustomReturnTypeName;

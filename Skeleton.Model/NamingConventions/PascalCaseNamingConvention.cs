@@ -53,7 +53,7 @@ public class PascalCaseNamingConvention : NamingConventionBase, INamingConventio
     }
 
     public string SecurityUserIdParameterName => "SecurityUserIdParam";
-    public string CreateNameFromFragments(List<string> fragments)
+    public override string CreateNameFromFragments(List<string> fragments)
     {
         return PascalCaseName(fragments);
     }
