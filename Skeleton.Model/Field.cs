@@ -55,9 +55,9 @@ namespace Skeleton.Model
 
         public bool IsTrackingDate => IsCreatedDate || IsModifiedDate || (Type is ApplicationType && ((ApplicationType)Type).DeleteType == DeleteType.Soft && Name.StartsWith(DeletedFieldName));
 
-        public bool IsCreatedDate => IsDate && Type.Domain.NamingConvention.IsCreatedTimestampFieldName(Name);
+        public bool IsCreatedDate => IsDateTime && Type.Domain.NamingConvention.IsCreatedTimestampFieldName(Name);
 
-        public bool IsModifiedDate => IsDate && Type.Domain.NamingConvention.IsModifiedTimestampFieldName(Name);
+        public bool IsModifiedDate => IsDateTime && Type.Domain.NamingConvention.IsModifiedTimestampFieldName(Name);
         
         public bool IsTrackingUser => (ReferencesType != null && ReferencesType.IsSecurityPrincipal) && (Type.Domain.NamingConvention.IsTrackingUserFieldName(Name));
 

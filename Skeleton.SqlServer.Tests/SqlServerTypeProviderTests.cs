@@ -317,10 +317,8 @@ public class SqlServerTypeProviderTests : DbTestBase
             op.Parameters.Count.ShouldBe(0);
             
             op.Returns.ShouldNotBeNull();
-            op.Returns.SimpleReturnType.ShouldNotBeNull();
-            op.Returns.SimpleReturnType.Fields.Count.ShouldBe(1);
-            op.Returns.SimpleReturnType.Fields.First().Name.ShouldBe("ThisDB");
-            op.Returns.SimpleReturnType.Fields.First().ClrType.ShouldBe(typeof(string));
+            op.Returns.SimpleReturnType.ShouldBeNull();
+            op.Returns.ClrReturnType.ShouldBe(typeof(string));
         }
         finally
         {

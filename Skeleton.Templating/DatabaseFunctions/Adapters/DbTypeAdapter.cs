@@ -203,7 +203,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
                     fields.AddRange(PrimaryKeyFields);
                 }
                 
-                var createdDateTrackingField = _applicationType.Fields.FirstOrDefault(a => a.IsTrackingDate && Domain.NamingConvention.IsCreatedByFieldName(a.Name));
+                var createdDateTrackingField = _applicationType.Fields.FirstOrDefault(a => a.IsCreatedDate);
                 if (createdDateTrackingField != null)
                 {
                     fields.Add(_domain.TypeProvider.CreateFieldAdapter(createdDateTrackingField, this));
@@ -226,7 +226,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
             get
             {
                 var fields = UserEditableFields.Where(f => f.Edit).ToList();
-                var updatedDateTrackingField = _applicationType.Fields.FirstOrDefault(a => a.IsTrackingDate && Domain.NamingConvention.IsModifiedByFieldName(a.Name));
+                var updatedDateTrackingField = _applicationType.Fields.FirstOrDefault(a => a.IsModifiedDate);
                 if (updatedDateTrackingField != null)
                 {
                     fields.Add(_domain.TypeProvider.CreateFieldAdapter(updatedDateTrackingField, this));
