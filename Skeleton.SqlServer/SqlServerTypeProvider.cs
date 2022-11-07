@@ -979,9 +979,15 @@ ORDER BY r.ROUTINE_NAME, rc.ORDINAL_POSITION;";
                             dataType = GetField<string>(reader, "USER_DEFINED_TYPE_NAME");
                             clrType = typeof(ResultType);
 
-                            if (!domain.ResultTypes.Any(t => t.Name == dataType && t.Namespace == customTypeSchema))
+                            var resultType = domain.ResultTypes.SingleOrDefault(t =>
+                                t.Name == dataType && t.Namespace == customTypeSchema);
+                            if (resultType == null)
                             {
-                                ReadCustomOperationType(dataType, customTypeSchema, domain, op.RelatedType);
+                                ReadCustomOperationType(dataType, customTypeSchema, domain, op);
+                            }
+                            else
+                            {
+                                resultType.Operations.Add(op);
                             }
                         }
                         
@@ -995,10 +1001,10 @@ ORDER BY r.ROUTINE_NAME, rc.ORDINAL_POSITION;";
         return parameters;
     }
 
-    private void ReadCustomOperationType(string dataType, string customTypeSchema, Domain domain, ApplicationType applicationType)
+    private void ReadCustomOperationType(string dataType, string customTypeSchema, Domain domain, Operation operation)
     {
         var attributes = GetAttributes(customTypeSchema, dataType, "TYPE");
-        var appType = applicationType;
+        var appType = operation.RelatedType;
         dynamic attribJson = null;
         if (!string.IsNullOrEmpty(attributes))
         {
@@ -1009,7 +1015,7 @@ ORDER BY r.ROUTINE_NAME, rc.ORDINAL_POSITION;";
             }
         }
         
-        var result = new ResultType(dataType, customTypeSchema, applicationType, true, domain);
+        var result = new ResultType(dataType, customTypeSchema, operation.RelatedType, true, domain);
         result.Attributes = attribJson;
         
         using (var cn = new SqlConnection(_connectionString))
@@ -1040,6 +1046,7 @@ ORDER BY r.ROUTINE_NAME, rc.ORDINAL_POSITION;";
             }
         }
         
+        result.Operations.Add(operation);
         domain.ResultTypes.Add(result);
     }
 

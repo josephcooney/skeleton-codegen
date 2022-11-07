@@ -411,6 +411,8 @@ public class SqlServerTypeProviderTests : DbTestBase
             customTypeParam.ProviderTypeName.ShouldBe("ValidationStatusNew");
             
             model.ResultTypes.Count(t => t.Name == customTypeParam.ProviderTypeName).ShouldBe(1);
+            var resultType = model.ResultTypes.Single(t => t.Name == customTypeParam.ProviderTypeName);
+            resultType.Ignore.ShouldBe(false);
             
             op.SingleResult.ShouldBe(true);
             op.Returns.ClrReturnType.ShouldBe(typeof(int));
