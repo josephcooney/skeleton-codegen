@@ -98,7 +98,7 @@ namespace Skeleton.Model
         {
             get
             {
-                return Attributes?.isContentType == true || (UnderlyingType.IsAttachment && ClrType == typeof(string) && Type.Domain.NamingConvention.IsCreatedByFieldName(Name));
+                return Attributes?.isContentType == true || (UnderlyingType.IsAttachment && ClrType == typeof(string) && Type.Domain.NamingConvention.IsContentTypeFieldName(Name));
             }
         }
 

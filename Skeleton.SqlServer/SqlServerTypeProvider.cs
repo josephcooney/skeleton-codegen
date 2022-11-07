@@ -516,7 +516,6 @@ public class SqlServerTypeProvider : ITypeProvider
                         
                         GetAdditionalFieldInfoFromInformationSchema(catalog, ns, name, cn, t);
                         GetPrimaryKeyInfoFromInformationSchema(catalog, ns, name, cn, t);
-                        //FIXME GetUniqueConstraintsFromInformationSchema(catalog, ns, name, cn, t);
                         
                         types.Add(t);
                     }
@@ -562,6 +561,20 @@ public class SqlServerTypeProvider : ITypeProvider
         {
             type.Attributes = attributes;
         }
+
+        foreach (var field in type.Fields)
+        {
+            var fieldAttributes = GetFieldAttributes(field);
+            if (fieldAttributes != null)
+            {
+                field.Attributes = fieldAttributes;
+            }
+        }
+    }
+
+    private dynamic GetFieldAttributes(Field field)
+    {
+        return ReadAttributes(GetFieldAttributesString(field));
     }
 
     private string? GetOperationAttributes(Operation op, string operationType)
@@ -581,6 +594,30 @@ public class SqlServerTypeProvider : ITypeProvider
             cmd.Parameters.Add(new SqlParameter("@schema", nameSpace));
             cmd.Parameters.Add(new SqlParameter("@type", entityType));
             cmd.Parameters.Add(new SqlParameter("@name", name));
+
+            var reader = cmd.ExecuteReader();
+            if (reader.Read())
+            {
+                var attributes = reader["value"].ToString();
+                return attributes;
+            }
+
+            return null;
+        }
+    }
+    
+    private string? GetFieldAttributesString(Field field)
+    {
+        using (var cn = new SqlConnection(_connectionString))
+        using (var cmd = new SqlCommand(
+                   "select * FROM fn_listextendedproperty('codegen_meta', 'schema', @schema, 'TABLE', @name, 'COLUMN', @fieldName);",
+                   cn))
+        {
+            cn.Open();
+
+            cmd.Parameters.Add(new SqlParameter("@schema", field.Type.Namespace));
+            cmd.Parameters.Add(new SqlParameter("@fieldName", field.Name ));
+            cmd.Parameters.Add(new SqlParameter("@name", field.Type.Name));
 
             var reader = cmd.ExecuteReader();
             if (reader.Read())

@@ -423,6 +423,28 @@ public class SqlServerTypeProviderTests : DbTestBase
             DestroyTestDb(testDbInfo.dbName);
         }
     }
+
+    [Fact]
+    public void CanReadAttributesFromFields()
+    {
+        var testDbInfo = CreateTestDatabase(TableWithFieldAttributes);
+        try
+        {
+            var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()));
+            var logoType = model.Types.First();
+            logoType.Name.ShouldBe("CompanyLogo");
+            logoType.IsAttachment.ShouldBe(true);
+
+            var mimeType = logoType.GetFieldByName("MimeType");
+            mimeType.ShouldNotBeNull();
+            mimeType.IsAttachmentContentType.ShouldBe(true);
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
     
     private const string TestDbScript = @"
         create table simple_lookup_table (
@@ -619,6 +641,30 @@ GO
 
 EXEC sys.sp_addextendedproperty 'codegen_meta', N'{""applicationtype"":""ValidationStatus"", ""single_result"":true}', 'schema', N'dbo', 'procedure', N'ValidationStatusInsert';
 GO
+";
+
+    private const string TableWithFieldAttributes = @"
+create table CompanyLogo (
+	  Id int identity primary key not null,
+	  Name text not null,
+	  MimeType text not null,
+	  Contents varbinary(max) not null,
+	  Thumbnail varbinary(max) not null,
+	  Created datetimeoffset not null,
+	  Modified datetimeoffset	
+);
+GO
+
+EXEC sp_addextendedproperty 'codegen_meta', N'{""isAttachment"":true, ""security"":{""anon"":[""read""]}}', 'schema', N'dbo', 'table', N'CompanyLogo';
+GO
+
+EXEC sp_addextendedproperty   
+    @name = N'codegen_meta',   
+    @value = '{""isContentType"": true}',  
+    @level0type = N'Schema', @level0name = 'dbo',  
+    @level1type = N'Table',  @level1name = 'CompanyLogo',  
+    @level2type = N'Column', @level2name = 'MimeType';  
+GO    
 ";
     
     private const string AndViewToSchema = @"        
