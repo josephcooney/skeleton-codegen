@@ -427,7 +427,7 @@ public class SqlServerTypeProvider : ITypeProvider
     public bool GenerateCustomTypes => false;
     public string FormatOperationParameterName(string operationName, string name)
     {
-        return $"@{name}";
+        return $"@{name.Replace(" ", "")}";
     }
 
     public string OperationTimestampFunction()

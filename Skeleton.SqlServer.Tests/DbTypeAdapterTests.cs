@@ -29,4 +29,25 @@ public class DbTypeAdapterTests : DbTestBase
             DestroyTestDb(testDbInfo.dbName);
         }
     }
+    
+    [Fact]
+    public void UpdateFieldsAllHaveNames()
+    {
+        var testDbInfo = CreateTestDatabase(SqlServerTypeProviderTests.TestDbWithRelatedEntities);
+        try
+        {
+            var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()));
+            var type = model.Types.First(t => t.Name == "Product");
+            var adapter = new DbTypeAdapter(type, new []{"update"}, OperationType.Update, model);
+            var updateFields = adapter.UpdateInputFields;
+            updateFields.All(f => !string.IsNullOrEmpty(f.Name)).ShouldBeTrue();
+            
+            adapter.FunctionName.ShouldBe("ProductUpdate");
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
 }

@@ -89,6 +89,28 @@ namespace Skeleton.Templating
                 var result = FormatClrType(originalType);
                 writer.Write(result);
             });
+            
+            Handlebars.RegisterHelper("remove_spaces", (writer, context, parameters) =>
+            {
+                if (parameters == null || parameters.Length == 0)
+                {
+                    writer.Write("ERROR: No type provided");
+                    return;
+                }
+                
+                if (parameters[0] != null)
+                {
+                    var stringParam = parameters[0] as string;
+                    if (stringParam != null)
+                    {
+                        writer.Write(stringParam.Replace(" ", ""));    
+                    }
+                    else
+                    {
+                        writer.Write("ERROR: Not a string");
+                    }
+                }
+            });
 
             Handlebars.RegisterHelper("escape_sql_keyword", (writer, context, parameters) =>
             {

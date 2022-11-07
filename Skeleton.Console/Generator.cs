@@ -332,7 +332,7 @@ namespace Skeleton.Console
             {
                 if (applicationType.Fields.Count == 0)
                 {
-                    Log.Warning("Type {ApplicationType} has no fields.", applicationType.Name);
+                    Log.Warning("Type {ApplicationType} has no fields", applicationType.Name);
                 }
 
                 if (applicationType.Fields.Any(f => string.IsNullOrEmpty(f.Name)))
@@ -342,7 +342,7 @@ namespace Skeleton.Console
 
                 if (string.IsNullOrEmpty(applicationType.Namespace))
                 {
-                    Log.Warning($"Type {applicationType.Name} has no namespace.");
+                    Log.Warning("Type {ApplicationType} has no namespace", applicationType.Name);
                 }
 
                 if (!applicationType.Ignore)
@@ -350,7 +350,7 @@ namespace Skeleton.Console
                     var operations = domain.Operations.Where(o => o.Returns.SimpleReturnType == applicationType);
                     if (operations.Count() == 0)
                     {
-                        Log.Warning($"Type {applicationType.Name} is not returned by any operations");
+                        Log.Warning("Type {ApplicationType} is not returned by any operations", applicationType.Name);
                     }
                 }
             }
@@ -380,7 +380,12 @@ namespace Skeleton.Console
             {
                 if (op.Returns == null)
                 {
-                    Log.Warning($"Operation {op.Name} does not return anything.");
+                    Log.Warning("Operation {OperationName} does not return anything", op.Name);
+                }
+
+                if (op.Parameters.Any(p => string.IsNullOrEmpty(p.Name)))
+                {
+                    Log.Warning("Operation {OperationName} has a parameter with no name", op.Name);
                 }
             }
         }
