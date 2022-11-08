@@ -39,74 +39,90 @@ namespace {{cs_name Namespace}}.Data.Repository
 
         public {{{Returns}}} {{cs_name BareName}}({{#each Parameters}}{{{ResolvedClrType}}} {{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}})
         {
-            using (var cn = CreateConnection(_connectionString))
-			using (var cmd = new NpgsqlCommand("{{SqlName}}", cn))
-			{
-				cmd.CommandType = CommandType.StoredProcedure;
-
-				{{#if HasParameters}}
-				Set{{cs_name BareName}}Parameters(cmd, {{#each Parameters}}{{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}});
-                {{/if}}
-
-				cn.Open();
-
-				{{#if NoResult}}
-				cmd.ExecuteNonQuery();
-				{{else}}
-				{{#if IsSingular}}
-				return ({{{ReturnTypeName}}})cmd.ExecuteScalar();
-				{{else}}
-				using (var reader = cmd.ExecuteReader())
-				{
-                    var readResults = false;
-					var result = new {{{Returns}}}();
-					while (reader.Read())
-					{
-						Read{{cs_name BareName}}Result(result, reader);
-                        readResults = true;
-					}
-
-					return readResults ? result : null;
-				}	
-				{{/if}}
-				{{/if}}
-			}
+            try 
+            {
+                using (var cn = CreateConnection(_connectionString))
+                using (var cmd = new NpgsqlCommand("{{SqlName}}", cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+    
+                    {{#if HasParameters}}
+                    Set{{cs_name BareName}}Parameters(cmd, {{#each Parameters}}{{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}});
+                    {{/if}}
+    
+                    cn.Open();
+    
+                    {{#if NoResult}}
+                    cmd.ExecuteNonQuery();
+                    {{else}}
+                    {{#if IsSingular}}
+                    return ({{{ReturnTypeName}}})cmd.ExecuteScalar();
+                    {{else}}
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        var readResults = false;
+                        var result = new {{{Returns}}}();
+                        while (reader.Read())
+                        {
+                            Read{{cs_name BareName}}Result(result, reader);
+                            readResults = true;
+                        }
+    
+                        return readResults ? result : null;
+                    }	
+                    {{/if}}
+                    {{/if}}
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                var generalException = TranslateException(ex);
+                throw generalException;
+            }
         }
 
 		public async {{#if NoResult}}Task{{else}}Task<{{{Returns}}}>{{/if}} {{cs_name BareName}}Async({{#each Parameters}}{{{ResolvedClrType}}} {{cml_case Name}}, {{/each}} CancellationToken token)
         {
-            using (var cn = CreateConnection(_connectionString))
-			using (var cmd = new NpgsqlCommand("{{SqlName}}", cn))
-			{
-				cmd.CommandType = CommandType.StoredProcedure;
-
-                {{#if HasParameters}}
-				Set{{cs_name BareName}}Parameters(cmd, {{#each Parameters}}{{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}});
-                {{/if}}
-				await cn.OpenAsync(token);
-
-				{{#if NoResult}}
-				await cmd.ExecuteNonQueryAsync(token);
-				{{else}}
-				{{#if IsSingular}}
-				var result = await cmd.ExecuteScalarAsync(token);
-				return ({{{ReturnTypeName}}})result;
-				{{else}}
-				using (var reader = await cmd.ExecuteReaderAsync(token))
-				{
-                    var readResults = false;
-					var result = new {{{Returns}}}();
-					while (await reader.ReadAsync(token))
-					{
-						Read{{cs_name BareName}}Result(result, reader);
-                        readResults = true;
-					}
-
-					return readResults ? result : null;
-				}	
-				{{/if}}
-				{{/if}}
-			}
+            try 
+            {
+                using (var cn = CreateConnection(_connectionString))
+                using (var cmd = new NpgsqlCommand("{{SqlName}}", cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+    
+                    {{#if HasParameters}}
+                    Set{{cs_name BareName}}Parameters(cmd, {{#each Parameters}}{{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}});
+                    {{/if}}
+                    await cn.OpenAsync(token);
+    
+                    {{#if NoResult}}
+                    await cmd.ExecuteNonQueryAsync(token);
+                    {{else}}
+                    {{#if IsSingular}}
+                    var result = await cmd.ExecuteScalarAsync(token);
+                    return ({{{ReturnTypeName}}})result;
+                    {{else}}
+                    using (var reader = await cmd.ExecuteReaderAsync(token))
+                    {
+                        var readResults = false;
+                        var result = new {{{Returns}}}();
+                        while (await reader.ReadAsync(token))
+                        {
+                            Read{{cs_name BareName}}Result(result, reader);
+                            readResults = true;
+                        }
+    
+                        return readResults ? result : null;
+                    }	
+                    {{/if}}
+                    {{/if}}
+                }
+            }
+            catch (NpgsqlException ex)
+            {
+                var generalException = TranslateException(ex);
+                throw generalException;
+            }
         }
 
         {{#if HasParameters}}
