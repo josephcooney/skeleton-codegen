@@ -13,7 +13,6 @@ namespace {{cs_name DefaultNamespace}}.Data.Repository
 			{{#each IncludedTypes}}
             builder.RegisterType<{{cs_name Name}}Repository>().AsImplementedInterfaces();
 			{{/each}}
-            RegisterCustomTypes();
         }
     }
 }

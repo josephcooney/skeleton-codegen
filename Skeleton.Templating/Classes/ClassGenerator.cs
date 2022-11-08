@@ -197,7 +197,7 @@ namespace Skeleton.Templating.Classes
 
         private string GenerateReturnType(SimpleType simpleType, Domain domain)
         {
-            return Util.GetCompiledTemplate("ReturnType")(new ClassAdapter(simpleType, domain));
+            return Util.GetCompiledTemplateFromTypeProvider("ReturnType", domain.TypeProvider)(new ClassAdapter(simpleType, domain));
         }
 
         private string GenerateRepo(RepositoryAdapter adapter, ITypeProvider typeProvider)

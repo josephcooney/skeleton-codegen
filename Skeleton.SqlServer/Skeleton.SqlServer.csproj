@@ -17,6 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <EmbeddedResource Include="Templates\Classes\ReturnType.handlebars" />
       <EmbeddedResource Include="Templates\DeleteSoftTemplate.handlebars" />
       <EmbeddedResource Include="Templates\DeleteTemplate.handlebars" />
       <EmbeddedResource Include="Templates\InsertManyTemplate.handlebars" />

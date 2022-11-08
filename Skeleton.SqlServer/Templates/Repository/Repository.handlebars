@@ -76,7 +76,7 @@ namespace {{cs_name Namespace}}.Data.Repository
             }
             catch (SqlException sqlEx)
             {
-                var ex = TraslateException(sqlEx);
+                var ex = TranslateException(sqlEx);
                 throw ex;
             }
         }
@@ -120,7 +120,7 @@ namespace {{cs_name Namespace}}.Data.Repository
             }
             catch (SqlException sqlEx)
             {
-                var ex = TraslateException(sqlEx);
+                var ex = TranslateException(sqlEx);
                 throw ex;
             }
         }
@@ -145,7 +145,7 @@ namespace {{cs_name Namespace}}.Data.Repository
                     {{#if IsNullable}}
             SetParameterValue({{cml_case Name}}, cmd, "{{Name}}", SqlDbType.{{db_type_to_cs ProviderTypeName}});
                     {{else}}
-            cmd.Parameters.AddWithValue("{{Name}}", SqlDbType.{{db_type_to_cs ProviderTypeName}}, {{cml_case Name}});
+            cmd.Parameters.Add(new SqlParameter("@{{Name}}", SqlDbType.{{db_type_to_cs ProviderTypeName}}){Value = {{cml_case Name}} });
                     {{/if}}
                 {{/if}}
 			{{/if}}
