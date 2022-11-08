@@ -37,12 +37,24 @@ public class PascalCaseNamingConvention : NamingConventionBase, INamingConventio
         }
         
         var items = new List<string>();
-        var matches = _namePartRegex.Matches(name);
-        foreach (Match match in matches)
+        // replace any underscores with spaces, and then split on spaces to handle 'hybrid' names better
+        var subParts = name.Replace("_", " ").Split(" ");
+        foreach (var subPart in subParts.Reverse())
         {
-            items.Add(match.Value);
+            if (_namePartRegex.IsMatch(subPart))
+            {
+                var matches = _namePartRegex.Matches(subPart);
+                foreach (Match match in matches)
+                {
+                    items.Add(match.Value);
+                }   
+            }
+            else
+            {
+                items.Add(subPart);
+            }
         }
-
+        
         items.Reverse();
         return items.ToArray();
     }

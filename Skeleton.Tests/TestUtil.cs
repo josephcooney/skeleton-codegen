@@ -11,10 +11,11 @@ namespace Skeleton.Tests
     {
         public const string TestNamespace = "TestNs";
 
-        public static Domain CreateTestDomain(IFileSystem fs)
+        public static Domain CreateTestDomain(IFileSystem fs, INamingConvention namingConvention = null)
         {
             var mockTypeProvider = new Mock<ITypeProvider>();
-            var domain = new Domain(new Settings(fs), mockTypeProvider.Object, new SnakeCaseNamingConvention(null));
+            namingConvention ??= new SnakeCaseNamingConvention(null);
+            var domain = new Domain(new Settings(fs), mockTypeProvider.Object, namingConvention);
             var userType = new ApplicationType("user", TestNamespace, domain);
             var userIdField = new Field(userType) { Name = "id", ClrType = typeof(int), ProviderTypeName = "integer", IsKey = true, IsRequired = true };
             userType.Fields.Add(userIdField);

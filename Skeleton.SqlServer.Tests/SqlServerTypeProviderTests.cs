@@ -516,7 +516,7 @@ public class SqlServerTypeProviderTests : DbTestBase
             BEGIN
                 SELECT p.Id,
                 p.Category,
-                pc.Name as CategoryName,
+                pc.Name as Category_display,
                 p.Name,
                 p.Description,
                 p.Materials,
