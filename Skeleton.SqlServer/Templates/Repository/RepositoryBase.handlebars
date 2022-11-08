@@ -65,5 +65,21 @@ namespace {{cs_name DefaultNamespace}}.Data.Repository
         {
             return configuration.GetConnectionString("DefaultConnection") + configuration.GetValue<string>("UserPassword") + ";";
         }
+        
+        protected Exception TranslateException(SqlException ex)
+        {
+            // TODO - need to find what SQL exceptions are thrown for missing PK, duplicate PK etc
+            return new DbException(ex.Message, ex.ErrorCode);
+        }
 	}
+        
+    public class DbException : DataException 
+    {
+        public DbException(string message, int errorCode) : base(message)
+        {
+            ErrorCode = errorCode;
+        }
+        
+        public int ErrorCode { get; }
+    }     
 }
