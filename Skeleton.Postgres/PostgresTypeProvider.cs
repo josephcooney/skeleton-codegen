@@ -1525,7 +1525,7 @@ namespace Skeleton.Postgres
                 }  
             }
             
-            var parameter = new Parameter(domain, operation) {Name = n.Name, ProviderTypeName = n.Type.Name, ClrType = type };
+            var parameter = new Parameter(domain, operation, n.Name, type, n.Type.Name);
             return parameter;
         }
 
@@ -1739,7 +1739,7 @@ AND KCU1.TABLE_SCHEMA = '{type.Namespace}'
                 {
                     if (prm.Name == _namingConvention.SecurityUserIdParameterName && !prm.IsNullable)
                     {
-                        prm.ClrType = MakeClrTypeNullable(prm.ClrType);
+                        prm.MakeClrTypeNullable();
                     }
                     else
                     {

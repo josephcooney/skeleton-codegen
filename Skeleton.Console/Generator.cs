@@ -87,8 +87,6 @@ namespace Skeleton.Console
             var domain = typeProvider.GetDomain(_settings);
             Log.Information("Finished building domain");
 
-            domain.DefaultNamespace = _settings.ApplicationName;
-
             SetupRootFolder();
 
             GenerateDbFunctions(domain, _settings.AddGeneratedOptionsToDatabase, typeProvider);

@@ -706,7 +706,7 @@ public class SqlServerTypeProvider : ITypeProvider
             {
                 if (prm.Name == _namingConvention.SecurityUserIdParameterName && !prm.IsNullable)
                 {
-                    prm.ClrType = MakeClrTypeNullable(prm.ClrType);
+                    prm.MakeClrTypeNullable();
                 }
                 else
                 {
@@ -1028,7 +1028,7 @@ ORDER BY r.ROUTINE_NAME, rc.ORDINAL_POSITION;";
                             }
                         }
                         
-                        var parameter = new Parameter(domain, op) { Name = name, Order = order, ProviderTypeName = dataType, ClrType = clrType};
+                        var parameter = new Parameter(domain, op, name, clrType, dataType) { Order = order };
                         parameters.Add(parameter);
                     }
                 }

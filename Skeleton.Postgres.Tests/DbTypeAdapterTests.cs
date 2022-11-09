@@ -24,7 +24,7 @@ public class DbTypeAdapterTests : DbTestBase
             var idField = adapter.InsertFields.SingleOrDefault(f => f.Name == "id");
             idField.ShouldNotBeNull();
             var idFieldEx = idField as IParamterPrototype;
-            idFieldEx.Value.ShouldBe("DEFAULT");
+            idFieldEx?.Value.ShouldBe("DEFAULT");
 
             var createdField = adapter.InsertFields.SingleOrDefault(f => f.Name == "created");
             createdField.ShouldNotBeNull();

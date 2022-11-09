@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace Skeleton.Model
             ResultTypes = new List<ResultType>();
             TypeProvider = typeProvider;
             NamingConvention = namingConvention;
+            DefaultNamespace = settings.ApplicationName;
         }
 
         public List<ApplicationType> Types { get;  }
@@ -47,9 +49,9 @@ namespace Skeleton.Model
 
         public List<string> ExcludedSchemas => Settings.ExcludedSchemas;
 
-        public ApplicationType UserType => Types.SingleOrDefault(t => t.IsSecurityPrincipal);
+        public ApplicationType? UserType => Types.SingleOrDefault(t => t.IsSecurityPrincipal);
         
-        public Field UserIdentity
+        public Field? UserIdentity
         {
             get
             {
@@ -63,8 +65,9 @@ namespace Skeleton.Model
             }
         }
         
-        public SimpleType FindTypeByFields(List<Field> fields, Operation operation)
+        public SimpleType? FindTypeByFields(List<Field> fields, Operation operation)
         {
+            if (operation == null) throw new ArgumentNullException(nameof(operation));
             if (operation?.Attributes?.applicationtype != null)
             {
                 var applicationType = operation.Attributes.applicationtype.ToString();
@@ -78,7 +81,7 @@ namespace Skeleton.Model
                 }
             }
 
-            var possibleName = FindPossibleNameForTypeFromOperationName(operation.Name);
+            var possibleName = FindPossibleNameForTypeFromOperationName(operation!.Name);
             if (!string.IsNullOrEmpty(possibleName))
             {
                 var possibleMatch = Types.FirstOrDefault(a => a.Name == possibleName && a.Namespace == operation.Namespace);
@@ -112,7 +115,7 @@ namespace Skeleton.Model
             return true;
         }
         
-        private string FindPossibleNameForTypeFromOperationName(string operationName)
+        private string? FindPossibleNameForTypeFromOperationName(string operationName)
         {
             // try to find the underlying entity name so we can check that first - queries should be named <noun>_<verb>_<suffix> e.g. customer_address_select_by_customer -> we want customer_address
             if (operationName.IndexOf("_select_") > 0)

@@ -445,6 +445,27 @@ public class SqlServerTypeProviderTests : DbTestBase
             DestroyTestDb(testDbInfo.dbName);
         }
     }
+
+    [Fact]
+    public void UpdateParametersAreCorrectlyRepresentedInModel()
+    {
+        var testDbInfo = CreateTestDatabase(TestDatabaseWithUpdateStoredProc);
+        try
+        {
+            var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()));
+            provider.GetOperations(model);
+
+            var op = model.Operations.SingleOrDefault(o => o.Name == "ValidationStatusUpdate");
+            op.ShouldNotBeNull();
+            op.Parameters.Count.ShouldBe(5);
+            op.UserProvidedParameters.Count.ShouldBe(3);
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
     
     private const string TestDbScript = @"
         create table simple_lookup_table (
@@ -640,6 +661,55 @@ AS
 GO
 
 EXEC sys.sp_addextendedproperty 'codegen_meta', N'{""applicationtype"":""ValidationStatus"", ""single_result"":true}', 'schema', N'dbo', 'procedure', N'ValidationStatusInsert';
+GO
+";
+    
+    
+    private const string TestDatabaseWithUpdateStoredProc = @"
+CREATE TABLE [User] (
+    Id int identity primary key NOT NULL,
+    Name text NULL,
+    IsSystem bit NOT NULL,
+    UserName nvarchar(250) NOT NULL,
+    Created datetimeoffset not null,
+    CreatedBy int NOT NULL references [User](Id),
+    CONSTRAINT UserName_Unique UNIQUE (UserName)
+);
+GO
+
+EXEC sp_addextendedproperty 'codegen_meta', N'{""isSecurityPrincipal"":true}', 'schema', N'dbo', 'table', N'User';
+GO
+
+create table ValidationStatus (
+	   Id int identity primary key not null,
+	   Name varchar(50) not null,
+	   Code char(7) not null,
+	   CreatedBy int not null references [User](id),
+	   Created datetimeoffset not null,
+	   ModifiedBy int references [User](id),
+	   Modified datetimeoffset
+);
+GO
+
+CREATE   PROCEDURE dbo.ValidationStatusUpdate 
+    @SecurityUserIdParam int,
+    @ModifiedBy int,
+    @Name varchar(50),
+    @Code char(7),
+    @Id int
+AS
+    BEGIN
+
+    update ValidationStatus
+    set Name = @Name,
+    Code = @Code,
+    ModifiedBy = @ModifiedBy
+    WHERE Id = @Id
+    
+    END;
+GO
+
+EXEC sys.sp_addextendedproperty 'codegen_meta', N'{""applicationtype"":""ValidationStatus"", ""changesData"":true, ""friendlyName"":""Edit""}', 'schema', N'dbo', 'procedure', N'ValidationStatusUpdate';
 GO
 ";
 

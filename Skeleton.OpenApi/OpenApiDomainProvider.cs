@@ -174,7 +174,7 @@ namespace Skeleton.OpenApi
                     // TODO - find or create a domain type to match this
                 }
 
-                var parameter = new Parameter(domain, domainOp) {Name = apiParameter.Name, ClrType = clrType, Order = index, Attributes = new JObject()};
+                var parameter = new Parameter(domain, domainOp, apiParameter.Name, clrType, clrType.ToString()) {Order = index, Attributes = new JObject()};
                 parameter.Attributes.userEditable = true;
                 domainOp.Parameters.Add(parameter);
                 index++;

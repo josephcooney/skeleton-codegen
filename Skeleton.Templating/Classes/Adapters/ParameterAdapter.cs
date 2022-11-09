@@ -10,7 +10,7 @@ namespace Skeleton.Templating.Classes
     {
         private readonly Parameter _parameter;
 
-        public ParameterAdapter(Domain domain, Parameter parameter) : base(domain, parameter.Operation)
+        public ParameterAdapter(Domain domain, Parameter parameter) : base(domain, parameter.Operation, parameter.Name, parameter.ClrType, parameter.ProviderTypeName)
         {
             _parameter = parameter;
         }
