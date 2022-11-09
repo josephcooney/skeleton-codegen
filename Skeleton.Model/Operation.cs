@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Serilog;
 
 namespace Skeleton.Model
 {
+    [DebuggerDisplay("Operation: {Namespace} {Name} {ProviderType}")]
     public class Operation
     {
         private string _nameInternal;

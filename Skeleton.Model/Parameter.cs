@@ -1,9 +1,11 @@
 ﻿#nullable enable
 using System;
+using System.Diagnostics;
 using Serilog;
 
 namespace Skeleton.Model
 {
+    [DebuggerDisplay("Name: {Name} {ClrType}")]
     public class Parameter
     {
         protected readonly Domain _domain;

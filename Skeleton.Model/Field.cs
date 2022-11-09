@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Skeleton.Model
 {
+    [DebuggerDisplay("Name: {Name} {ClrType}")]
     public class Field
     {
         private const int RankOffset = 1000000;
