@@ -704,8 +704,10 @@ public class SqlServerTypeProvider : ITypeProvider
             }
             else
             {
-                if (prm.Name == _namingConvention.SecurityUserIdParameterName && !prm.IsNullable)
+                if (_namingConvention.IsSecurityUserIdParameterName(prm.Name) && !prm.IsNullable)
                 {
+                    // we make the current user Id nullable in case there is no current user (AKA anon) and assume that any db functions will do the right thing if this parameter is not provided
+                    // and either return an error, or return data appropriate for an unauthenticated user
                     prm.MakeClrTypeNullable();
                 }
                 else

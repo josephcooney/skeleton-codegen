@@ -33,7 +33,12 @@ public class SnakeCaseNamingConvention : NamingConventionBase, INamingConvention
     {
         return fieldName + "_param";
     }
-    
+
+    public bool IsSecurityUserIdParameterName(string fieldName)
+    {
+        return fieldName == SecurityUserIdParameterName;
+    }
+
     public string SecurityUserIdParameterName => "security_user_id_param";
     public override string CreateNameFromFragments(List<string> fragments)
     {

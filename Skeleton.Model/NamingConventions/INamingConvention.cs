@@ -9,6 +9,8 @@ public interface INamingConvention
     string CreateParameterNameFromFieldName(string fieldName);
     string SecurityUserIdParameterName { get; }
 
+    bool IsSecurityUserIdParameterName(string fieldName);
+    
     bool IsTrackingUserFieldName(string fieldName);
 
     bool IsCreatedByFieldName(string fieldName);

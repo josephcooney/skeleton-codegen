@@ -484,7 +484,7 @@ public class SqlServerTypeProviderTests : DbTestBase
             var productType = model.Types.SingleOrDefault(t => t.Name == "Product");    
             
             var op = model.Operations.SingleOrDefault(o => o.Name == "SelectAllProducts");
-            op.Returns.SimpleReturnType.ShouldBe(productType);
+            op?.Returns.SimpleReturnType.ShouldBe(productType);
         }
         finally
         {

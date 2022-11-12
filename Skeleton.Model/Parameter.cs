@@ -76,7 +76,7 @@ namespace Skeleton.Model
         {
             get
             {
-                return _domain.UserIdentity?.ClrType != null && Name == _domain.NamingConvention.SecurityUserIdParameterName  && (ClrType == _domain.UserIdentity?.ClrType || (!ClrTypeIsNullable(_domain.UserIdentity!.ClrType) && ClrType == MakeClrTypeNullable(_domain.UserIdentity!.ClrType)));
+                return _domain.UserIdentity?.ClrType != null && _domain.NamingConvention.IsSecurityUserIdParameterName(Name)  && (ClrType == _domain.UserIdentity?.ClrType || (!ClrTypeIsNullable(_domain.UserIdentity!.ClrType) && ClrType == MakeClrTypeNullable(_domain.UserIdentity!.ClrType)));
             }
         }
 
