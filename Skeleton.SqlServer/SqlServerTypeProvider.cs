@@ -216,10 +216,38 @@ public class SqlServerTypeProvider : ITypeProvider
         "PROC"
     };
 
-    // https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration-database-objects-types-net-framework/mapping-clr-parameter-data?view=sql-server-ver16
+    // https://learn.microsoft.com/en-us/dotnet/framework/data/adonet/sql-server-data-type-mappings
     private static readonly Dictionary<string, SqlDbType> _sqlDbTypes = new Dictionary<string, SqlDbType>
     {
-        // TODO - populate this mapping
+        ["bigint"] = SqlDbType.BigInt,
+        ["binary"] = SqlDbType.Binary,
+        ["bit"] = SqlDbType.Bit,
+        ["char"] = SqlDbType.Char,
+        ["date"] = SqlDbType.Date,
+        ["datetime"] = SqlDbType.DateTime,
+        ["datetime2"] = SqlDbType.DateTime2,
+        ["datetimeoffset"] = SqlDbType.DateTimeOffset,
+        ["decimal"] = SqlDbType.Decimal,
+        ["float"] = SqlDbType.Float,
+        ["int"] = SqlDbType.Int,
+        ["money"] = SqlDbType.Money,
+        ["nchar"] = SqlDbType.NChar,
+        ["ntext"] = SqlDbType.NText,
+        ["numeric"] = SqlDbType.Decimal,
+        ["nvarchar"] = SqlDbType.NVarChar,
+        ["real"] = SqlDbType.Real,
+        ["rowversion"] = SqlDbType.Binary,
+        ["smallint"] = SqlDbType.SmallInt,
+        ["smallmoney"] = SqlDbType.SmallMoney,
+        ["sql_variant"] = SqlDbType.Variant,
+        ["text"] = SqlDbType.Text,
+        ["time"] = SqlDbType.Time,
+        ["timestamp"] = SqlDbType.Timestamp,
+        ["tinyint"] = SqlDbType.TinyInt,
+        ["uniqueidentifier"] = SqlDbType.UniqueIdentifier,
+        ["varbinary"] = SqlDbType.VarBinary,
+        ["varchar"] = SqlDbType.VarChar,
+        ["xml"] = SqlDbType.Xml
     };
 
     private static readonly Dictionary<string, Type> SqlClrTypes = new Dictionary<string, Type>
