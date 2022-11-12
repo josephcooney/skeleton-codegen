@@ -13,7 +13,7 @@ namespace Skeleton.Templating.DatabaseFunctions
     {
         public const string SqlExtension = ".sql";
         public static readonly string[] SelectAllForDisplayFunctionName = new []{"select", "all", "for", "display"};
-        public const string SelectForDisplayFunctionName = "select_for_display";
+        public static readonly string[] SelectForDisplayFunctionName = new []{"select", "for", "display"};
         public const string SearchFunctionName = "search";
         public const string InsertFunctionName = "insert";
         public const string UpdateFunctionName = "update";
