@@ -65,7 +65,7 @@ namespace Skeleton.Model
             }
         }
         
-        public SimpleType? FindTypeByFields(List<Field> fields, Operation operation)
+        public SimpleType? FindTypeByFields(List<Field> fields, Operation operation, bool ignoreCase)
         {
             if (operation == null) throw new ArgumentNullException(nameof(operation));
             if (operation?.Attributes?.applicationtype != null)
@@ -74,7 +74,7 @@ namespace Skeleton.Model
                 var type = Types.FirstOrDefault(a => a.Name == applicationType && a.Namespace == operation.Namespace);
                 if (type != null)
                 {
-                    if (FieldsMatch(fields, type.Fields))
+                    if (FieldsMatch(fields, type.Fields, ignoreCase))
                     {
                         return type;
                     }
@@ -87,7 +87,7 @@ namespace Skeleton.Model
                 var possibleMatch = Types.FirstOrDefault(a => a.Name == possibleName && a.Namespace == operation.Namespace);
                 if (possibleMatch != null)
                 {
-                    if (FieldsMatch(fields, possibleMatch.Fields))
+                    if (FieldsMatch(fields, possibleMatch.Fields, ignoreCase))
                     {
                         return possibleMatch; 
                     }
@@ -97,7 +97,7 @@ namespace Skeleton.Model
             return null;
         }
 
-        private bool FieldsMatch(List<Field> fields, List<Field> possibleMatchFields)
+        private bool FieldsMatch(List<Field> fields, List<Field> possibleMatchFields, bool ignoreCase)
         {
             if (fields.Count != possibleMatchFields.Count(f => !f.IsExcludedFromResults))
             {
@@ -106,7 +106,7 @@ namespace Skeleton.Model
 
             foreach (var field in fields)
             {
-                if (!possibleMatchFields.Where(f => !f.IsExcludedFromResults).Any(f => f.Name == field.Name && f.ProviderTypeName == field.ProviderTypeName))
+                if (!possibleMatchFields.Where(f => !f.IsExcludedFromResults).Any(f => ((f.Name == field.Name && !ignoreCase) || (ignoreCase && f.Name.ToLowerInvariant() == field.Name.ToLowerInvariant())) && f.ProviderTypeName == field.ProviderTypeName))
                 {
                     return false;
                 }

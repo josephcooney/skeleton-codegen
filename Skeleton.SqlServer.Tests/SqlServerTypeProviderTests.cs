@@ -466,6 +466,31 @@ public class SqlServerTypeProviderTests : DbTestBase
             DestroyTestDb(testDbInfo.dbName);
         }
     }
+
+    [Fact]
+    public void ReturnedDataFromFunctionsCaseInvariantIsMatchedWithExistingDomainAndReturnTypes()
+    {
+        var testDbInfo = CreateTestDatabase(TestDbWithRelatedEntities);
+        try
+        {
+            // the capitalisation of field names in the 'select product' function is different to
+            // the capitalisation of the field names in the underlying table, but because SQL Server
+            // doesn't care about capitalisation they should still match.
+            AdditionalSchemaChanges(testDbInfo.connectionString, AddSelectAllFunctionToProductDb);
+            var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()));
+            provider.GetOperations(model);
+
+            var productType = model.Types.SingleOrDefault(t => t.Name == "Product");    
+            
+            var op = model.Operations.SingleOrDefault(o => o.Name == "SelectAllProducts");
+            op.Returns.SimpleReturnType.ShouldBe(productType);
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
     
     private const string TestDbScript = @"
         create table simple_lookup_table (
@@ -767,6 +792,15 @@ GO
         CREATE PROC GetDbName
         AS
         SELECT DB_NAME() AS ThisDB;
+    ";
+
+    private const string AddSelectAllFunctionToProductDb = @"
+    create function SelectAllProducts() 
+    returns table
+    as
+    return select id, category, name, description, materials, unitprice, created from Product;
+    GO
+    EXEC sys.sp_addextendedproperty 'codegen_meta', N'{""applicationtype"":""Product""}', 'schema', N'dbo', 'function', N'SelectAllProducts';
     ";
 }
 

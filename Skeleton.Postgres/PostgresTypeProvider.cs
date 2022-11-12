@@ -1467,7 +1467,7 @@ namespace Skeleton.Postgres
 
         private SimpleType FindTypeByFields(Domain domain, List<Field> fields, Operation operation)
         {
-            return domain.FindTypeByFields(fields, operation);
+            return domain.FindTypeByFields(fields, operation, false);
         }
         
         private IEnumerable<Parameter> ReadParameters(string parameters, Domain domain, Operation operation)

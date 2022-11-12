@@ -869,7 +869,7 @@ public class SqlServerTypeProvider : ITypeProvider
     
     private static OperationReturn GetReturnForOperationFromFields(Domain domain, Operation op, List<Field> fields)
     {
-        var existingType = domain.FindTypeByFields(fields, op);
+        var existingType = domain.FindTypeByFields(fields, op, true);
         if (existingType != null)
         {
             return new OperationReturn()
