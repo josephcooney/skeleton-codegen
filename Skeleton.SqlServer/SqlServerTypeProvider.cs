@@ -417,6 +417,7 @@ public class SqlServerTypeProvider : ITypeProvider
             return _sqlDbTypes[sqlTypeName];
         }
 
+        Log.Warning("SQL Server type provider doesn't have SqlDbType registered for {SqlTypeName}", sqlTypeName);
         return SqlDbType.Variant;
     }
     
