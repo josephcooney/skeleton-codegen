@@ -146,8 +146,23 @@ namespace {{cs_name Namespace}}.Data.Repository
                     {{#each CustomType.Fields}}
             {{cml_case ../Name}}Table.Columns.Add(new DataColumn("{{Name}}", typeof({{format_clr_type ClrType}})));                        
                     {{/each}}
+                    {{#if IsCustomArrayType}}
+            foreach (var item in {{cml_case Name}})
+            {
+                var row = {{cml_case Name}}Table.NewRow();
+            {{#each CustomType.Fields}}
+                row["{{Name}}"] = item.{{cs_name Name}};
+            {{/each}}
+                {{cml_case Name}}Table.Rows.Add(row);
+            }
+                    {{else}}    
+            var row = {{cml_case Name}}Table.NewRow();
+                {{#each CustomType.Fields}}
+            row["{{Name}}"] = {{cml_case ../Name}}.{{cs_name Name}};
+                {{/each}}
+            {{cml_case Name}}Table.Rows.Add(row);
+                    {{/if}}
             cmd.Parameters.Add(new SqlParameter{ParameterName = "@{{Name}}", Value = {{cml_case Name}}Table, SqlDbType = SqlDbType.Structured, TypeName = "{{ProviderTypeName}}" });
-            
                 {{else}}
                     {{#if IsNullable}}
             SetParameterValue({{cml_case Name}}, cmd, "@{{Name}}", SqlDbType.{{db_type_to_cs ProviderTypeName}});
