@@ -403,8 +403,13 @@ public class SqlServerTypeProviderTests : DbTestBase
             var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
             provider.GetOperations(model);
-            model.Operations.Count.ShouldBe(1);
+
+            var validationType = model.Types.SingleOrDefault(t => t.Name == "ValidationStatus");
+            validationType.ShouldNotBeNull();
+            var nameUnderlyingTypeField = validationType.GetFieldByName("Name");
+            nameUnderlyingTypeField.IsRequired.ShouldBe(true);
             
+            model.Operations.Count.ShouldBe(1);
             var op = model.Operations.First();
             op.Parameters.Count.ShouldBe(3);
             var customTypeParam = op.Parameters.Single(p => p.Name == "ValidationStatusToAdd");
@@ -413,6 +418,9 @@ public class SqlServerTypeProviderTests : DbTestBase
             model.ResultTypes.Count(t => t.Name == customTypeParam.ProviderTypeName).ShouldBe(1);
             var resultType = model.ResultTypes.Single(t => t.Name == customTypeParam.ProviderTypeName);
             resultType.Ignore.ShouldBe(false);
+            var nameField = resultType.GetFieldByName("Name");
+            nameField.ShouldNotBeNull();
+            nameField.IsRequired.ShouldBe(true);
             
             op.SingleResult.ShouldBe(true);
             op.Returns.ClrReturnType.ShouldBe(typeof(int));
@@ -535,7 +543,7 @@ public class SqlServerTypeProviderTests : DbTestBase
             Description text,
             Materials xml,
             UnitPrice decimal,
-            Created datetime not null
+            Created datetimeoffset not null
         );
     ";
     

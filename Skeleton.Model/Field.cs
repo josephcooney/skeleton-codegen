@@ -57,9 +57,9 @@ namespace Skeleton.Model
 
         public bool IsTrackingDate => IsCreatedDate || IsModifiedDate || (Type is ApplicationType && ((ApplicationType)Type).DeleteType == DeleteType.Soft && Name.StartsWith(DeletedFieldName));
 
-        public bool IsCreatedDate => IsDateTime && Type.Domain.NamingConvention.IsCreatedTimestampFieldName(Name);
+        public bool IsCreatedDate => (IsDateTime || IsDateTimeOffset) && Type.Domain.NamingConvention.IsCreatedTimestampFieldName(Name);
 
-        public bool IsModifiedDate => IsDateTime && Type.Domain.NamingConvention.IsModifiedTimestampFieldName(Name);
+        public bool IsModifiedDate => (IsDateTime || IsDateTimeOffset) && Type.Domain.NamingConvention.IsModifiedTimestampFieldName(Name);
         
         public bool IsTrackingUser => (ReferencesType != null && ReferencesType.IsSecurityPrincipal) && (Type.Domain.NamingConvention.IsTrackingUserFieldName(Name));
 
@@ -72,6 +72,8 @@ namespace Skeleton.Model
         public bool HasReferenceType => ReferencesType != null;
 
         public bool IsDateTime => (ClrType == typeof(DateTime) || ClrType == typeof(DateTime?));
+        
+        public bool IsDateTimeOffset => (ClrType == typeof(DateTimeOffset) || ClrType == typeof(DateTimeOffset?));
 
         public bool IsDate => Type.Domain.TypeProvider.IsDateOnly(ProviderTypeName);
         

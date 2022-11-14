@@ -22,6 +22,11 @@ public class DbTypeAdapterTests : DbTestBase
             var adapter = new DbTypeAdapter(type, new []{"insert"}, OperationType.Insert, model);
             var idField = adapter.InsertFields.SingleOrDefault(f => f.Name == "Id");
             idField.ShouldBeNull();
+            
+            // also check created date field is not part of the generated insert type
+            var createdField = adapter.InsertTypeFields.SingleOrDefault(f => f.Name == "Created");
+            createdField.ShouldBeNull();
+            
             adapter.FunctionName.ShouldBe("ProductInsert");
         }
         finally

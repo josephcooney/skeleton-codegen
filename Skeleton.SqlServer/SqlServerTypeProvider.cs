@@ -1113,6 +1113,11 @@ ORDER BY r.ROUTINE_NAME, rc.ORDINAL_POSITION;";
                 }
             }
         }
+
+        if (operation.Attributes?.applicationtype != null)
+        {
+            domain.UpdateResultFieldPropertiesFromApplicationType(operation, result);
+        }
         
         result.Operations.Add(operation);
         domain.ResultTypes.Add(result);
