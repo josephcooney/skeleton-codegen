@@ -145,6 +145,8 @@ namespace Skeleton.Model
 
         public bool IsInt => ClrType == typeof(int);
 
+        public bool IsClrTypeNullable => Nullable.GetUnderlyingType(ClrType) != null;
+
         public Field RelatedTypeField
         {
             get

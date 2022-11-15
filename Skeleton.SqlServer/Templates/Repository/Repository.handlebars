@@ -151,14 +151,22 @@ namespace {{cs_name Namespace}}.Data.Repository
             {
                 var row = {{cml_case Name}}Table.NewRow();
             {{#each CustomType.Fields}}
+                {{#if IsClrTypeNullable}}
+                row["{{Name}}"] = (object)item.{{cs_name Name}} ?? DBNull.Value;    
+                {{else}}
                 row["{{Name}}"] = item.{{cs_name Name}};
+                {{/if}}
             {{/each}}
                 {{cml_case Name}}Table.Rows.Add(row);
             }
                     {{else}}    
             var row = {{cml_case Name}}Table.NewRow();
                 {{#each CustomType.Fields}}
-            row["{{Name}}"] = {{cml_case ../Name}}.{{cs_name Name}};
+                    {{#if IsClrTypeNullable}}
+            row["{{Name}}"] = (object){{cml_case ../Name}}.{{cs_name Name}} ?? DBNull.Value;            
+                    {{else}}
+            row["{{Name}}"] = {{cml_case ../Name}}.{{cs_name Name}};                        
+                    {{/if}}
                 {{/each}}
             {{cml_case Name}}Table.Rows.Add(row);
                     {{/if}}
