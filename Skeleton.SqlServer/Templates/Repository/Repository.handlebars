@@ -144,7 +144,7 @@ namespace {{cs_name Namespace}}.Data.Repository
                     
             var {{cml_case Name}}Table = new DataTable();        
                     {{#each CustomType.Fields}}
-            {{cml_case ../Name}}Table.Columns.Add(new DataColumn("{{Name}}", typeof({{format_clr_type ClrType}})));                        
+            {{cml_case ../Name}}Table.Columns.Add(new DataColumn("{{Name}}", typeof({{format_clr_type_not_nullable ClrType}})));                        
                     {{/each}}
                     {{#if IsCustomArrayType}}
             foreach (var item in {{cml_case Name}})

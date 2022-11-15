@@ -90,6 +90,24 @@ namespace Skeleton.Templating
                 writer.Write(result);
             });
             
+            Handlebars.RegisterHelper("format_clr_type_not_nullable", (writer, context, parameters) =>
+            {
+                if (parameters == null || parameters.Length == 0 || parameters[0] == null)
+                {
+                    writer.Write("ERROR: No type provided");
+                    return;
+                }
+
+                var originalType = (System.Type) parameters[0];
+                if (Nullable.GetUnderlyingType(originalType) != null)
+                {
+                    originalType = Nullable.GetUnderlyingType(originalType);
+                }
+                
+                var result = FormatClrType(originalType);
+                writer.Write(result);
+            });
+            
             Handlebars.RegisterHelper("remove_spaces", (writer, context, parameters) =>
             {
                 if (parameters == null || parameters.Length == 0)
