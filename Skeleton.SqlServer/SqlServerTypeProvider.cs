@@ -881,7 +881,14 @@ public class SqlServerTypeProvider : ITypeProvider
 
     private static int? SanitizeSize(int? size, string providerDataType)
     {
+        // for parameters the size for varchar/varbinary max will be reported as -1
         if (size == -1)
+        {
+            return null;
+        }
+
+        // for fields the size for varchar/varbinary max will be reported as 2147483647
+        if (size == 2147483647)
         {
             return null;
         }

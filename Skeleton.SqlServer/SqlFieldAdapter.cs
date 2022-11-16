@@ -126,7 +126,7 @@ public class SqlFieldAdapter : IParamterPrototype
         public bool IsIdentity => _field.IsKey;
         public bool IsInt => _field.IsInt;
 
-        public bool HasSize => _field.Size != null;
+        public bool HasSize => _field.Size != null || ProviderTypeName.ToLowerInvariant() == "varchar" || ProviderTypeName.ToLowerInvariant() == "varbinary";
 
         public int? Size => _field.Size;
 
@@ -136,7 +136,7 @@ public class SqlFieldAdapter : IParamterPrototype
             {
                 if (HasSize)
                 {
-                    if (_field.Size > 8000)
+                    if (_field.Size > 8000 || _field.Size == null)
                     {
                         return "max";
                     }
