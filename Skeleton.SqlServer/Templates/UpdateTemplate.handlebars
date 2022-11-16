@@ -14,7 +14,7 @@ AS
             {{/each}}
         WHERE
         {{#each PrimaryKeyFields}}
-            {{{escape_sql_keyword Parent.Name}}}.{{{escape_sql_keyword Name}}} = {{{remove_spaces Name}}}{{#unless @last}} AND{{/unless}}{{/each}}{{#if SoftDelete}} AND deleted_date is NULL{{/if}};
+            {{{escape_sql_keyword Parent.Name}}}.{{{escape_sql_keyword Name}}} = @{{{remove_spaces Name}}}{{#unless @last}} AND{{/unless}}{{/each}}{{#if SoftDelete}} AND deleted_date is NULL{{/if}};
 
         SET @update_count = @@ROWCOUNT;
         
