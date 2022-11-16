@@ -34,6 +34,8 @@ public class SnakeCaseNamingConvention : NamingConventionBase, INamingConvention
         return fieldName + "_param";
     }
 
+    public string IdFieldName => "id";
+
     public bool IsSecurityUserIdParameterName(string fieldName)
     {
         return fieldName == SecurityUserIdParameterName;

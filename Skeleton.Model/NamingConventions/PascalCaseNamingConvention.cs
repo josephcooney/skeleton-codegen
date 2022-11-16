@@ -64,6 +64,8 @@ public class PascalCaseNamingConvention : NamingConventionBase, INamingConventio
         return fieldName + "Param";
     }
 
+    public string IdFieldName => "Id";
+
     public bool IsSecurityUserIdParameterName(string fieldName)
     {
         return fieldName.Equals(SecurityUserIdParameterName, StringComparison.InvariantCultureIgnoreCase);

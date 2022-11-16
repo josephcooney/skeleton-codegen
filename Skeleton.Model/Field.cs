@@ -22,8 +22,6 @@ namespace Skeleton.Model
 
         public const string SearchFieldName = "search_content";
         
-        public const string IdFieldName = "id";
-        
         public const string ColorFieldType = "color";
 
         public const string ThumbnailFieldType = "thumbnail";

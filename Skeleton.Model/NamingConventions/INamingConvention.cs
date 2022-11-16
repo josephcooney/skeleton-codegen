@@ -8,6 +8,7 @@ public interface INamingConvention
 
     string CreateParameterNameFromFieldName(string fieldName);
     string SecurityUserIdParameterName { get; }
+    string IdFieldName { get; }
 
     bool IsSecurityUserIdParameterName(string fieldName);
     

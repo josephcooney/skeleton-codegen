@@ -299,7 +299,7 @@ namespace Skeleton.Templating.Classes.Adapters
                 var navParamNames = new List<string>();
                 if (ChangesData && !CreatesNew)
                 {
-                    navParamNames.Add(Field.IdFieldName);
+                    navParamNames.Add(_domain.NamingConvention.IdFieldName);
                 }
 
                 var navParams = _op.Attributes?.navParams;
