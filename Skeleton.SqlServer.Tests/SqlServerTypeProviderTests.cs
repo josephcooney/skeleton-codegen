@@ -500,6 +500,33 @@ public class SqlServerTypeProviderTests : DbTestBase
         }
     }
     
+    //
+    [Fact]
+    public void SizeOfVarcharMaxAndVarBinaryMaxColsIsSetToNull()
+    {
+        var testDbInfo = CreateTestDatabase(TestDbWithMaxCols);
+        try
+        {
+            var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()));
+            
+            var type = model.Types.SingleOrDefault(t => t.Name == "SimpleLookupTable");
+
+            var nameCol = type.GetFieldByName("Name");
+            nameCol.Size.ShouldBeNull();
+
+            var bigTxt = type.GetFieldByName("BigText");
+            bigTxt.Size.ShouldBeNull();
+
+            var bigBin = type.GetFieldByName("BigBinary");
+            bigBin.Size.ShouldBeNull();
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
+    
     private const string TestDbScript = @"
         create table simple_lookup_table (
             id int identity primary key not null,
@@ -769,6 +796,17 @@ EXEC sp_addextendedproperty
     @level2type = N'Column', @level2name = 'MimeType';  
 GO    
 ";
+    
+    private const string TestDbWithMaxCols = @"
+        create table SimpleLookupTable (
+            Id int identity primary key not null,
+            Name text not null,
+            BigText varchar(max),
+            BigBinary varbinary(max),
+            Created datetime not null,
+            Modified datetime
+        );
+    ";
     
     private const string AndViewToSchema = @"        
         create view ProductsCreatedToday AS
