@@ -7,7 +7,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 {
     public class PagedDbTypeAdapter : DbTypeAdapter
     {
-        public PagedDbTypeAdapter(ApplicationType applicationType, OperationType operationType, Domain domain) : base(applicationType, "select_paged", operationType, domain)
+        public PagedDbTypeAdapter(ApplicationType applicationType, OperationType operationType, Domain domain) : base(applicationType, new []{"select", "paged"}, operationType, domain)
         {
         }
 

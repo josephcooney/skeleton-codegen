@@ -1,6 +1,6 @@
-﻿namespace Skeleton.Model;
+﻿namespace Skeleton.Model.NamingConventions;
 
-public class NamingConvention
+public class NamingConventionSettings
 {
     public DbNamingConvention DbNamingConvention { get; set; }
     
@@ -8,6 +8,10 @@ public class NamingConvention
     public string[] CreatedTimestampFieldNames { get; set; }
     public string[] ModifiedUserFieldNames { get; set; }
     public string[] ModifiedTimestampFieldNames { get; set; }
+    
+    // for attachments
+    public string[] ThumbnailFieldNames { get; set; }
+    public string[] ContentTypeFieldNames { get; set; }
 }
 
 public enum DbNamingConvention

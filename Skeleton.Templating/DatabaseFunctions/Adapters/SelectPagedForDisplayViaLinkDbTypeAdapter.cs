@@ -6,7 +6,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 {
     public class SelectPagedForDisplayViaLinkDbTypeAdapter : SelectForDisplayViaLinkDbTypeAdapter
     {
-        public SelectPagedForDisplayViaLinkDbTypeAdapter(ApplicationType applicationType, string operation, ApplicationType linkingType, Domain domain) : base(applicationType, operation, linkingType, domain)
+        public SelectPagedForDisplayViaLinkDbTypeAdapter(ApplicationType applicationType, string[] operation, ApplicationType linkingType, Domain domain) : base(applicationType, operation, linkingType, domain)
         {
         }
         

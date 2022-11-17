@@ -1,33 +1,46 @@
-﻿using System;
+﻿#nullable enable
+using System;
+using System.Diagnostics;
 using Serilog;
 
 namespace Skeleton.Model
 {
+    [DebuggerDisplay("Name: {Name} {ClrType}")]
     public class Parameter
     {
         protected readonly Domain _domain;
 
-        public Parameter(Domain domain, Operation operation)
+        public Parameter(Domain domain, Operation operation, string name, Type clrType, string providerTypeName)
         {
             _domain = domain;
             Operation = operation;
+            Name = name;
+            ClrType = clrType;
+            ProviderTypeName = providerTypeName;
         }
         
         public Operation Operation { get; }
         
-        public dynamic Attributes { get; set; }
-
-        public const string SecurityUserIdParamName = "security_user_id_param";
-
-        public virtual string Name { get; set; }
+        public dynamic? Attributes { get; set; }
+        
+        public virtual string Name { get; }
 
         public virtual int Order { get; set; }
 
-        public virtual Type ClrType { get; set; }
+        public virtual Type ClrType { get; private set; }
 
-        public virtual string ProviderTypeName { get; set; }
+        public virtual string ProviderTypeName { get; }
 
-        public virtual Field RelatedTypeField { get; set; }
+        public virtual Field? RelatedTypeField { get; set; }
+
+        public void UpdateFromField(Field field)
+        {
+            RelatedTypeField = field;
+            if (ClrType != field.ClrType)
+            {
+                ClrType = field.ClrType;
+            }
+        }
 
         public bool IsNullable
         {
@@ -37,7 +50,7 @@ namespace Skeleton.Model
                 {
                     Log.Error("Parameter {ParameterName} does not have a CLR type", Name);
                 }
-                return ClrTypeIsNullable(ClrType);      
+                return ClrTypeIsNullable(ClrType!);      
             }
         } 
 
@@ -63,7 +76,7 @@ namespace Skeleton.Model
         {
             get
             {
-                return Name == SecurityUserIdParamName && (ClrType == _domain.UserIdentity.ClrType || (!ClrTypeIsNullable(_domain.UserIdentity.ClrType) && ClrType == MakeClrTypeNullable(_domain.UserIdentity.ClrType)));
+                return _domain.UserIdentity?.ClrType != null && _domain.NamingConvention.IsSecurityUserIdParameterName(Name)  && (ClrType == _domain.UserIdentity?.ClrType || (!ClrTypeIsNullable(_domain.UserIdentity!.ClrType) && ClrType == MakeClrTypeNullable(_domain.UserIdentity!.ClrType)));
             }
         }
 
@@ -83,5 +96,10 @@ namespace Skeleton.Model
 
         public bool IsJson => ProviderTypeName == "jsonb";
         public bool IsDate => IsDateTime && _domain.TypeProvider.IsDateOnly(ProviderTypeName);
+
+        public void MakeClrTypeNullable()
+        {
+            ClrType = typeof(Nullable<>).MakeGenericType(ClrType);
+        }
     }
 }

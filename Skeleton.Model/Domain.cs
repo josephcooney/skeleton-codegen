@@ -1,7 +1,9 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using Skeleton.Model.NamingConventions;
 
 namespace Skeleton.Model
 {
@@ -9,15 +11,19 @@ namespace Skeleton.Model
     {
         public ITypeProvider TypeProvider { get; }
         
+        public INamingConvention NamingConvention { get; }
+        
         public Settings Settings { get; }
 
-        public Domain(Settings settings, ITypeProvider typeProvider)
+        public Domain(Settings settings, ITypeProvider typeProvider, INamingConvention namingConvention)
         {
             Settings = settings;
             Types = new List<ApplicationType>();
             Operations = new List<Operation>();
             ResultTypes = new List<ResultType>();
             TypeProvider = typeProvider;
+            NamingConvention = namingConvention;
+            DefaultNamespace = settings.ApplicationName;
         }
 
         public List<ApplicationType> Types { get;  }
@@ -43,9 +49,9 @@ namespace Skeleton.Model
 
         public List<string> ExcludedSchemas => Settings.ExcludedSchemas;
 
-        public ApplicationType UserType => Types.SingleOrDefault(t => t.IsSecurityPrincipal);
+        public ApplicationType? UserType => Types.SingleOrDefault(t => t.IsSecurityPrincipal);
         
-        public Field UserIdentity
+        public Field? UserIdentity
         {
             get
             {
@@ -59,28 +65,29 @@ namespace Skeleton.Model
             }
         }
         
-        public SimpleType FindTypeByFields(List<Field> fields, Operation operation)
+        public SimpleType? FindTypeByFields(List<Field> fields, Operation operation, bool ignoreCase)
         {
+            if (operation == null) throw new ArgumentNullException(nameof(operation));
             if (operation?.Attributes?.applicationtype != null)
             {
                 var applicationType = operation.Attributes.applicationtype.ToString();
                 var type = Types.FirstOrDefault(a => a.Name == applicationType && a.Namespace == operation.Namespace);
                 if (type != null)
                 {
-                    if (FieldsMatch(fields, type.Fields))
+                    if (FieldsMatch(fields, type.Fields, ignoreCase))
                     {
                         return type;
                     }
                 }
             }
 
-            var possibleName = FindPossibleNameForTypeFromOperationName(operation.Name);
+            var possibleName = FindPossibleNameForTypeFromOperationName(operation!.Name);
             if (!string.IsNullOrEmpty(possibleName))
             {
                 var possibleMatch = Types.FirstOrDefault(a => a.Name == possibleName && a.Namespace == operation.Namespace);
                 if (possibleMatch != null)
                 {
-                    if (FieldsMatch(fields, possibleMatch.Fields))
+                    if (FieldsMatch(fields, possibleMatch.Fields, ignoreCase))
                     {
                         return possibleMatch; 
                     }
@@ -90,7 +97,7 @@ namespace Skeleton.Model
             return null;
         }
 
-        private bool FieldsMatch(List<Field> fields, List<Field> possibleMatchFields)
+        private bool FieldsMatch(List<Field> fields, List<Field> possibleMatchFields, bool ignoreCase)
         {
             if (fields.Count != possibleMatchFields.Count(f => !f.IsExcludedFromResults))
             {
@@ -99,7 +106,7 @@ namespace Skeleton.Model
 
             foreach (var field in fields)
             {
-                if (!possibleMatchFields.Where(f => !f.IsExcludedFromResults).Any(f => f.Name == field.Name && f.ProviderTypeName == field.ProviderTypeName))
+                if (!possibleMatchFields.Where(f => !f.IsExcludedFromResults).Any(f => ((f.Name == field.Name && !ignoreCase) || (ignoreCase && f.Name.ToLowerInvariant() == field.Name.ToLowerInvariant())) && f.ProviderTypeName == field.ProviderTypeName))
                 {
                     return false;
                 }
@@ -108,7 +115,7 @@ namespace Skeleton.Model
             return true;
         }
         
-        private string FindPossibleNameForTypeFromOperationName(string operationName)
+        private string? FindPossibleNameForTypeFromOperationName(string operationName)
         {
             // try to find the underlying entity name so we can check that first - queries should be named <noun>_<verb>_<suffix> e.g. customer_address_select_by_customer -> we want customer_address
             if (operationName.IndexOf("_select_") > 0)

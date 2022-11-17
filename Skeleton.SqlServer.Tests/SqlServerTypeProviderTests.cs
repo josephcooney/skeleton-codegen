@@ -208,7 +208,7 @@ public class SqlServerTypeProviderTests : DbTestBase
             operation.Parameters.Count.ShouldBe(1);
 
             var parameter = operation.Parameters.First();
-            parameter.Name.ShouldBe("@categoryId");
+            parameter.Name.ShouldBe("categoryId");
             parameter.ProviderTypeName.ShouldBe("int");
             parameter.ClrType.ShouldBe(typeof(int));
 
@@ -317,10 +317,8 @@ public class SqlServerTypeProviderTests : DbTestBase
             op.Parameters.Count.ShouldBe(0);
             
             op.Returns.ShouldNotBeNull();
-            op.Returns.SimpleReturnType.ShouldNotBeNull();
-            op.Returns.SimpleReturnType.Fields.Count.ShouldBe(1);
-            op.Returns.SimpleReturnType.Fields.First().Name.ShouldBe("ThisDB");
-            op.Returns.SimpleReturnType.Fields.First().ClrType.ShouldBe(typeof(string));
+            op.Returns.SimpleReturnType.ShouldBeNull();
+            op.Returns.ClrReturnType.ShouldBe(typeof(string));
         }
         finally
         {
@@ -337,9 +335,191 @@ public class SqlServerTypeProviderTests : DbTestBase
             var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
             provider.GetOperations(model);
+            model.Operations.Count.ShouldBe(3);
+            var op = model.Operations.First(o => o.Name == "ProductSelectAllForDisplay");
+            op.RelatedType.ShouldBe(model.Types.SingleOrDefault(t => t.Name == "Product"));
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
+    
+    [Fact]
+    public void CanAugmentStoredProcedureParameterInformationWithDetailsFromDomainType()
+    {
+        var testDbInfo = CreateTestDatabase(TestDbWithRelatedEntitiesAndFunctions);
+        try
+        {
+            var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()));
+            provider.GetOperations(model);
+            model.Operations.Count.ShouldBe(3);
+            
+            var op = model.Operations.First(o => o.Name == "ProductSelectAllForDisplayByCategoryId");
+            op.RelatedType.ShouldBe(model.Types.SingleOrDefault(t => t.Name == "Product"));
+            op.Parameters.Count.ShouldBe(1);
+            op.Parameters[0].RelatedTypeField.ShouldNotBeNull();
+            op.Parameters[0].Name.ShouldBe("Category");
+            
+            var product = model.Types.First(t => t.Name == "Product");
+            var categoryField = product.GetFieldByName("Category");
+            op.Parameters[0].RelatedTypeField.ShouldBe(categoryField);
+
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
+    
+    [Fact]
+    public void CanAugmentSimpleStoredProcedureReturnInformationWithDetailsFromDomainType()
+    {
+        var testDbInfo = CreateTestDatabase(TestDbWithRelatedEntitiesAndFunctions);
+        try
+        {
+            var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()));
+            provider.GetOperations(model);
+            model.Operations.Count.ShouldBe(3);
+            var op = model.Operations.First(o => o.Name == "ProductSelectAll");
+            op.RelatedType.ShouldBe(model.Types.SingleOrDefault(t => t.Name == "Product"));
+            var product = model.Types.First(t => t.Name == "Product");
+            op.Returns.SimpleReturnType.ShouldBe(product);
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
+
+    [Fact]
+    public void CanCreateResultTypeAsParameterForStoredProcedure()
+    {
+        var testDbInfo = CreateTestDatabase(TestDatabaseWithStoredProcThatTakesCustomInsertTypeAsParam);
+        try
+        {
+            var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()));
+            provider.GetOperations(model);
+
+            var validationType = model.Types.SingleOrDefault(t => t.Name == "ValidationStatus");
+            validationType.ShouldNotBeNull();
+            var nameUnderlyingTypeField = validationType.GetFieldByName("Name");
+            nameUnderlyingTypeField.IsRequired.ShouldBe(true);
+            
             model.Operations.Count.ShouldBe(1);
             var op = model.Operations.First();
-            op.RelatedType.ShouldBe(model.Types.SingleOrDefault(t => t.Name == "Product"));
+            op.Parameters.Count.ShouldBe(3);
+            var customTypeParam = op.Parameters.Single(p => p.Name == "ValidationStatusToAdd");
+            customTypeParam.ProviderTypeName.ShouldBe("ValidationStatusNew");
+            
+            model.ResultTypes.Count(t => t.Name == customTypeParam.ProviderTypeName).ShouldBe(1);
+            var resultType = model.ResultTypes.Single(t => t.Name == customTypeParam.ProviderTypeName);
+            resultType.Ignore.ShouldBe(false);
+            var nameField = resultType.GetFieldByName("Name");
+            nameField.ShouldNotBeNull();
+            nameField.IsRequired.ShouldBe(true);
+            
+            op.SingleResult.ShouldBe(true);
+            op.Returns.ClrReturnType.ShouldBe(typeof(int));
+            op.BareName.ShouldBe("Insert");
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
+
+    [Fact]
+    public void CanReadAttributesFromFields()
+    {
+        var testDbInfo = CreateTestDatabase(TableWithFieldAttributes);
+        try
+        {
+            var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()));
+            var logoType = model.Types.First();
+            logoType.Name.ShouldBe("CompanyLogo");
+            logoType.IsAttachment.ShouldBe(true);
+
+            var mimeType = logoType.GetFieldByName("MimeType");
+            mimeType.ShouldNotBeNull();
+            mimeType.IsAttachmentContentType.ShouldBe(true);
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
+
+    [Fact]
+    public void UpdateParametersAreCorrectlyRepresentedInModel()
+    {
+        var testDbInfo = CreateTestDatabase(TestDatabaseWithUpdateStoredProc);
+        try
+        {
+            var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()));
+            provider.GetOperations(model);
+
+            var op = model.Operations.SingleOrDefault(o => o.Name == "ValidationStatusUpdate");
+            op.ShouldNotBeNull();
+            op.Parameters.Count.ShouldBe(5);
+            op.UserProvidedParameters.Count.ShouldBe(3);
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
+
+    [Fact]
+    public void ReturnedDataFromFunctionsCaseInvariantIsMatchedWithExistingDomainAndReturnTypes()
+    {
+        var testDbInfo = CreateTestDatabase(TestDbWithRelatedEntities);
+        try
+        {
+            // the capitalisation of field names in the 'select product' function is different to
+            // the capitalisation of the field names in the underlying table, but because SQL Server
+            // doesn't care about capitalisation they should still match.
+            AdditionalSchemaChanges(testDbInfo.connectionString, AddSelectAllFunctionToProductDb);
+            var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()));
+            provider.GetOperations(model);
+
+            var productType = model.Types.SingleOrDefault(t => t.Name == "Product");    
+            
+            var op = model.Operations.SingleOrDefault(o => o.Name == "SelectAllProducts");
+            op?.Returns.SimpleReturnType.ShouldBe(productType);
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
+    
+    //
+    [Fact]
+    public void SizeOfVarcharMaxAndVarBinaryMaxColsIsSetToNull()
+    {
+        var testDbInfo = CreateTestDatabase(TestDbWithMaxCols);
+        try
+        {
+            var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()));
+            
+            var type = model.Types.SingleOrDefault(t => t.Name == "SimpleLookupTable");
+
+            var nameCol = type.GetFieldByName("Name");
+            nameCol.Size.ShouldBeNull();
+
+            var bigTxt = type.GetFieldByName("BigText");
+            bigTxt.Size.ShouldBeNull();
+
+            var bigBin = type.GetFieldByName("BigBinary");
+            bigBin.Size.ShouldBeNull();
         }
         finally
         {
@@ -390,7 +570,7 @@ public class SqlServerTypeProviderTests : DbTestBase
             Description text,
             Materials xml,
             UnitPrice decimal,
-            Created datetime not null
+            Created datetimeoffset not null
         );
     ";
     
@@ -417,7 +597,7 @@ public class SqlServerTypeProviderTests : DbTestBase
             BEGIN
                 SELECT p.Id,
                 p.Category,
-                pc.Name as CategoryName,
+                pc.Name as Category_display,
                 p.Name,
                 p.Description,
                 p.Materials,
@@ -428,6 +608,43 @@ public class SqlServerTypeProviderTests : DbTestBase
         GO
         
         EXEC sys.sp_addextendedproperty 'codegen_meta', N'{""applicationtype"":""Product""}', 'schema', N'dbo', 'procedure', N'ProductSelectAllForDisplay';
+        GO
+        
+        create procedure ProductSelectAll AS
+            BEGIN
+                SELECT p.Id,
+                p.Category,
+                p.Name,
+                p.Description,
+                p.Materials,
+                p.UnitPrice,
+                p.Created
+                FROM Product p
+            END;
+        GO
+        
+        EXEC sys.sp_addextendedproperty 'codegen_meta', N'{""applicationtype"":""Product""}', 'schema', N'dbo', 'procedure', N'ProductSelectAll';
+        GO
+            
+        create procedure ProductSelectAllForDisplayByCategoryId 
+            @Category int
+            AS
+            BEGIN
+                SELECT p.Id,
+                p.Category,
+                pc.Name as CategoryName,
+                p.Name,
+                p.Description,
+                p.Materials,
+                p.UnitPrice,
+                p.Created
+                FROM Product p inner join ProductCategory PC on p.Category = PC.Id
+                WHERE p.Category = @Category
+            END;
+        GO
+        
+        EXEC sys.sp_addextendedproperty 'codegen_meta', N'{""applicationtype"":""Product""}', 'schema', N'dbo', 'procedure', N'ProductSelectAllForDisplayByCategoryId';
+        GO
     ";
     
     public const string TestDbWithCalculatedColumn = @"
@@ -445,6 +662,149 @@ public class SqlServerTypeProviderTests : DbTestBase
             UnitPrice decimal not null,
             Quantity int not null,
             Price as (UnitPrice * Quantity)
+        );
+    ";
+
+    private const string TestDatabaseWithStoredProcThatTakesCustomInsertTypeAsParam = @"
+CREATE TABLE [User] (
+    Id int identity primary key NOT NULL,
+    Name text NULL,
+    IsSystem bit NOT NULL,
+    UserName nvarchar(250) NOT NULL,
+    Created datetimeoffset not null,
+    CreatedBy int NOT NULL references [User](Id),
+    CONSTRAINT UserName_Unique UNIQUE (UserName)
+);
+GO
+
+create table ValidationStatus (
+	   Id int identity primary key not null,
+	   Name varchar(50) not null,
+	   CreatedBy int not null references [User](id),
+	   Created datetimeoffset not null,
+	   ModifiedBy int references [User](id),
+	   Modified datetimeoffset
+);
+GO
+
+CREATE TYPE ValidationStatusNew AS TABLE (
+	Name varchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+	Created datetimeoffset NULL,
+	Modified datetimeoffset NULL
+);
+GO
+
+CREATE   PROCEDURE dbo.ValidationStatusInsert 
+    @SecurityUserIdParam int,
+    @CreatedBy int,
+    @ValidationStatusToAdd dbo.ValidationStatusNew READONLY
+AS
+    BEGIN
+
+
+        insert into ValidationStatus (
+            Name,
+            CreatedBy,
+            Created,
+            Modified
+        )
+
+        SELECT 
+        Name,
+        @CreatedBy,
+        Created,
+        Modified
+        FROM @ValidationStatusToAdd
+
+        SELECT cast(scope_identity() as integer);
+    END;
+GO
+
+EXEC sys.sp_addextendedproperty 'codegen_meta', N'{""applicationtype"":""ValidationStatus"", ""single_result"":true}', 'schema', N'dbo', 'procedure', N'ValidationStatusInsert';
+GO
+";
+    
+    
+    private const string TestDatabaseWithUpdateStoredProc = @"
+CREATE TABLE [User] (
+    Id int identity primary key NOT NULL,
+    Name text NULL,
+    IsSystem bit NOT NULL,
+    UserName nvarchar(250) NOT NULL,
+    Created datetimeoffset not null,
+    CreatedBy int NOT NULL references [User](Id),
+    CONSTRAINT UserName_Unique UNIQUE (UserName)
+);
+GO
+
+EXEC sp_addextendedproperty 'codegen_meta', N'{""isSecurityPrincipal"":true}', 'schema', N'dbo', 'table', N'User';
+GO
+
+create table ValidationStatus (
+	   Id int identity primary key not null,
+	   Name varchar(50) not null,
+	   Code char(7) not null,
+	   CreatedBy int not null references [User](id),
+	   Created datetimeoffset not null,
+	   ModifiedBy int references [User](id),
+	   Modified datetimeoffset
+);
+GO
+
+CREATE   PROCEDURE dbo.ValidationStatusUpdate 
+    @SecurityUserIdParam int,
+    @ModifiedBy int,
+    @Name varchar(50),
+    @Code char(7),
+    @Id int
+AS
+    BEGIN
+
+    update ValidationStatus
+    set Name = @Name,
+    Code = @Code,
+    ModifiedBy = @ModifiedBy
+    WHERE Id = @Id
+    
+    END;
+GO
+
+EXEC sys.sp_addextendedproperty 'codegen_meta', N'{""applicationtype"":""ValidationStatus"", ""changesData"":true, ""friendlyName"":""Edit""}', 'schema', N'dbo', 'procedure', N'ValidationStatusUpdate';
+GO
+";
+
+    private const string TableWithFieldAttributes = @"
+create table CompanyLogo (
+	  Id int identity primary key not null,
+	  Name text not null,
+	  MimeType text not null,
+	  Contents varbinary(max) not null,
+	  Thumbnail varbinary(max) not null,
+	  Created datetimeoffset not null,
+	  Modified datetimeoffset	
+);
+GO
+
+EXEC sp_addextendedproperty 'codegen_meta', N'{""isAttachment"":true, ""security"":{""anon"":[""read""]}}', 'schema', N'dbo', 'table', N'CompanyLogo';
+GO
+
+EXEC sp_addextendedproperty   
+    @name = N'codegen_meta',   
+    @value = '{""isContentType"": true}',  
+    @level0type = N'Schema', @level0name = 'dbo',  
+    @level1type = N'Table',  @level1name = 'CompanyLogo',  
+    @level2type = N'Column', @level2name = 'MimeType';  
+GO    
+";
+    
+    private const string TestDbWithMaxCols = @"
+        create table SimpleLookupTable (
+            Id int identity primary key not null,
+            Name text not null,
+            BigText varchar(max),
+            BigBinary varbinary(max),
+            Created datetime not null,
+            Modified datetime
         );
     ";
     
@@ -478,6 +838,15 @@ public class SqlServerTypeProviderTests : DbTestBase
         CREATE PROC GetDbName
         AS
         SELECT DB_NAME() AS ThisDB;
+    ";
+
+    private const string AddSelectAllFunctionToProductDb = @"
+    create function SelectAllProducts() 
+    returns table
+    as
+    return select id, category, name, description, materials, unitprice, created from Product;
+    GO
+    EXEC sys.sp_addextendedproperty 'codegen_meta', N'{""applicationtype"":""Product""}', 'schema', N'dbo', 'function', N'SelectAllProducts';
     ";
 }
 

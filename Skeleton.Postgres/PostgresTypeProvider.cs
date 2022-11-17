@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using Npgsql;
 using NpgsqlTypes;
 using Serilog;
+using Skeleton.Model.NamingConventions;
 using Constraint = Skeleton.Model.Constraint;
 
 namespace Skeleton.Postgres
@@ -22,7 +23,7 @@ namespace Skeleton.Postgres
     {
         private readonly string _connectionString;
         private static Dictionary<string, NpgsqlDbType> _postgresNpgSqlTypes;
-        
+        private INamingConvention _namingConvention;        
 
         static PostgresTypeProvider()
         {
@@ -81,12 +82,32 @@ namespace Skeleton.Postgres
 
         public Domain GetDomain(Settings settings)
         {
-            var domain = new Domain(settings, this);
+            _namingConvention = CreateNamingConvention(settings);
+            var domain = new Domain(settings, this, _namingConvention);
             domain.Types.AddRange(GetTypes(settings.ExcludedSchemas, domain));
 
             return domain;
         }
-        
+
+        private INamingConvention CreateNamingConvention(Settings settings)
+        {
+            if (settings.NamingConventionSettings == null)
+            {
+                return new SnakeCaseNamingConvention(null);
+            }
+
+            switch (settings.NamingConventionSettings.DbNamingConvention)
+            {
+                case DbNamingConvention.ProviderDefault:
+                case DbNamingConvention.SnakeCase:
+                    return new SnakeCaseNamingConvention(settings.NamingConventionSettings);
+                case DbNamingConvention.PascalCase:
+                    return new PascalCaseNamingConvention(settings.NamingConventionSettings);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
         private List<ApplicationType> GetTypes(List<string> excluededSchemas, Domain domain)
         {
             var types = new List<ApplicationType>();
@@ -250,7 +271,7 @@ namespace Skeleton.Postgres
 
         public void DropGeneratedOperations(Settings settings, StringBuilder sb)
         {
-            var dom = new Domain(settings, this);
+            var dom = new Domain(settings, this, CreateNamingConvention(settings));
             GetOperationsInternal(dom, false);
             foreach (var operation in dom.Operations.Where(a => a.IsGenerated))
             {
@@ -1381,7 +1402,7 @@ namespace Skeleton.Postgres
                 else
                 {
                     // instead of using an attribute here we could do some fancy inferencing too
-                    var name = operation.Name + "_result";
+                    var name = domain.NamingConvention.CreateResultTypeNameForOperation(operation.Name);
                     if (operation.CustomReturnTypeName != null)
                     {
                         name = operation.CustomReturnTypeName;
@@ -1446,7 +1467,7 @@ namespace Skeleton.Postgres
 
         private SimpleType FindTypeByFields(Domain domain, List<Field> fields, Operation operation)
         {
-            return domain.FindTypeByFields(fields, operation);
+            return domain.FindTypeByFields(fields, operation, false);
         }
         
         private IEnumerable<Parameter> ReadParameters(string parameters, Domain domain, Operation operation)
@@ -1504,7 +1525,7 @@ namespace Skeleton.Postgres
                 }  
             }
             
-            var parameter = new Parameter(domain, operation) {Name = n.Name, ProviderTypeName = n.Type.Name, ClrType = type };
+            var parameter = new Parameter(domain, operation, n.Name, type, n.Type.Name);
             return parameter;
         }
 
@@ -1712,22 +1733,22 @@ AND KCU1.TABLE_SCHEMA = '{type.Namespace}'
                 var fld = op.RelatedType.Fields.FirstOrDefault(f => f.Name == prm.Name);
                 if (fld != null)
                 {
-                    UpdateParamFromField(prm, fld);
+                    prm.UpdateFromField(fld);
                 }
                 else
                 {
-                    if (prm.Name == Parameter.SecurityUserIdParamName && !prm.IsNullable)
+                    if (prm.Name == _namingConvention.SecurityUserIdParameterName && !prm.IsNullable)
                     {
-                        prm.ClrType = MakeClrTypeNullable(prm.ClrType);
+                        prm.MakeClrTypeNullable();
                     }
                     else
                     {
                         // since this matching above is done by name, it misses some things e.g. where the parameter is called id_param and the field is called id.
                         // here we 'fall back' to try to fix that
-                        var paramFld = op.RelatedType.Fields.FirstOrDefault(f => f.Name + "_param" == prm.Name);
+                        var paramFld = op.RelatedType.Fields.FirstOrDefault(f => _namingConvention.CreateParameterNameFromFieldName(f.Name) == prm.Name);
                         if (paramFld != null)
                         {
-                            UpdateParamFromField(prm, paramFld);
+                            prm.UpdateFromField(paramFld);
                         }
                     }
                 }
@@ -1744,15 +1765,6 @@ AND KCU1.TABLE_SCHEMA = '{type.Namespace}'
             }
 
             op.RelatedType = appType;
-        }
-
-        private static void UpdateParamFromField(Parameter prm, Field fld)
-        {
-            prm.RelatedTypeField = fld;
-            if (prm.ClrType != fld.ClrType)
-            {
-                prm.ClrType = fld.ClrType;
-            }
         }
         
         private const string ProceduresQuery =

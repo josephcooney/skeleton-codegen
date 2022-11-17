@@ -299,7 +299,7 @@ namespace Skeleton.Templating.Classes.Adapters
                 var navParamNames = new List<string>();
                 if (ChangesData && !CreatesNew)
                 {
-                    navParamNames.Add(Field.IdFieldName);
+                    navParamNames.Add(_domain.NamingConvention.IdFieldName);
                 }
 
                 var navParams = _op.Attributes?.navParams;
@@ -439,9 +439,17 @@ namespace Skeleton.Templating.Classes.Adapters
                     return new ClientCustomTypeModel(this, _domain);
                 }
 
-                // this doesn't support multiple custom result types as parameters
-                var customParam = Parameters.Single(p => p.IsCustomTypeOrCustomArray);
-                return new ClientCustomTypeModel(customParam.CustomType);
+                try
+                {
+                    // this doesn't support multiple custom result types as parameters
+                    var customParam = Parameters.Single(p => p.IsCustomTypeOrCustomArray);
+                    return new ClientCustomTypeModel(customParam.CustomType);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Unexpected error getting custom type for operation {OperationName}", Name);
+                    throw;
+                }
             }
         }
 

@@ -56,7 +56,10 @@ namespace Skeleton.Templating.ReactClient.Adapters
         {
             get
             {
-                var selectAllOp = Operations.FirstOrDefault(op => op.Name.EndsWith(DbFunctionGenerator.SelectAllForDisplayFunctionName));
+                var suffix =
+                    _domain.NamingConvention.CreateNameFromFragments(DbFunctionGenerator.SelectAllForDisplayFunctionName
+                        .ToList());
+                var selectAllOp = Operations.FirstOrDefault(op => op.Name.EndsWith(suffix));
                 // TODO - fall back to "select_all" operation?
                 if (selectAllOp == null)
                 {
@@ -70,13 +73,16 @@ namespace Skeleton.Templating.ReactClient.Adapters
         {
             get
             {
-                var selectForDisplayOp = Operations.FirstOrDefault(op => op.Name.StartsWith(_applicationType.Name + "_" + DbFunctionGenerator.SelectForDisplayFunctionName));
+                var fragments = new List<string>(){_applicationType.Name};
+                fragments.AddRange(DbFunctionGenerator.SelectForDisplayFunctionName);
+                var operationNameStart = _domain.NamingConvention.CreateNameFromFragments(fragments);
+                var selectForDisplayOp = Operations.FirstOrDefault(op => op.Name.StartsWith(operationNameStart));
                 if (selectForDisplayOp != null)
                 {
                     return selectForDisplayOp.SimpleReturnType;
                 }
 
-                return this._applicationType;
+                return _applicationType;
             }
         }
 

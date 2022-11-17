@@ -11,7 +11,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         private readonly ApplicationType _linkingType;
         private string _linkTypeAlias;
 
-        public SelectForDisplayViaLinkDbTypeAdapter(ApplicationType applicationType, string operation, ApplicationType linkingType, Domain domain) : base(applicationType, operation, domain)
+        public SelectForDisplayViaLinkDbTypeAdapter(ApplicationType applicationType, string[] operation, ApplicationType linkingType, Domain domain) : base(applicationType, operation, domain)
         {
             _linkingType = linkingType ?? throw new ArgumentNullException(nameof(linkingType));
         }

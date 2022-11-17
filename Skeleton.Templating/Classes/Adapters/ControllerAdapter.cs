@@ -16,7 +16,7 @@ namespace Skeleton.Templating.Classes.Adapters
         {
             get
             {
-                var field = _type.Fields.FirstOrDefault(f => f.IsTrackingUser && f.Name.StartsWith(Field.CreatedFieldName));
+                var field = _type.Fields.FirstOrDefault(f => f.IsTrackingUser && _type.Domain.NamingConvention.IsCreatedByFieldName(f.Name));
                 if (field != null)
                 {
                     return new FieldAdapter(field);
@@ -29,7 +29,7 @@ namespace Skeleton.Templating.Classes.Adapters
         {
             get
             {
-                var field = _type.Fields.FirstOrDefault(f => f.IsTrackingUser && f.Name.StartsWith(Field.ModifiedFieldName));
+                var field = _type.Fields.FirstOrDefault(f => f.IsTrackingUser && _type.Domain.NamingConvention.IsModifiedByFieldName(f.Name));
                 if (field != null)
                 {
                     return new FieldAdapter(field);
@@ -97,7 +97,7 @@ namespace Skeleton.Templating.Classes.Adapters
                     return customControllerBase;
                 }
 
-                return "BaseController";
+                return "ControllerBase";
             }
         }
     }

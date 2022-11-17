@@ -41,4 +41,4 @@ REVOKE ALL ON FUNCTION {{FunctionName}} (integer, character varying) FROM public
 GRANT EXECUTE ON FUNCTION {{FunctionName}} (integer, character varying) TO web_app_role;
 
 COMMENT ON FUNCTION {{FunctionName}} (integer, character varying)
-    IS '{"applicationtype":"{{Name}}", "generated":true, "fullName":"{{FunctionName}}", "returnTypeName":"{{Name}}_select_for_display_result" }';
+    IS '{"applicationtype":"{{Name}}", "generated":true, "fullName":"{{FunctionName}}", "returnTypeName":"{{Name}}SelectForDisplayResult" }';

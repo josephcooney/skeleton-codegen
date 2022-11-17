@@ -91,10 +91,6 @@
     <EmbeddedResource Include="Classes\Mvc\Controller.handlebars" />
     <EmbeddedResource Include="Classes\WebApi\ApiController.handlebars" />
     <EmbeddedResource Include="Classes\Mvc\EditViewModel.handlebars" />
-    <EmbeddedResource Include="Classes\Repository\RepositoryBase.handlebars" />
-    <EmbeddedResource Include="Classes\Repository\RepositoryModule.handlebars" />
-    <EmbeddedResource Include="Classes\ReturnType.handlebars" />
-    <EmbeddedResource Include="Classes\Repository\Repository.handlebars" />
   </ItemGroup>
 
   <ItemGroup>

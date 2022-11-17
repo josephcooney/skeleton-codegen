@@ -7,7 +7,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 {
     public class SelectPagedByFieldsForDisplayDbTypeAdapter : SelectByFieldsForDisplayDbTypeAdapter
     {
-        public SelectPagedByFieldsForDisplayDbTypeAdapter(ApplicationType applicationType, string operation, List<Field> selectFields, Domain domain) : base(applicationType, operation, selectFields, domain)
+        public SelectPagedByFieldsForDisplayDbTypeAdapter(ApplicationType applicationType, string[] operation, List<Field> selectFields, Domain domain) : base(applicationType, operation, selectFields, domain)
         {
         }
         

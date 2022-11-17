@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Serilog;
 using Skeleton.Model;
 using Skeleton.Model.Operations;
 
@@ -10,11 +11,11 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
     public class DbTypeAdapter : IOperationPrototype
     {
         protected readonly ApplicationType _applicationType;
-        private readonly string _operation;
+        private readonly string[] _operation;
         private readonly Domain _domain;
 
 
-        public DbTypeAdapter(ApplicationType applicationType, string operation, OperationType operationType, Domain domain)
+        public DbTypeAdapter(ApplicationType applicationType, string[] operation, OperationType operationType, Domain domain)
         {
             _applicationType = applicationType;
             _operation = operation;
@@ -86,7 +87,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         {
             get
             {
-                var field = _applicationType.Fields.FirstOrDefault(f => f.IsTrackingUser && f.Name.StartsWith(Field.CreatedFieldName));
+                var field = _applicationType.Fields.FirstOrDefault(f => f.IsTrackingUser && _domain.NamingConvention.IsCreatedByFieldName(f.Name));
                 if (field != null)
                 {
                     return _domain.TypeProvider.CreateFieldAdapter(field, this);
@@ -101,7 +102,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         {
             get
             {
-                var field = _applicationType.Fields.FirstOrDefault(f => f.IsTrackingUser && f.Name.StartsWith(Field.ModifiedFieldName));
+                var field = _applicationType.Fields.FirstOrDefault(f => f.IsTrackingUser && _domain.NamingConvention.IsModifiedByFieldName(f.Name));
                 if (field != null)
                 {
                     return _domain.TypeProvider.CreateFieldAdapter(field, this);
@@ -202,7 +203,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
                     fields.AddRange(PrimaryKeyFields);
                 }
                 
-                var createdDateTrackingField = _applicationType.Fields.FirstOrDefault(a => a.IsTrackingDate && a.Name == Field.CreatedFieldName);
+                var createdDateTrackingField = _applicationType.Fields.FirstOrDefault(a => a.IsCreatedDate);
                 if (createdDateTrackingField != null)
                 {
                     fields.Add(_domain.TypeProvider.CreateFieldAdapter(createdDateTrackingField, this));
@@ -225,7 +226,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
             get
             {
                 var fields = UserEditableFields.Where(f => f.Edit).ToList();
-                var updatedDateTrackingField = _applicationType.Fields.FirstOrDefault(a => a.IsTrackingDate && a.Name == Field.ModifiedFieldName);
+                var updatedDateTrackingField = _applicationType.Fields.FirstOrDefault(a => a.IsModifiedDate);
                 if (updatedDateTrackingField != null)
                 {
                     fields.Add(_domain.TypeProvider.CreateFieldAdapter(updatedDateTrackingField, this));
@@ -251,8 +252,16 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 
         public bool HasExcludedFields => _applicationType.Fields.Any(f => f.IsExcludedFromResults);
 
-        public virtual string FunctionName => _applicationType.Name + "_" + _operation;
-
+        public virtual string FunctionName
+        {
+            get
+            {
+                var fragments = new List<string>() { _applicationType.Name };
+                fragments.AddRange(_operation);
+                return _domain.NamingConvention.CreateNameFromFragments(fragments);
+            }
+        }
+        
         public OperationType OperationType { get; }
 
         public string ShortName => _applicationType.Name[0].ToString().ToLowerInvariant();
@@ -420,9 +429,9 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         }
 
         public string AddManyArrayItemVariableName => "item";
-        public string NewRecordParameterName => Name + "_to_add";
+        public string NewRecordParameterName =>  _domain.NamingConvention.CreateNameFromFragments(new List<string> {Name, "to", "add"});
 
-        public string NewTypeName => Name + "_new";
+        public string NewTypeName => _domain.NamingConvention.CreateNameFromFragments(new List<string> {Name, "new"});
 
         public bool UsesCustomInsertType
         {
@@ -449,7 +458,16 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 
         private Field GetFieldsLinkingToOwnedType(ApplicationType type)
         {
-            return type.Fields.SingleOrDefault(f => f.HasReferenceType && f.ReferencesType.Fields.Any(fld => fld.IsTrackingUser));
+            try
+            {
+                return type.Fields.FirstOrDefault(f =>
+                    f.HasReferenceType && f.ReferencesType.Fields.Any(fld => fld.IsTrackingUser));
+            }
+            catch (InvalidOperationException opEx)
+            {
+                Log.Error(opEx, "Multiple linking fields to Owned Type for Type {ApplicationType}", _applicationType.Name);
+                throw;
+            }
         }
 
         private List<Field> GetRelatingFields(ApplicationType type)
@@ -467,7 +485,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 
             if (HasCreatedByField)
             {
-                sb.AppendLine($"{aliasExp}{CreatedByField.Name} = {currentUserIdentifier}");
+                sb.AppendLine($"{aliasExp}{CreatedByField.Name} = {_domain.TypeProvider.FormatOperationParameterName(FunctionName, currentUserIdentifier)}");
             }
 
             if (HasCreatedByField && HasModifiedByField)
@@ -477,7 +495,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 
             if (HasModifiedByField)
             {
-                sb.AppendLine($"{aliasExp}{ModifiedByField.Name} = {currentUserIdentifier}");
+                sb.AppendLine($"{aliasExp}{ModifiedByField.Name} = {_domain.TypeProvider.FormatOperationParameterName(FunctionName, currentUserIdentifier)}");
             }
         }
     }

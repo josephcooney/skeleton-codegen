@@ -18,7 +18,7 @@ namespace Skeleton.Templating.Classes.Repository
 
         public List<DbOperationAdapter> Operations
         {
-            get { return _domain.Operations.Where(o => !o.Ignore && o.Attributes?.applicationtype == Type.Name || o.Returns.SimpleReturnType == Type).Select(o => new DbOperationAdapter(o, _domain, Type)).ToList(); }
+            get { return _domain.Operations.Where(o => !o.Ignore && o.Attributes?.applicationtype == Type.Name || o.Returns.SimpleReturnType == Type).OrderBy(o => o.Name).Select(o => new DbOperationAdapter(o, _domain, Type)).ToList(); }
         }
 
         public List<ReturnModel> DistinctReturnTypes

@@ -1,4 +1,4 @@
-# Making an app from 'scratch' without skeleton in .net 6
+# Making an app from 'scratch' with skeleton in .net 6
 
 ## Add Nuget Packages
 - NpgSql
@@ -26,7 +26,7 @@
 
 Base Controller
 ```csharp
-    public abstract class BaseController : Controller
+    public abstract class ControllerBase : Controller
     {
         protected ActionResult TranslateExceptionToResult(NpgsqlException ex)
         {

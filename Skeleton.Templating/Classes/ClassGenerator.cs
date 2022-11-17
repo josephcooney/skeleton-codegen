@@ -13,7 +13,7 @@ namespace Skeleton.Templating.Classes
     {
         public List<CodeFile> GenerateDomain(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
 
             foreach (var type in domain.Types)
@@ -30,7 +30,7 @@ namespace Skeleton.Templating.Classes
 
         public List<CodeFile> GenerateRepositories(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
 
             foreach (var type in domain.Types.OrderBy(t => t.Name))
@@ -40,7 +40,7 @@ namespace Skeleton.Templating.Classes
                     var repo = new RepositoryAdapter(domain, type);
                     if (repo.Operations.Any())
                     {
-                        var file = new CodeFile { Name = Util.CSharpNameFromName(type.Name) + "Repository.cs", Contents = GenerateRepo(repo) };
+                        var file = new CodeFile { Name = Util.CSharpNameFromName(type.Name) + "Repository.cs", Contents = GenerateRepo(repo, domain.TypeProvider) };
                         files.Add(file);
                     }
                 }
@@ -51,7 +51,7 @@ namespace Skeleton.Templating.Classes
         
         public List<CodeFile> GenerateTestRepositories(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
 
             foreach (var type in domain.Types.OrderBy(t => t.Name))
@@ -72,7 +72,7 @@ namespace Skeleton.Templating.Classes
 
         public List<CodeFile> GenerateRepositoryInfrastructure(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
 
             var file = new CodeFile { Name = "RepositoryBase.cs", Contents = GenerateRepoBase(domain) };
@@ -86,7 +86,7 @@ namespace Skeleton.Templating.Classes
 
         public List<CodeFile> GenerateReturnTypes(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
 
             foreach (var type in domain.ResultTypes)
@@ -103,7 +103,7 @@ namespace Skeleton.Templating.Classes
 
         public List<CodeFile> GenerateControllers(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
 
             foreach (var type in domain.Types)
@@ -120,7 +120,7 @@ namespace Skeleton.Templating.Classes
 
         public List<CodeFile> GenerateWebApiControllers(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
 
             foreach (var type in domain.Types)
@@ -137,7 +137,7 @@ namespace Skeleton.Templating.Classes
 
         public List<CodeFile> GenerateEditModels(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
 
             foreach (var type in domain.Types)
@@ -160,7 +160,7 @@ namespace Skeleton.Templating.Classes
 
         public List<CodeFile> GenerateWebApiModels(Domain domain)
         {
-            Util.RegisterHelpers(domain.TypeProvider);
+            Util.RegisterHelpers(domain);
             var files = new List<CodeFile>();
 
             foreach (var type in domain.Types)
@@ -197,12 +197,12 @@ namespace Skeleton.Templating.Classes
 
         private string GenerateReturnType(SimpleType simpleType, Domain domain)
         {
-            return Util.GetCompiledTemplate("ReturnType")(new ClassAdapter(simpleType, domain));
+            return Util.GetCompiledTemplateFromTypeProvider("ReturnType", domain.TypeProvider)(new ClassAdapter(simpleType, domain));
         }
 
-        private string GenerateRepo(RepositoryAdapter adapter)
+        private string GenerateRepo(RepositoryAdapter adapter, ITypeProvider typeProvider)
         {
-            var templateFunction = Util.GetCompiledTemplate("Repository");
+            var templateFunction =  Util.GetCompiledTemplateFromTypeProvider("Repository", typeProvider);
             try
             {
                 return templateFunction(adapter);
@@ -229,12 +229,14 @@ namespace Skeleton.Templating.Classes
         }
         private string GenerateRepoBase(Domain dom)
         {
-            return Util.GetCompiledTemplate("RepositoryBase")(dom);
+            var templateFunction =  Util.GetCompiledTemplateFromTypeProvider("RepositoryBase", dom.TypeProvider);
+            return templateFunction(dom);
         }
 
         private string GeneratRepositoryeModule(Domain domain)
         {
-            return Util.GetCompiledTemplate("RepositoryModule")(new DomainAdapter(domain));
+            var templateFunction =  Util.GetCompiledTemplateFromTypeProvider("RepositoryModule", domain.TypeProvider);
+            return templateFunction(new DomainAdapter(domain));
         }
 
         private string GenerateController(ApplicationType applicationType, Domain domain)

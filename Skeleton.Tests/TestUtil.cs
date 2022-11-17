@@ -3,6 +3,7 @@ using System.IO.Abstractions;
 using Skeleton.Model;
 using Moq;
 using Newtonsoft.Json.Linq;
+using Skeleton.Model.NamingConventions;
 
 namespace Skeleton.Tests
 {
@@ -10,10 +11,11 @@ namespace Skeleton.Tests
     {
         public const string TestNamespace = "TestNs";
 
-        public static Domain CreateTestDomain(IFileSystem fs)
+        public static Domain CreateTestDomain(IFileSystem fs, INamingConvention namingConvention = null)
         {
             var mockTypeProvider = new Mock<ITypeProvider>();
-            var domain = new Domain(new Settings(fs), mockTypeProvider.Object);
+            namingConvention ??= new SnakeCaseNamingConvention(null);
+            var domain = new Domain(new Settings(fs), mockTypeProvider.Object, namingConvention);
             var userType = new ApplicationType("user", TestNamespace, domain);
             var userIdField = new Field(userType) { Name = "id", ClrType = typeof(int), ProviderTypeName = "integer", IsKey = true, IsRequired = true };
             userType.Fields.Add(userIdField);
@@ -31,7 +33,7 @@ namespace Skeleton.Tests
             var orderType = new ApplicationType("order", TestNamespace, domain);
             var orderIdField = new Field(orderType){Name = "id", ClrType = typeof(System.Guid), ProviderTypeName = "uuid", IsKey = true, IsRequired = true};
             orderType.Fields.Add(orderIdField);
-            orderType.Fields.Add(new Field(orderType){Name = Field.CreatedFieldName, ClrType = typeof(DateTime), ProviderTypeName = "timestamp with time zone", IsRequired = true});
+            orderType.Fields.Add(new Field(orderType){Name = "created", ClrType = typeof(DateTime), ProviderTypeName = "timestamp with time zone", IsRequired = true});
             orderType.Fields.Add(new Field(orderType) { Name = "delivery_instructions", ClrType = typeof(string), ProviderTypeName = "text", IsRequired = false });
             orderType.Fields.Add(new Field(orderType) { Name = "customer_id", ClrType = typeof(int), ProviderTypeName = "integer", IsRequired = true, ReferencesType = customerType, ReferencesTypeField = customerIdField});
             domain.Types.Add(orderType);

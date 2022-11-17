@@ -92,7 +92,7 @@ namespace Skeleton.Templating.Classes
 
         public virtual List<OperationAdapter> Operations
         {
-            get { return _domain.Operations.Where(o => !o.Ignore && (o.Returns?.SimpleReturnType == _type || o.RelatedType == _type)).Select(o => new OperationAdapter(o, _domain, (ApplicationType)_type)).ToList(); }
+            get { return _domain.Operations.Where(o => !o.Ignore && (o.Returns?.SimpleReturnType == _type || o.RelatedType == _type)).OrderBy(o => o.Name).Select(o => new OperationAdapter(o, _domain, (ApplicationType)_type)).ToList(); }
         }
 
         public Field DisplayField => _type.DisplayField;

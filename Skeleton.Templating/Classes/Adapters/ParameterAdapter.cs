@@ -10,7 +10,7 @@ namespace Skeleton.Templating.Classes
     {
         private readonly Parameter _parameter;
 
-        public ParameterAdapter(Domain domain, Parameter parameter) : base(domain, parameter.Operation)
+        public ParameterAdapter(Domain domain, Parameter parameter) : base(domain, parameter.Operation, parameter.Name, parameter.ClrType, parameter.ProviderTypeName)
         {
             _parameter = parameter;
         }
@@ -122,7 +122,7 @@ namespace Skeleton.Templating.Classes
             {
                 if (IsCustomTypeOrCustomArray)
                 {
-                    return _domain.ResultTypes.Single(rt => rt.Name == _parameter.ProviderTypeName);
+                    return _domain.ResultTypes.Single(rt => rt.Name == _parameter.ProviderTypeName && rt.Namespace == _parameter.Operation.Namespace);
                 }
 
                 return null;

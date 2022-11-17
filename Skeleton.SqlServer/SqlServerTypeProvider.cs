@@ -11,6 +11,7 @@ using DbUp.Support;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
+using Skeleton.Model.NamingConventions;
 
 namespace Skeleton.SqlServer;
 
@@ -23,7 +24,8 @@ public class SqlServerTypeProvider : ITypeProvider
     }
     
     private readonly string _connectionString;
-    private string _databaseName = string.Empty; 
+    private string _databaseName = string.Empty;
+    private INamingConvention _namingConvention;
     
     private readonly string[] _sqlReservedWords = new[]
     {
@@ -214,10 +216,38 @@ public class SqlServerTypeProvider : ITypeProvider
         "PROC"
     };
 
-    // https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration-database-objects-types-net-framework/mapping-clr-parameter-data?view=sql-server-ver16
+    // https://learn.microsoft.com/en-us/dotnet/framework/data/adonet/sql-server-data-type-mappings
     private static readonly Dictionary<string, SqlDbType> _sqlDbTypes = new Dictionary<string, SqlDbType>
     {
-        // TODO - populate this mapping
+        ["bigint"] = SqlDbType.BigInt,
+        ["binary"] = SqlDbType.Binary,
+        ["bit"] = SqlDbType.Bit,
+        ["char"] = SqlDbType.Char,
+        ["date"] = SqlDbType.Date,
+        ["datetime"] = SqlDbType.DateTime,
+        ["datetime2"] = SqlDbType.DateTime2,
+        ["datetimeoffset"] = SqlDbType.DateTimeOffset,
+        ["decimal"] = SqlDbType.Decimal,
+        ["float"] = SqlDbType.Float,
+        ["int"] = SqlDbType.Int,
+        ["money"] = SqlDbType.Money,
+        ["nchar"] = SqlDbType.NChar,
+        ["ntext"] = SqlDbType.NText,
+        ["numeric"] = SqlDbType.Decimal,
+        ["nvarchar"] = SqlDbType.NVarChar,
+        ["real"] = SqlDbType.Real,
+        ["rowversion"] = SqlDbType.Binary,
+        ["smallint"] = SqlDbType.SmallInt,
+        ["smallmoney"] = SqlDbType.SmallMoney,
+        ["sql_variant"] = SqlDbType.Variant,
+        ["text"] = SqlDbType.Text,
+        ["time"] = SqlDbType.Time,
+        ["timestamp"] = SqlDbType.Timestamp,
+        ["tinyint"] = SqlDbType.TinyInt,
+        ["uniqueidentifier"] = SqlDbType.UniqueIdentifier,
+        ["varbinary"] = SqlDbType.VarBinary,
+        ["varchar"] = SqlDbType.VarChar,
+        ["xml"] = SqlDbType.Xml
     };
 
     private static readonly Dictionary<string, Type> SqlClrTypes = new Dictionary<string, Type>
@@ -263,11 +293,32 @@ public class SqlServerTypeProvider : ITypeProvider
     public Domain GetDomain(Settings settings)
     {
         GetDbName();
-        
-        var domain = new Domain(settings, this);
+
+        _namingConvention = CreateNamingConvention(settings);
+        var domain = new Domain(settings, this, _namingConvention);
         domain.Types.AddRange(GetTypes(settings.ExcludedSchemas, domain));
 
         return domain;
+    }
+
+    private INamingConvention CreateNamingConvention(Settings settings)
+    {
+        if (settings.NamingConventionSettings == null)
+        {
+            return new PascalCaseNamingConvention(null);
+        }
+
+        switch (settings.NamingConventionSettings.DbNamingConvention)
+        {
+            case DbNamingConvention.ProviderDefault:
+            case DbNamingConvention.PascalCase:
+                return new PascalCaseNamingConvention(settings.NamingConventionSettings);
+
+            case DbNamingConvention.SnakeCase:
+                return new SnakeCaseNamingConvention(settings.NamingConventionSettings);
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 
     private void GetDbName()
@@ -296,7 +347,7 @@ public class SqlServerTypeProvider : ITypeProvider
 
     public void DropGeneratedOperations(Settings settings, StringBuilder sb)
     {
-        var dom = new Domain(settings, this);
+        var dom = new Domain(settings, this, CreateNamingConvention(settings));
         GetOperationsInternal(dom, false);
         foreach (var operation in dom.Operations.Where(a => a.IsGenerated))
         {
@@ -366,6 +417,7 @@ public class SqlServerTypeProvider : ITypeProvider
             return _sqlDbTypes[sqlTypeName];
         }
 
+        Log.Warning("SQL Server type provider doesn't have SqlDbType registered for {SqlTypeName}", sqlTypeName);
         return SqlDbType.Variant;
     }
     
@@ -381,12 +433,12 @@ public class SqlServerTypeProvider : ITypeProvider
 
     public bool IsDateOnly(string typeName)
     {
-        throw new NotImplementedException();
+        return typeName.ToLowerInvariant() == "date";
     }
 
     public bool IsTimeOnly(string typeName)
     {
-        throw new NotImplementedException();
+        return typeName.ToLowerInvariant() == "time";
     }
 
     public void AddTestData(List<CodeFile> scripts)
@@ -404,7 +456,7 @@ public class SqlServerTypeProvider : ITypeProvider
     public bool GenerateCustomTypes => false;
     public string FormatOperationParameterName(string operationName, string name)
     {
-        return $"@{name}";
+        return $"@{name.Replace(" ", "")}";
     }
 
     public string OperationTimestampFunction()
@@ -493,7 +545,6 @@ public class SqlServerTypeProvider : ITypeProvider
                         
                         GetAdditionalFieldInfoFromInformationSchema(catalog, ns, name, cn, t);
                         GetPrimaryKeyInfoFromInformationSchema(catalog, ns, name, cn, t);
-                        //FIXME GetUniqueConstraintsFromInformationSchema(catalog, ns, name, cn, t);
                         
                         types.Add(t);
                     }
@@ -539,6 +590,20 @@ public class SqlServerTypeProvider : ITypeProvider
         {
             type.Attributes = attributes;
         }
+
+        foreach (var field in type.Fields)
+        {
+            var fieldAttributes = GetFieldAttributes(field);
+            if (fieldAttributes != null)
+            {
+                field.Attributes = fieldAttributes;
+            }
+        }
+    }
+
+    private dynamic GetFieldAttributes(Field field)
+    {
+        return ReadAttributes(GetFieldAttributesString(field));
     }
 
     private string? GetOperationAttributes(Operation op, string operationType)
@@ -558,6 +623,30 @@ public class SqlServerTypeProvider : ITypeProvider
             cmd.Parameters.Add(new SqlParameter("@schema", nameSpace));
             cmd.Parameters.Add(new SqlParameter("@type", entityType));
             cmd.Parameters.Add(new SqlParameter("@name", name));
+
+            var reader = cmd.ExecuteReader();
+            if (reader.Read())
+            {
+                var attributes = reader["value"].ToString();
+                return attributes;
+            }
+
+            return null;
+        }
+    }
+    
+    private string? GetFieldAttributesString(Field field)
+    {
+        using (var cn = new SqlConnection(_connectionString))
+        using (var cmd = new SqlCommand(
+                   "select * FROM fn_listextendedproperty('codegen_meta', 'schema', @schema, 'TABLE', @name, 'COLUMN', @fieldName);",
+                   cn))
+        {
+            cn.Open();
+
+            cmd.Parameters.Add(new SqlParameter("@schema", field.Type.Namespace));
+            cmd.Parameters.Add(new SqlParameter("@fieldName", field.Name ));
+            cmd.Parameters.Add(new SqlParameter("@name", field.Type.Name));
 
             var reader = cmd.ExecuteReader();
             if (reader.Read())
@@ -603,8 +692,7 @@ public class SqlServerTypeProvider : ITypeProvider
                                 op.Parameters.AddRange(ReadParameters(domain, op));
                                 if (op.RelatedType != null)
                                 {
-                                    // we might not need to do this if the SQL provider gives better info about nullability than Postgres does
-                                    // FIXME TODO UpdateParameterNullabilityFromApplicationType(op);
+                                    UpdateParameterNullabilityFromApplicationType(op);
                                 }
 
                                 op.Returns = GetReturnForOperation(resultType, domain, op, routineType);
@@ -627,6 +715,44 @@ public class SqlServerTypeProvider : ITypeProvider
             }
         }
     }
+    
+    private void UpdateParameterNullabilityFromApplicationType(Operation op)
+    {
+        if (op.RelatedType == null)
+        {
+            return;
+        }
+            
+        foreach (var prm in op.Parameters)
+        {
+            var trimmedName = prm.Name.TrimStart('@');
+            var fld = op.RelatedType.Fields.FirstOrDefault(f => f.Name == trimmedName);
+            if (fld != null)
+            {
+                prm.UpdateFromField(fld);
+            }
+            else
+            {
+                if (_namingConvention.IsSecurityUserIdParameterName(prm.Name) && !prm.IsNullable)
+                {
+                    // we make the current user Id nullable in case there is no current user (AKA anon) and assume that any db functions will do the right thing if this parameter is not provided
+                    // and either return an error, or return data appropriate for an unauthenticated user
+                    prm.MakeClrTypeNullable();
+                }
+                else
+                {
+                    // since this matching above is done by name, it misses some things e.g. where the parameter is called id_param or IdParam and the field is called id.
+                    // here we 'fall back' to try to fix that
+                    var paramFld = op.RelatedType.Fields.FirstOrDefault(f => _namingConvention.CreateParameterNameFromFieldName(f.Name) == trimmedName);
+                    if (paramFld != null)
+                    {
+                        prm.UpdateFromField(paramFld);
+                    }
+                }
+            }
+        }
+    }
+    
 
     private OperationReturn GetReturnForOperation(string? resultType, Domain domain, Operation op, string routineType)
     {
@@ -634,15 +760,62 @@ public class SqlServerTypeProvider : ITypeProvider
         if (routineType == OperationTypes.Procedure)
         {
             var fields = GetReturnFieldsForProcedure(op);
-            // TODO - see if a single value is returned
-            return GetReturnForOperationFromFields(domain, op, fields);
+            if (fields.Count == 1)
+            {
+                if (op.Attributes?.single_result == true)
+                {
+                    return new OperationReturn()
+                    {
+                        ReturnType = ReturnType.Primitive,
+                        ClrReturnType = fields.First().ClrType,
+                        Multiple = false
+                    };
+                }
+                else
+                {
+                    return new OperationReturn()
+                    {
+                        ReturnType = ReturnType.Primitive,
+                        ClrReturnType = fields.First().ClrType, // should this be 'array' of is multiple enough to cover it
+                        Multiple = true
+                    };
+                }
+            }
+            else
+            {
+                return GetReturnForOperationFromFields(domain, op, fields);
+            }
         }
         else
         {
             if (resultType == "TABLE")
             {
                 var fields = GetReturnFieldsForFunction(op);
-                return GetReturnForOperationFromFields(domain, op, fields);
+                if (fields.Count == 1)
+                {
+                    if (op.Attributes?.single_result == true)
+                    {
+                        return new OperationReturn()
+                        {
+                            ReturnType = ReturnType.Primitive,
+                            ClrReturnType = fields.First().ClrType,
+                            Multiple = false
+                        };
+                    }
+                    else
+                    {
+                        return new OperationReturn()
+                        {
+                            ReturnType = ReturnType.Primitive,
+                            ClrReturnType = fields.First().ClrType, // should this be 'array' of is multiple enough to cover it
+                            Multiple = true
+                        };
+                    }
+                }
+                else
+                {
+                    return GetReturnForOperationFromFields(domain, op, fields);
+                }
             }
             else
             {
@@ -708,7 +881,14 @@ public class SqlServerTypeProvider : ITypeProvider
 
     private static int? SanitizeSize(int? size, string providerDataType)
     {
+        // for parameters the size for varchar/varbinary max will be reported as -1
         if (size == -1)
+        {
+            return null;
+        }
+
+        // for fields the size for varchar/varbinary max will be reported as 2147483647
+        if (size == 2147483647)
         {
             return null;
         }
@@ -716,7 +896,7 @@ public class SqlServerTypeProvider : ITypeProvider
         // we only care about the max length for some types - for others like int and datetime it is just telling us how much storage the type uses
         // which we don't really need to concern ourselves with
         var sizeSpecificTypes = new string[]
-            { "char", "binary", "nchar", "nvarchar", "varbinary", "varchar", "text", "ntext" };
+            { "char", "binary", "nchar", "nvarchar", "varbinary", "varchar" };
         if (sizeSpecificTypes.Contains(providerDataType))
         {
             return size;
@@ -727,7 +907,7 @@ public class SqlServerTypeProvider : ITypeProvider
     
     private static OperationReturn GetReturnForOperationFromFields(Domain domain, Operation op, List<Field> fields)
     {
-        var existingType = domain.FindTypeByFields(fields, op);
+        var existingType = domain.FindTypeByFields(fields, op, true);
         if (existingType != null)
         {
             return new OperationReturn()
@@ -739,7 +919,7 @@ public class SqlServerTypeProvider : ITypeProvider
         else
         {
             // instead of using an attribute here we could do some fancy inferencing too
-            var name = op.Name + "_result";
+            var name = domain.NamingConvention.CreateResultTypeNameForOperation(op.Name);
             if (op.CustomReturnTypeName != null)
             {
                 name = op.CustomReturnTypeName;
@@ -772,14 +952,13 @@ public class SqlServerTypeProvider : ITypeProvider
                 }
 
                 domain.ResultTypes.Add(result);
+                
+                return new OperationReturn()
                 {
-                    return new OperationReturn()
-                    {
-                        ReturnType = ReturnType.CustomType,
-                        SimpleReturnType = result,
-                        Multiple = true
-                    };
-                }
+                    ReturnType = ReturnType.CustomType,
+                    SimpleReturnType = result,
+                    Multiple = true
+                };
             }
             else
             {
@@ -864,12 +1043,30 @@ ORDER BY r.ROUTINE_NAME, rc.ORDINAL_POSITION;";
                 {
                     while (reader.Read())
                     {
-                        var name = GetField<string>(reader, "PARAMETER_NAME");
+                        var name = GetField<string>(reader, "PARAMETER_NAME").TrimStart('@');
                         var order = GetField<int>(reader, "ORDINAL_POSITION");
                         var dataType = GetField<string>(reader, "DATA_TYPE");
                         var clrType = GetClrTypeForSqlType(dataType);
 
-                        var parameter = new Parameter(domain, op) { Name = name, Order = order, ProviderTypeName = dataType, ClrType = clrType};
+                        if (dataType == "table type")
+                        {
+                            var customTypeSchema = GetField<string>(reader, "USER_DEFINED_TYPE_SCHEMA");
+                            dataType = GetField<string>(reader, "USER_DEFINED_TYPE_NAME");
+                            clrType = typeof(ResultType);
+
+                            var resultType = domain.ResultTypes.SingleOrDefault(t =>
+                                t.Name == dataType && t.Namespace == customTypeSchema);
+                            if (resultType == null)
+                            {
+                                ReadCustomOperationType(dataType, customTypeSchema, domain, op);
+                            }
+                            else
+                            {
+                                resultType.Operations.Add(op);
+                            }
+                        }
+                        
+                        var parameter = new Parameter(domain, op, name, clrType, dataType) { Order = order };
                         parameters.Add(parameter);
                     }
                 }
@@ -879,6 +1076,73 @@ ORDER BY r.ROUTINE_NAME, rc.ORDINAL_POSITION;";
         return parameters;
     }
 
+    private void ReadCustomOperationType(string dataType, string customTypeSchema, Domain domain, Operation operation)
+    {
+        var attributes = GetAttributes(customTypeSchema, dataType, "TYPE");
+        var appType = operation.RelatedType;
+        dynamic attribJson = null;
+        if (!string.IsNullOrEmpty(attributes))
+        {
+            attribJson = ReadAttributes(attributes);
+            if (!string.IsNullOrEmpty(attribJson?.applicationtype.ToString()))
+            {
+                appType = domain.Types.SingleOrDefault(t => t.Name == attribJson?.applicationtype.ToString());
+            }
+        }
+        
+        var result = new ResultType(dataType, customTypeSchema, operation.RelatedType, true, domain);
+        result.Attributes = attribJson;
+        
+        using (var cn = new SqlConnection(_connectionString))
+        {
+            cn.Open();
+            using (var cmd = new SqlCommand(UserDefinedTypeColumnQuery, cn))
+            {
+                cmd.Parameters.Add(new SqlParameter("@Schema", customTypeSchema));
+                cmd.Parameters.Add(new SqlParameter("@TypeName", dataType));
+                
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var fld = new Field(result);
+                        fld.Name = SanitizeFieldName(GetField<string>(reader, "name"));
+                        fld.Order = GetField<int>(reader, "column_id");
+                        fld.ProviderTypeName = GetField<string>(reader, "system_type_name");
+                        fld.ClrType = GetClrTypeForSqlType(fld.ProviderTypeName);
+                        int? maxLength = reader["max_length"] == DBNull.Value
+                            ? null
+                            : (short)reader["max_length"];
+                        fld.Size = SanitizeSize(maxLength, fld.ProviderTypeName);
+                        
+                        result.Fields.Add(fld);
+                    }
+                }
+            }
+        }
+
+        if (operation.Attributes?.applicationtype != null)
+        {
+            domain.UpdateResultFieldPropertiesFromApplicationType(operation, result);
+        }
+        
+        result.Operations.Add(operation);
+        domain.ResultTypes.Add(result);
+    }
+
+    private const string UserDefinedTypeColumnQuery = @"select
+    c.*,
+    type_name(c.system_type_id) as system_type_name
+    from sys.table_types t
+    inner join sys.schemas AS s
+        ON t.[schema_id] = s.[schema_id]
+    inner join sys.columns c
+        on c.[object_id] = t.type_table_object_id
+    where is_user_defined = 1
+        AND s.name = @Schema
+        AND t.name = @TypeName
+    ";
+    
     private dynamic? ReadAttributes(string attributes)
     {
         if (string.IsNullOrEmpty(attributes))

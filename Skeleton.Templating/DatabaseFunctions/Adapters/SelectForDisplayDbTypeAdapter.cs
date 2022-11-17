@@ -14,7 +14,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         private List<IPseudoField> _fields;
         private FieldEntityAliasDictionary _aliases = new FieldEntityAliasDictionary();
 
-        public SelectForDisplayDbTypeAdapter(ApplicationType applicationType, string operation, Domain domain) : base(applicationType, operation, OperationType.Select, domain)
+        public SelectForDisplayDbTypeAdapter(ApplicationType applicationType, string[] operation, Domain domain) : base(applicationType, operation, OperationType.Select, domain)
         {
             try
             {
@@ -64,7 +64,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
             return _aliases.GetAliasForLinkingField(field);
         }
 
-        public string OwnershipExpression => GenerateOwnershipExpression("security_user_id_param");
+        public string OwnershipExpression => GenerateOwnershipExpression(Domain.NamingConvention.SecurityUserIdParameterName);
 
         private void TraverseRelatedFields(List<IPseudoField> fields, Field fld, string currentAlias)
         {

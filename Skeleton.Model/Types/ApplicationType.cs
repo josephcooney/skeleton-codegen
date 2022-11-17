@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Skeleton.Model
 {
+    [DebuggerDisplay("Application Type: {Namespace} {Name}")]
     public class ApplicationType : SimpleType
     {
         public ApplicationType(string name, string ns, Domain domain) : base(name, ns, domain)

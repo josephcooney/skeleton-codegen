@@ -62,7 +62,7 @@ public class SqlFieldAdapter : IParamterPrototype
                 {
                     if (_field.IsKey)
                     {
-                        return _typeProvider.FormatOperationParameterName(_prototype.FunctionName, VariableName);
+                        return _typeProvider.FormatOperationParameterName(_prototype.FunctionName, Name);
                     }
                     if (_field.IsTrackingDate)
                     {
@@ -72,7 +72,7 @@ public class SqlFieldAdapter : IParamterPrototype
                     {
                         return GetSearchFieldsAsTsVector();
                     }
-                    return _typeProvider.FormatOperationParameterName(_prototype.FunctionName, VariableName);
+                    return _typeProvider.FormatOperationParameterName(_prototype.FunctionName, Name);
                 }
 
                 return "FIXME";
@@ -108,8 +108,6 @@ public class SqlFieldAdapter : IParamterPrototype
         public bool HasDisplayName => false;
         public string DisplayName => null;
 
-        public string VariableName => Name.Replace(" ", "");
-        
         public IPseudoField ReferencesTypeField
         {
             get
@@ -128,7 +126,7 @@ public class SqlFieldAdapter : IParamterPrototype
         public bool IsIdentity => _field.IsKey;
         public bool IsInt => _field.IsInt;
 
-        public bool HasSize => _field.Size != null;
+        public bool HasSize => _field.Size != null || ProviderTypeName.ToLowerInvariant() == "varchar" || ProviderTypeName.ToLowerInvariant() == "varbinary";
 
         public int? Size => _field.Size;
 
@@ -138,7 +136,7 @@ public class SqlFieldAdapter : IParamterPrototype
             {
                 if (HasSize)
                 {
-                    if (_field.Size > 8000)
+                    if (_field.Size > 8000 || _field.Size == null)
                     {
                         return "max";
                     }

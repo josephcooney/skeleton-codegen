@@ -40,6 +40,8 @@ $$
                 new_id = currval(pg_get_serial_sequence('{{Name}}', 'id'));
             {{/unless}}
             
+            -- TODO - need to use output keyword here https://learn.microsoft.com/en-us/sql/t-sql/queries/output-clause-transact-sql?view=sql-server-ver16
+
             ids = ids || new_id;
             end loop;
 

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
+      <PackageReference Include="Npgsql" Version="4.1.4" />
+      <PackageReference Include="Shouldly" Version="4.1.0" />
+      <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="12.2.19" />
+      <PackageReference Include="xunit" Version="2.4.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Skeleton.Model\Skeleton.Model.csproj" />
+      <ProjectReference Include="..\Skeleton.Postgres\Skeleton.Postgres.csproj" />
+    </ItemGroup>
+
+</Project>
