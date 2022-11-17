@@ -20,7 +20,7 @@ namespace Skeleton.Templating.ReactClient
             {
                 if (type.GenerateUI)
                 {
-                    var edit = new CodeFile { Name = Util.TypescriptFileName(type.Name) + "ApiClient.ts", Contents = GenerateApiClient(type, domain), RelativePath = GetRelativePathFromTypeName(type.Name), Template = TemplateNames.ApiClient };
+                    var edit = new CodeFile { Name = type.Name.TypescriptFileName + "ApiClient.ts", Contents = GenerateApiClient(type, domain), RelativePath = GetRelativePathFromTypeName(type.Name), Template = TemplateNames.ApiClient };
                     files.Add(edit);
                 }
             }
@@ -56,7 +56,7 @@ namespace Skeleton.Templating.ReactClient
                             var resultType = op.SimpleReturnType as ResultType;
                             if (!op.NoResult && !op.IsSingular && (resultType == null || resultType.RelatedType == type) && op.SimpleReturnType != null)
                             {
-                                var file = new CodeFile { Name = Util.CSharpNameFromName(op.SimpleReturnType.Name) + ".ts", Contents = GenerateClientApiResultType(op.SimpleReturnType), RelativePath = path, Template = TemplateNames.ApiClientResult };
+                                var file = new CodeFile { Name = op.SimpleReturnType.Name.CSharpName + ".ts", Contents = GenerateClientApiResultType(op.SimpleReturnType), RelativePath = path, Template = TemplateNames.ApiClientResult };
                                 files.Add(file);
                             }
                         }
@@ -82,7 +82,7 @@ namespace Skeleton.Templating.ReactClient
             {
                 if (type.GenerateUI)
                 {
-                    var namestart = Util.TypescriptFileName(type.Name);
+                    var namestart = type.Name.TypescriptFileName;
                     var path = GetRelativePathFromTypeName(type.Name);
                     var adapter = new ClientApiAdapter(type, domain);
 
@@ -125,7 +125,7 @@ namespace Skeleton.Templating.ReactClient
                 {
                     var listAdapter = new ListViewAdapter(rt.SimpleReturnType, domain, rt.RelatedType);
                     var listPath = GetRelativePathFromTypeName(rt.RelatedType.Name) + "list\\";
-                    var nameStart = Util.TypescriptFileName(rt.SimpleReturnType.Name);
+                    var nameStart = rt.SimpleReturnType.Name.TypescriptFileName;
 
                     files.Add(new CodeFile { Name = nameStart + "List.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactListPage), RelativePath = listPath, Template = TemplateNames.ReactListPage});
                     files.Add(new CodeFile { Name = nameStart + "Header.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactListHeader), RelativePath = listPath, Template = TemplateNames.ReactListHeader});
@@ -138,7 +138,7 @@ namespace Skeleton.Templating.ReactClient
             {
                 if (srchOp.RelatedType != null && domain.FilteredTypes.Contains(srchOp.RelatedType))
                 {
-                    var search = new CodeFile { Name = Util.TypescriptFileName(srchOp.Name) + ".tsx", Contents = GenerateFromTemplate(srchOp, TemplateNames.ReactSearchControl), RelativePath = GetRelativePathFromTypeName(srchOp.RelatedType.Name), Template = TemplateNames.ReactSearchControl};
+                    var search = new CodeFile { Name = srchOp.Name.TypescriptFileName + ".tsx", Contents = GenerateFromTemplate(srchOp, TemplateNames.ReactSearchControl), RelativePath = GetRelativePathFromTypeName(srchOp.RelatedType.Name), Template = TemplateNames.ReactSearchControl};
                     files.Add(search);
                 }
             }
@@ -191,9 +191,9 @@ namespace Skeleton.Templating.ReactClient
             return GenerateFromTemplate(type, TemplateNames.ApiClientResult);
         }
 
-        private string GetRelativePathFromTypeName(string typeName)
+        private string GetRelativePathFromTypeName(Name typeName)
         {
-            return "domain\\" + Util.KebabCase(typeName) + "\\";
+            return "domain\\" + typeName.KebabCase + "\\";
         }
     }
 

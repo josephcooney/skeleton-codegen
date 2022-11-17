@@ -9,7 +9,7 @@ public class PascalCaseNameingConventionTests
     [Fact]
     public void CanSplitPascalCaseNameIntoParts()
     {
-        var namingConvention = new PascalCaseNamingConvention(null);
+        var namingConvention = new PascalCaseNamingConvention(null, null);
         var parts = namingConvention.GetNameParts("AutomaticXMLFormat");
         parts.Length.ShouldBe(3);
         parts[0].ShouldBe("Automatic");
@@ -20,7 +20,7 @@ public class PascalCaseNameingConventionTests
     [Fact]
     public void CanSplitSimplePascalCaseNameIntoParts()
     {
-        var namingConvention = new PascalCaseNamingConvention(null);
+        var namingConvention = new PascalCaseNamingConvention(null, null);
         var parts = namingConvention.GetNameParts("Stack");
         parts.Length.ShouldBe(1);
         parts[0].ShouldBe("Stack");

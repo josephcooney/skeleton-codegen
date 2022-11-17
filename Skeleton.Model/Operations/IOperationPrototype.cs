@@ -6,7 +6,7 @@ namespace Skeleton.Model.Operations;
 public interface IOperationPrototype
 {
     OperationType OperationType { get; }
-    string Name { get; }
+    Name Name { get; }
     
     string FunctionName { get; }
     

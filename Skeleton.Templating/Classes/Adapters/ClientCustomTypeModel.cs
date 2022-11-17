@@ -19,7 +19,7 @@ namespace Skeleton.Templating.Classes.Adapters
 
         public ClientCustomTypeModel(ResultType resultType)
         {
-            Name = resultType.Name;
+            Name = resultType.Name.ToString();
             Fields = resultType.Fields.Where(f => f.IsUserEditable).ToList();
             _domain = resultType.Domain;
             _namespace = resultType.Namespace;

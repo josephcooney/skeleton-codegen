@@ -47,7 +47,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 
                     var linkOnCurrentType = related.First();
                     sb.AppendLine(
-                        $"\t{aliases.GetAliasForLinkingField(related.Skip(1).Take(1).Single())}.{Util.EscapeSqlReservedWord(linkOnCurrentType.ReferencesTypeField.Name)} = {Util.EscapeSqlReservedWord(linkOnCurrentType.Type.Name)}.{Util.EscapeSqlReservedWord(linkOnCurrentType.Name)}");
+                        $"\t{aliases.GetAliasForLinkingField(related.Skip(1).Take(1).Single())}.{Util.EscapeSqlReservedWord(linkOnCurrentType.ReferencesTypeField.Name)} = {linkOnCurrentType.Type.Name.SqlEscaped}.{Util.EscapeSqlReservedWord(linkOnCurrentType.Name)}");
 
                     sb.AppendLine(")");
                 }

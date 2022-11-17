@@ -16,7 +16,7 @@ public class SqlServerTypeProviderTests : DbTestBase
         {
             var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
-            var lookupType = model.Types.SingleOrDefault(t => t.Name == "simple_lookup_table");
+            var lookupType = model.GetTypeByName("simple_lookup_table");
             lookupType.ShouldNotBeNull();
             lookupType.Fields.Count.ShouldBe(4);
             
@@ -68,7 +68,7 @@ public class SqlServerTypeProviderTests : DbTestBase
         {
             var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
-            var lookupType = model.Types.SingleOrDefault(t => t.Name == "SimpleLookupTable");
+            var lookupType = model.GetTypeByName("SimpleLookupTable");
             lookupType.ShouldNotBeNull();
             lookupType.Fields.Count.ShouldBe(4);
             
@@ -94,7 +94,7 @@ public class SqlServerTypeProviderTests : DbTestBase
         {
             var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
-            var lookupType = model.Types.SingleOrDefault(t => t.Name == "SimpleLookupTable");
+            var lookupType = model.GetTypeByName("SimpleLookupTable");
             lookupType.ShouldNotBeNull();
             lookupType.Fields.Count.ShouldBe(5);
             
@@ -127,13 +127,13 @@ public class SqlServerTypeProviderTests : DbTestBase
         {
             var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
-            var productCategory = model.Types.SingleOrDefault(t => t.Name == "ProductCategory");
+            var productCategory = model.GetTypeByName("ProductCategory");
             productCategory.ShouldNotBeNull();
             var productCategoryId = productCategory.GetFieldByName("Id");
             productCategoryId.ShouldNotBeNull();
             productCategoryId.IsKey.ShouldBeTrue();
             
-            var product = model.Types.SingleOrDefault(t => t.Name == "Product");
+            var product = model.GetTypeByName("Product");
             product.ShouldNotBeNull();
             var materials = product.GetFieldByName("Materials");
             materials.ShouldNotBeNull();
@@ -158,7 +158,7 @@ public class SqlServerTypeProviderTests : DbTestBase
         {
             var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
-            var productOrder = model.Types.SingleOrDefault(t => t.Name == "ProductOrder");
+            var productOrder = model.GetTypeByName("ProductOrder");
             productOrder.ShouldNotBeNull();
 
             var price = productOrder.GetFieldByName("Price");
@@ -202,7 +202,7 @@ public class SqlServerTypeProviderTests : DbTestBase
             provider.GetOperations(model);
             model.Operations.Count.ShouldBe(1);
             
-            var operation = model.Operations.SingleOrDefault(op => op.Name == "ProductsByCategory");
+            var operation = model.Operations.SingleOrDefault(op => op.Name.ToString() == "ProductsByCategory");
             operation.ShouldNotBeNull();
             operation.ProviderType.ShouldBe("FUNCTION");
             operation.Parameters.Count.ShouldBe(1);
@@ -267,7 +267,7 @@ public class SqlServerTypeProviderTests : DbTestBase
             
             var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
-            var productCategory = model.Types.SingleOrDefault(t => t.Name == "ProductCategory");
+            var productCategory = model.GetTypeByName("ProductCategory");
             productCategory.ShouldNotBeNull();
             productCategory.IsReferenceData.ShouldBeTrue();
         }
@@ -289,7 +289,7 @@ public class SqlServerTypeProviderTests : DbTestBase
             var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
             provider.GetOperations(model);
-            var operation = model.Operations.SingleOrDefault(op => op.Name == "ProductsByCategory");
+            var operation = model.Operations.SingleOrDefault(op => op.Name.ToString() == "ProductsByCategory");
             operation.ShouldNotBeNull();
             operation.IsGenerated.ShouldBeTrue();
         }
@@ -312,7 +312,7 @@ public class SqlServerTypeProviderTests : DbTestBase
             provider.GetOperations(model);
             model.Operations.Count.ShouldBe(1);
             var op = model.Operations.First();
-            op.Name.ShouldBe("GetDbName");
+            op.Name.ToString().ShouldBe("GetDbName");
             op.ProviderType.ShouldBe("PROCEDURE");
             op.Parameters.Count.ShouldBe(0);
             
@@ -336,8 +336,8 @@ public class SqlServerTypeProviderTests : DbTestBase
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
             provider.GetOperations(model);
             model.Operations.Count.ShouldBe(3);
-            var op = model.Operations.First(o => o.Name == "ProductSelectAllForDisplay");
-            op.RelatedType.ShouldBe(model.Types.SingleOrDefault(t => t.Name == "Product"));
+            var op = model.Operations.First(o => o.Name.ToString() == "ProductSelectAllForDisplay");
+            op.RelatedType.ShouldBe(model.GetTypeByName("Product"));
         }
         finally
         {
@@ -356,13 +356,13 @@ public class SqlServerTypeProviderTests : DbTestBase
             provider.GetOperations(model);
             model.Operations.Count.ShouldBe(3);
             
-            var op = model.Operations.First(o => o.Name == "ProductSelectAllForDisplayByCategoryId");
-            op.RelatedType.ShouldBe(model.Types.SingleOrDefault(t => t.Name == "Product"));
+            var op = model.Operations.First(o => o.Name.ToString() == "ProductSelectAllForDisplayByCategoryId");
+            op.RelatedType.ShouldBe(model.GetTypeByName("Product"));
             op.Parameters.Count.ShouldBe(1);
             op.Parameters[0].RelatedTypeField.ShouldNotBeNull();
             op.Parameters[0].Name.ShouldBe("Category");
             
-            var product = model.Types.First(t => t.Name == "Product");
+            var product = model.GetTypeByName("Product");
             var categoryField = product.GetFieldByName("Category");
             op.Parameters[0].RelatedTypeField.ShouldBe(categoryField);
 
@@ -383,9 +383,9 @@ public class SqlServerTypeProviderTests : DbTestBase
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
             provider.GetOperations(model);
             model.Operations.Count.ShouldBe(3);
-            var op = model.Operations.First(o => o.Name == "ProductSelectAll");
-            op.RelatedType.ShouldBe(model.Types.SingleOrDefault(t => t.Name == "Product"));
-            var product = model.Types.First(t => t.Name == "Product");
+            var op = model.Operations.First(o => o.Name.ToString() == "ProductSelectAll");
+            op.RelatedType.ShouldBe(model.GetTypeByName("Product"));
+            var product = model.GetTypeByName("Product");
             op.Returns.SimpleReturnType.ShouldBe(product);
         }
         finally
@@ -404,7 +404,7 @@ public class SqlServerTypeProviderTests : DbTestBase
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
             provider.GetOperations(model);
 
-            var validationType = model.Types.SingleOrDefault(t => t.Name == "ValidationStatus");
+            var validationType = model.GetTypeByName("ValidationStatus");
             validationType.ShouldNotBeNull();
             var nameUnderlyingTypeField = validationType.GetFieldByName("Name");
             nameUnderlyingTypeField.IsRequired.ShouldBe(true);
@@ -415,8 +415,8 @@ public class SqlServerTypeProviderTests : DbTestBase
             var customTypeParam = op.Parameters.Single(p => p.Name == "ValidationStatusToAdd");
             customTypeParam.ProviderTypeName.ShouldBe("ValidationStatusNew");
             
-            model.ResultTypes.Count(t => t.Name == customTypeParam.ProviderTypeName).ShouldBe(1);
-            var resultType = model.ResultTypes.Single(t => t.Name == customTypeParam.ProviderTypeName);
+            model.ResultTypes.Count(t => t.Name.ToString() == customTypeParam.ProviderTypeName).ShouldBe(1);
+            var resultType = model.ResultTypes.Single(t => t.Name.ToString() == customTypeParam.ProviderTypeName);
             resultType.Ignore.ShouldBe(false);
             var nameField = resultType.GetFieldByName("Name");
             nameField.ShouldNotBeNull();
@@ -424,7 +424,7 @@ public class SqlServerTypeProviderTests : DbTestBase
             
             op.SingleResult.ShouldBe(true);
             op.Returns.ClrReturnType.ShouldBe(typeof(int));
-            op.BareName.ShouldBe("Insert");
+            op.Name.BareName.ToString().ShouldBe("Insert");
         }
         finally
         {
@@ -441,7 +441,7 @@ public class SqlServerTypeProviderTests : DbTestBase
             var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
             var logoType = model.Types.First();
-            logoType.Name.ShouldBe("CompanyLogo");
+            logoType.Name.ToString().ShouldBe("CompanyLogo");
             logoType.IsAttachment.ShouldBe(true);
 
             var mimeType = logoType.GetFieldByName("MimeType");
@@ -464,7 +464,7 @@ public class SqlServerTypeProviderTests : DbTestBase
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
             provider.GetOperations(model);
 
-            var op = model.Operations.SingleOrDefault(o => o.Name == "ValidationStatusUpdate");
+            var op = model.Operations.SingleOrDefault(o => o.Name.ToString() == "ValidationStatusUpdate");
             op.ShouldNotBeNull();
             op.Parameters.Count.ShouldBe(5);
             op.UserProvidedParameters.Count.ShouldBe(3);
@@ -489,9 +489,9 @@ public class SqlServerTypeProviderTests : DbTestBase
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
             provider.GetOperations(model);
 
-            var productType = model.Types.SingleOrDefault(t => t.Name == "Product");    
+            var productType = model.GetTypeByName("Product");    
             
-            var op = model.Operations.SingleOrDefault(o => o.Name == "SelectAllProducts");
+            var op = model.Operations.SingleOrDefault(o => o.Name.ToString() == "SelectAllProducts");
             op?.Returns.SimpleReturnType.ShouldBe(productType);
         }
         finally
@@ -510,7 +510,7 @@ public class SqlServerTypeProviderTests : DbTestBase
             var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
             
-            var type = model.Types.SingleOrDefault(t => t.Name == "SimpleLookupTable");
+            var type = model.GetTypeByName("SimpleLookupTable");
 
             var nameCol = type.GetFieldByName("Name");
             nameCol.Size.ShouldBeNull();

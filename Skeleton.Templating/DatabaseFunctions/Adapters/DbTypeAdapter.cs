@@ -244,7 +244,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
             }
         }
 
-        public string Name => _applicationType.Name;
+        public Name Name => _applicationType.Name;
 
         public string Namespace => _applicationType.Namespace;
 
@@ -256,7 +256,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         {
             get
             {
-                var fragments = new List<string>() { _applicationType.Name };
+                var fragments = _applicationType.Name.Parts;
                 fragments.AddRange(_operation);
                 return _domain.NamingConvention.CreateNameFromFragments(fragments);
             }
@@ -264,7 +264,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         
         public OperationType OperationType { get; }
 
-        public string ShortName => _applicationType.Name[0].ToString().ToLowerInvariant();
+        public string ShortName => _applicationType.Name.GetAlias();
 
         public bool SoftDelete => _applicationType.Fields.Any(a => a.IsDelete);
 
@@ -429,9 +429,9 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         }
 
         public string AddManyArrayItemVariableName => "item";
-        public string NewRecordParameterName =>  _domain.NamingConvention.CreateNameFromFragments(new List<string> {Name, "to", "add"});
+        public string NewRecordParameterName =>  _domain.NamingConvention.CreateNameFromFragments(new List<string>(Name.Parts) {"to", "add"});
 
-        public string NewTypeName => _domain.NamingConvention.CreateNameFromFragments(new List<string> {Name, "new"});
+        public string NewTypeName => _domain.NamingConvention.CreateNameFromFragments(new List<string>(Name.Parts) {"new"});
 
         public bool UsesCustomInsertType
         {

@@ -17,8 +17,9 @@ public class DbTypeAdapterTests : DbTestBase
         {
             var provider = new PostgresTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
-            var type = model.Types.First(t => t.Name == "government_area");
-            var adapter = new DbTypeAdapter(type, new []{"insert"}, OperationType.Insert, model);
+            var type = model.GetTypeByName("government_area");
+            type.ShouldNotBeNull();
+            var adapter = new DbTypeAdapter(type!, new []{"insert"}, OperationType.Insert, model);
             
             // serial id fields are insertable, because postgres uses the value 'default' for them
             var idField = adapter.InsertFields.SingleOrDefault(f => f.Name == "id");

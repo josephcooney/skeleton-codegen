@@ -8,10 +8,12 @@ namespace Skeleton.Model.NamingConventions;
 
 public class PascalCaseNamingConvention : NamingConventionBase, INamingConvention
 {
+    private readonly ITypeProvider _typeProvider;
     Regex _namePartRegex = new Regex(@"([A-Z][a-z]+|[A-Z]+[A-Z]|[A-Z]|[^A-Za-z]+[^A-Za-z])", RegexOptions.RightToLeft);
     
-    public PascalCaseNamingConvention(NamingConventionSettings settings)
+    public PascalCaseNamingConvention(NamingConventionSettings settings, ITypeProvider typeProvider)
     {
+        _typeProvider = typeProvider;
         if (settings != null)
         {
             _settings = settings;
@@ -76,7 +78,12 @@ public class PascalCaseNamingConvention : NamingConventionBase, INamingConventio
     {
         return PascalCaseName(fragments);
     }
-    
+
+    public string EscapeSqlReservedWord(string name)
+    {
+        return _typeProvider.EscapeReservedWord(name);
+    }
+
     public static string PascalCaseName(IEnumerable<string> parts)
     {
         return string.Join("", parts.Select(p => char.ToUpperInvariant(p[0]) + p.Substring(1)));

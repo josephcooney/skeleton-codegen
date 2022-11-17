@@ -208,7 +208,7 @@ namespace Skeleton.Templating
                     if (parameters[0] is ApplicationType)
                     {
                         ApplicationType type = (ApplicationType)parameters[0];
-                        writer.Write(HumanizeName(type.Name));
+                        writer.Write(type.Name.Humanized);
                         return;
                     }
 
@@ -230,7 +230,7 @@ namespace Skeleton.Templating
                 if (context is ApplicationType)
                 {
                     ApplicationType type = (ApplicationType)context;
-                    writer.Write(HumanizeName(type.Name));
+                    writer.Write(type.Name.Humanized);
                     return;
                 }
 

@@ -9,6 +9,7 @@ namespace Skeleton.Model
     {
         public ApplicationType(string name, string ns, Domain domain) : base(name, ns, domain)
         {
+            Name = new Name(name, domain.NamingConvention, () => this);
             Constraints = new List<Constraint>();
         }
 
@@ -62,7 +63,7 @@ namespace Skeleton.Model
                     return (bool) Attributes?.isAttachment;
                 }
 
-                return Name == "attachment" && Fields.Any(f => f.IsFile);
+                return Name.ToString().ToLowerInvariant() == "attachment" && Fields.Any(f => f.IsFile);
             }
         }
 

@@ -5,8 +5,11 @@ namespace Skeleton.Model.NamingConventions;
 
 public class SnakeCaseNamingConvention : NamingConventionBase, INamingConvention
 {
-    public SnakeCaseNamingConvention(NamingConventionSettings settings)
+    private readonly ITypeProvider _typeProvider;
+
+    public SnakeCaseNamingConvention(NamingConventionSettings settings, ITypeProvider typeProvider)
     {
+        _typeProvider = typeProvider;
         if (settings != null)
         {
             _settings = settings;
@@ -45,5 +48,10 @@ public class SnakeCaseNamingConvention : NamingConventionBase, INamingConvention
     public override string CreateNameFromFragments(List<string> fragments)
     {
         return string.Join('_', fragments);
+    }
+
+    public string EscapeSqlReservedWord(string name)
+    {
+        return _typeProvider.EscapeReservedWord(name);
     }
 }

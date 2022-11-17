@@ -15,7 +15,7 @@ namespace Skeleton.Tests.Templating.DatabaseFunctions.Adapters
         public void SelectFieldsAreReturnedWithIndex()
         {
             var domain = TestUtil.CreateTestDomain(new MockFileSystem());
-            var orderType = domain.Types.Single(t => t.Name == "order");
+            var orderType = domain.Types.Single(t => t.Name.ToString() == "order");
             var adapter = new SelectPagedByFieldsDbTypeAdapter(orderType, new []{"test"}, new List<Field>(orderType.Fields),
                 OperationType.Select, domain);
 

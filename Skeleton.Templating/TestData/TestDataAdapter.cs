@@ -18,7 +18,7 @@ namespace Skeleton.Templating.TestData
 
         public List<TestDataField> TestData { get; }
 
-        public string Name => _applicationType.Name;
+        public Name Name => _applicationType.Name;
 
         public void NewTestData()
         {
@@ -60,7 +60,7 @@ namespace Skeleton.Templating.TestData
             if (Field.HasReferenceType)
             {
                 Value =
-                    $"(select {Util.EscapeSqlReservedWord(Field.ReferencesTypeField.Name)} from {Util.EscapeSqlReservedWord(Field.ReferencesType.Name)} order by random() limit 1)";
+                    $"(select {Util.EscapeSqlReservedWord(Field.ReferencesTypeField.Name)} from {Util.EscapeSqlReservedWord(Field.ReferencesType.Name.ToString())} order by random() limit 1)";
             }
             else if (Field.IsTrackingDate)
             {

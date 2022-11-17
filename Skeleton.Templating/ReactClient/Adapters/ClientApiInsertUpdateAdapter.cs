@@ -14,7 +14,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
 
         public ClientApiOperationAdapter CurrentOperation => _operation;
 
-        public string OperationName => Util.CSharpNameFromName(_operation.BareName);
+        public string OperationName => _operation.Name.BareName.CSharpName;
 
         public string OperationNameFriendly => _operation.FriendlyName;
 
@@ -22,9 +22,9 @@ namespace Skeleton.Templating.ReactClient.Adapters
 
         public bool AssociateViaLink => _operation.CreatesNew && !((ApplicationType) base._type).IsLink;
 
-        public string StateTypeName => $"I{Util.CSharpNameFromName(Name)}{OperationNameFriendly}State";
+        public string StateTypeName => $"I{Name.CSharpName}{OperationNameFriendly}State";
 
-        public string ModelTypeName => _operation.UsesModel ? $"{Util.CSharpNameFromName(Name)}{OperationName}{NamingConventions.ModelClassNameSuffix}" : null;
+        public string ModelTypeName => _operation.UsesModel ? $"{Name.CSharpName}{OperationName}{NamingConventions.ModelClassNameSuffix}" : null;
 
         public string FormDataTypeName => _operation.UsesModel ? ModelTypeName : StateTypeName;
     }

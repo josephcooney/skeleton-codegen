@@ -53,7 +53,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
                 }
                 else
                 {
-                    return Util.EscapeSqlReservedWord(Name);
+                    return Name.SqlEscaped;
                 }
             }
         }

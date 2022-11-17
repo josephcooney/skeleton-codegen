@@ -20,7 +20,7 @@ namespace Skeleton.Templating.Classes
             _securityRoles = new SecurityRoles(domain.Settings);
         }
 
-        public string Name => _type.Name;
+        public Name Name => _type.Name;
 
         public List<ClassFieldAdapter> Fields => _type.Fields.Select(f => new ClassFieldAdapter(f)).ToList();
 
@@ -39,17 +39,17 @@ namespace Skeleton.Templating.Classes
 
         public OperationAdapter InsertOperation
         {
-            get { return this.Operations.FirstOrDefault(o => o.Name.EndsWith(DbFunctionGenerator.InsertFunctionName)); }
+            get { return this.Operations.FirstOrDefault(o => o.Name.ToString().EndsWith(DbFunctionGenerator.InsertFunctionName)); }
         }
 
         public OperationAdapter UpdateOperation
         {
-            get { return this.Operations.FirstOrDefault(o => o.Name.EndsWith(DbFunctionGenerator.UpdateFunctionName)); }
+            get { return this.Operations.FirstOrDefault(o => o.Name.ToString().EndsWith(DbFunctionGenerator.UpdateFunctionName)); }
         }
 
         public OperationAdapter DeleteOperation
         {
-            get { return this.CanDelete ? this.Operations.FirstOrDefault(o => o.Name.EndsWith(DbFunctionGenerator.DeleteOperationName)) : null; }
+            get { return this.CanDelete ? this.Operations.FirstOrDefault(o => o.Name.ToString().EndsWith(DbFunctionGenerator.DeleteOperationName)) : null; }
         }
 
         public Field IdentityField

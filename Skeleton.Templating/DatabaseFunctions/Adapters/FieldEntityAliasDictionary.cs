@@ -10,7 +10,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 
         public string CreateAliasForLinkingField(Field field)
         {
-            var chr = field.ReferencesType.Name[0].ToString().ToLowerInvariant();
+            var chr = field.ReferencesType.Name.GetAlias();
             if (!_aliases.ContainsKey(chr))
             {
                 _aliases.Add(chr, field);
@@ -33,7 +33,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 
         public string CreateAliasForTypeByField(Field f)
         {
-            var chr = f.Type.Name[0].ToString().ToLowerInvariant();
+            var chr = f.Type.Name.GetAlias();
             if (!_aliases.ContainsKey(chr))
             {
                 _aliases.Add(chr, f);

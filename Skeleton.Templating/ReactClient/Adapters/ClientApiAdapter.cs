@@ -20,7 +20,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
             _applicationType = type;
         }
 
-        public string ClientApiTypeName => Util.CSharpNameFromName(_type.Name) + "ApiClient";
+        public string ClientApiTypeName => _type.Name.CSharpName + "ApiClient";
 
         public string ClientApiInterfaceName => "I" + ClientApiTypeName;
         
@@ -59,7 +59,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
                 var suffix =
                     _domain.NamingConvention.CreateNameFromFragments(DbFunctionGenerator.SelectAllForDisplayFunctionName
                         .ToList());
-                var selectAllOp = Operations.FirstOrDefault(op => op.Name.EndsWith(suffix));
+                var selectAllOp = Operations.FirstOrDefault(op => op.Name.ToString().EndsWith(suffix));
                 // TODO - fall back to "select_all" operation?
                 if (selectAllOp == null)
                 {
@@ -73,10 +73,10 @@ namespace Skeleton.Templating.ReactClient.Adapters
         {
             get
             {
-                var fragments = new List<string>(){_applicationType.Name};
+                var fragments = _applicationType.Name.Parts;
                 fragments.AddRange(DbFunctionGenerator.SelectForDisplayFunctionName);
                 var operationNameStart = _domain.NamingConvention.CreateNameFromFragments(fragments);
-                var selectForDisplayOp = Operations.FirstOrDefault(op => op.Name.StartsWith(operationNameStart));
+                var selectForDisplayOp = Operations.FirstOrDefault(op => op.Name.ToString().StartsWith(operationNameStart));
                 if (selectForDisplayOp != null)
                 {
                     return selectForDisplayOp.SimpleReturnType;
@@ -86,16 +86,10 @@ namespace Skeleton.Templating.ReactClient.Adapters
             }
         }
 
-        public string HumanizedName => Util.HumanizeName(base._type.Name);
+        public string HumanizedName => _type.Name.Humanized;
 
-        public string HumanizedNamePlural
-        {
-            get
-            {
-                return Util.Pluralize(Util.HumanizeName(base._type.Name));
-            }
-        }
-
+        public string HumanizedNamePlural => _type.Name.HumanizedPlural;
+        
         public List<DisplayFieldAdapter> DisplayFields
         {
             get

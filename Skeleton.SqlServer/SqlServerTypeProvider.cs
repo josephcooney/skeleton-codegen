@@ -305,17 +305,17 @@ public class SqlServerTypeProvider : ITypeProvider
     {
         if (settings.NamingConventionSettings == null)
         {
-            return new PascalCaseNamingConvention(null);
+            return new PascalCaseNamingConvention(null, this);
         }
 
         switch (settings.NamingConventionSettings.DbNamingConvention)
         {
             case DbNamingConvention.ProviderDefault:
             case DbNamingConvention.PascalCase:
-                return new PascalCaseNamingConvention(settings.NamingConventionSettings);
+                return new PascalCaseNamingConvention(settings.NamingConventionSettings, this);
 
             case DbNamingConvention.SnakeCase:
-                return new SnakeCaseNamingConvention(settings.NamingConventionSettings);
+                return new SnakeCaseNamingConvention(settings.NamingConventionSettings, this);
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -473,7 +473,7 @@ public class SqlServerTypeProvider : ITypeProvider
 
     private void DropGeneratedOperation(Operation op, StringBuilder sb)
     {
-        var cmdText = $"DROP {op.ProviderType} IF EXISTS {op.Namespace}.{GetSqlName(op.Name)};";
+        var cmdText = $"DROP {op.ProviderType} IF EXISTS {op.Namespace}.{GetSqlName(op.Name.ToString())};";
         sb.AppendLine(cmdText);
         ExecuteCommandText(cmdText);
     }
@@ -584,7 +584,7 @@ public class SqlServerTypeProvider : ITypeProvider
 
     private void GetTypeAttributes(ApplicationType type)
     {
-        var attributesJson = GetAttributes(type.Namespace, type.Name, "table");
+        var attributesJson = GetAttributes(type.Namespace, type.Name.ToString(), "table");
         var attributes = ReadAttributes(attributesJson);
         if (attributes != null)
         {
@@ -608,7 +608,7 @@ public class SqlServerTypeProvider : ITypeProvider
 
     private string? GetOperationAttributes(Operation op, string operationType)
     {
-        return GetAttributes(op.Namespace, op.Name, operationType);
+        return GetAttributes(op.Namespace, op.Name.ToString(), operationType);
     }
 
     private string? GetAttributes(string nameSpace, string name, string entityType)
@@ -678,7 +678,7 @@ public class SqlServerTypeProvider : ITypeProvider
                             var resultType = reader["DATA_TYPE"].ToString();
                             var routineType = reader["ROUTINE_TYPE"].ToString();
                             
-                            var op = new Operation {Name = name, Namespace = ns, ProviderType = routineType};
+                            var op = new Operation(name, _namingConvention) {Namespace = ns, ProviderType = routineType};
                             var attributes = GetOperationAttributes(op, routineType);
                             PopulateOperationAttributes(op, attributes);
 
@@ -926,7 +926,7 @@ public class SqlServerTypeProvider : ITypeProvider
                 // TODO - we could check that the fields match here too?
             }
 
-            var existingReturnType = domain.ResultTypes.SingleOrDefault(t => t.Name == name);
+            var existingReturnType = domain.ResultTypes.SingleOrDefault(t => t.Name.ToString() == name);
             if (existingReturnType == null)
             {
                 // possibly inaccurate since it just picks the related type of the operation it is returned by
@@ -1055,7 +1055,7 @@ ORDER BY r.ROUTINE_NAME, rc.ORDINAL_POSITION;";
                             clrType = typeof(ResultType);
 
                             var resultType = domain.ResultTypes.SingleOrDefault(t =>
-                                t.Name == dataType && t.Namespace == customTypeSchema);
+                                t.Name.ToString() == dataType && t.Namespace == customTypeSchema);
                             if (resultType == null)
                             {
                                 ReadCustomOperationType(dataType, customTypeSchema, domain, op);
@@ -1312,7 +1312,7 @@ AND KCU1.TABLE_SCHEMA = '{type.Namespace}'
 
                         var refTypeName = reader["referenced_table_name"].ToString();
                         var refNs = reader["REFERENCED_TABLE_SCHEMA"].ToString();
-                        var refType = allTypes.FirstOrDefault(a => a.Name == refTypeName && a.Namespace == refNs);
+                        var refType = allTypes.FirstOrDefault(a => a.Name.ToString() == refTypeName && a.Namespace == refNs);
                         if (refType == null)
                         {
                             throw new DataException($"Can't find related type {refTypeName} in Namespace {refNs} when creating foreign key relationship");

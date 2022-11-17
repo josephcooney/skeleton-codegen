@@ -40,7 +40,7 @@ namespace Skeleton.Model
             {
                 if (Settings.TypeName != null)
                 {
-                    return Types.Where(t => t.Name == Settings.TypeName).ToList();
+                    return Types.Where(t => t.Name.ToString() == Settings.TypeName).ToList();
                 }
 
                 return Types;
@@ -81,10 +81,10 @@ namespace Skeleton.Model
                 }
             }
 
-            var possibleName = FindPossibleNameForTypeFromOperationName(operation!.Name);
+            var possibleName = FindPossibleNameForTypeFromOperationName(operation!.Name.ToString());
             if (!string.IsNullOrEmpty(possibleName))
             {
-                var possibleMatch = Types.FirstOrDefault(a => a.Name == possibleName && a.Namespace == operation.Namespace);
+                var possibleMatch = Types.FirstOrDefault(a => a.Name.ToString() == possibleName && a.Namespace == operation.Namespace);
                 if (possibleMatch != null)
                 {
                     if (FieldsMatch(fields, possibleMatch.Fields, ignoreCase))
@@ -97,6 +97,16 @@ namespace Skeleton.Model
             return null;
         }
 
+        public ApplicationType? GetTypeByName(string name)
+        {
+            return GetTypeByName(name, TypeProvider.DefaultNamespace);
+        }
+
+        public ApplicationType? GetTypeByName(string name, string nameSpace)
+        {
+            return Types.SingleOrDefault(t => t.Name.ToString() == name && t.Namespace == nameSpace);
+        }
+        
         private bool FieldsMatch(List<Field> fields, List<Field> possibleMatchFields, bool ignoreCase)
         {
             if (fields.Count != possibleMatchFields.Count(f => !f.IsExcludedFromResults))

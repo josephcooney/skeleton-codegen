@@ -35,10 +35,8 @@ namespace Skeleton.Templating.Classes.Adapters
 
         public Operation UnderlyingOperation => _op;
         
-        public string Name => _op.Name;
-
-        public string BareName => _op.BareName;
-
+        public Name Name => _op.Name;
+        
         public ApplicationType RelatedType => _type;
 
         public string Namespace
@@ -81,7 +79,7 @@ namespace Skeleton.Templating.Classes.Adapters
 
                 if (_op.Returns.ReturnType == ReturnType.ApplicationType || _op.Returns.ReturnType == ReturnType.CustomType)
                 {
-                    return Util.CSharpNameFromName(_op.Returns.SimpleReturnType.Name);
+                    return _op.Returns.SimpleReturnType.Name.CSharpName;
                 }
 
                 return "TODO";
@@ -117,10 +115,10 @@ namespace Skeleton.Templating.Classes.Adapters
                 {
                     if (_op.SingleResult)
                     {
-                        return Util.CSharpNameFromName(_op.Returns.SimpleReturnType.Name);
+                        return _op.Returns.SimpleReturnType.Name.CSharpName;
                     }
                     
-                    return $"List<{Util.CSharpNameFromName(_op.Returns.SimpleReturnType.Name)}>";
+                    return $"List<{_op.Returns.SimpleReturnType.Name.CSharpName}>";
                 }
 
                 return "TODO";
@@ -148,10 +146,10 @@ namespace Skeleton.Templating.Classes.Adapters
                 {
                     if (_op.SingleResult)
                     {
-                        return Util.CSharpNameFromName(_op.Returns.SimpleReturnType.Name);
+                        return _op.Returns.SimpleReturnType.Name.CSharpName;
                     }
                     
-                    return Util.CSharpNameFromName(_op.Returns.SimpleReturnType.Name) + "[]";
+                    return _op.Returns.SimpleReturnType.Name.CSharpName + "[]";
                 }
 
                 return "TODO";
@@ -184,7 +182,7 @@ namespace Skeleton.Templating.Classes.Adapters
                     var appType = _domain.Types.FirstOrDefault(a => a.Name == appTypeName);
                     if (appType != null)
                     {
-                        return _op.Name.EndsWith(DbFunctionGenerator.SearchFunctionName) && appType.Fields.Any(f => f.IsSearch);
+                        return _op.Name.ToString().EndsWith(DbFunctionGenerator.SearchFunctionName) && appType.Fields.Any(f => f.IsSearch);
                     }
                 }
 
@@ -192,7 +190,7 @@ namespace Skeleton.Templating.Classes.Adapters
             }
         }
 
-        public bool IsDelete => _op.Name.EndsWith("delete") || _op.Attributes?.isDelete == true;
+        public bool IsDelete => _op.Name.ToString().EndsWith("delete") || _op.Attributes?.isDelete == true;
 
         public string HttpMethod
         {
@@ -211,7 +209,7 @@ namespace Skeleton.Templating.Classes.Adapters
                         return HttpDeleteOperation;
                     }
 
-                    if (_op.Name.EndsWith(DbFunctionGenerator.InsertFunctionName) || _op.Name.EndsWith(DbFunctionGenerator.UpdateFunctionName) || _op.ChangesData || _op.CreatesNew)
+                    if (_op.Name.ToString().EndsWith(DbFunctionGenerator.InsertFunctionName) || _op.Name.ToString().EndsWith(DbFunctionGenerator.UpdateFunctionName) || _op.ChangesData || _op.CreatesNew)
                     {
                         return HttpPostOperation;
                     }

@@ -13,7 +13,7 @@ namespace Skeleton.Tests.DbGenerationTests.Policy
         public When_Type_Is_One_Degree_Removed_From_Owning_Type()
         {
             var domain = TestUtil.CreateTestDomain(new MockFileSystem());
-            var orderType = domain.Types.Single(t => t.Name == "order");
+            var orderType = domain.Types.Single(t => t.Name.ToString() == "order");
             adapter = new DbTypeAdapter(orderType, null, OperationType.None, domain);
         }
 

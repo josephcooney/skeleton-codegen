@@ -20,7 +20,7 @@ namespace Skeleton.Templating.Classes
             {
                 if (!type.Ignore)
                 {
-                    var file = new CodeFile { Name = Util.CSharpNameFromName(type.Name) + ".cs", Contents = GenerateCode(type, domain) };
+                    var file = new CodeFile { Name = type.Name.CSharpName + ".cs", Contents = GenerateCode(type, domain) };
                     files.Add(file);
                 }
             }
@@ -40,7 +40,7 @@ namespace Skeleton.Templating.Classes
                     var repo = new RepositoryAdapter(domain, type);
                     if (repo.Operations.Any())
                     {
-                        var file = new CodeFile { Name = Util.CSharpNameFromName(type.Name) + "Repository.cs", Contents = GenerateRepo(repo, domain.TypeProvider) };
+                        var file = new CodeFile { Name = type.Name.CSharpName + "Repository.cs", Contents = GenerateRepo(repo, domain.TypeProvider) };
                         files.Add(file);
                     }
                 }
@@ -61,7 +61,7 @@ namespace Skeleton.Templating.Classes
                     var repo = new RepositoryAdapter(domain, type);
                     if (repo.Operations.Any())
                     {
-                        var file = new CodeFile { Name = Util.CSharpNameFromName(type.Name) + "InMemoryRepository.cs", Contents = GenerateTestRepo(repo) };
+                        var file = new CodeFile { Name = type.Name.CSharpName + "InMemoryRepository.cs", Contents = GenerateTestRepo(repo) };
                         files.Add(file);
                     }
                 }
@@ -93,7 +93,7 @@ namespace Skeleton.Templating.Classes
             {
                 if (!type.Ignore)
                 {
-                    var file = new CodeFile { Name = Util.CSharpNameFromName(type.Name) + ".cs", Contents = GenerateReturnType(type, domain) };
+                    var file = new CodeFile { Name = type.Name.CSharpName + ".cs", Contents = GenerateReturnType(type, domain) };
                     files.Add(file);
                 }
             }
@@ -110,7 +110,7 @@ namespace Skeleton.Templating.Classes
             {
                 if (type.GenerateApi)
                 {
-                    var file = new CodeFile { Name = Util.CSharpNameFromName(type.Name) + "Controller.cs", Contents = GenerateController(type, domain) };
+                    var file = new CodeFile { Name = type.Name.CSharpName + "Controller.cs", Contents = GenerateController(type, domain) };
                     files.Add(file);
                 }
             }
@@ -127,7 +127,7 @@ namespace Skeleton.Templating.Classes
             {
                 if (type.GenerateApi)
                 {
-                    var file = new CodeFile { Name = Util.CSharpNameFromName(type.Name) + "ApiController.cs", Contents = GenerateApiController(type, domain) };
+                    var file = new CodeFile { Name = type.Name.CSharpName + "ApiController.cs", Contents = GenerateApiController(type, domain) };
                     files.Add(file);
                 }
             }
@@ -144,7 +144,7 @@ namespace Skeleton.Templating.Classes
             {
                 if (type.GenerateApi)
                 {
-                    var file = new CodeFile { Name = Util.CSharpNameFromName(type.Name) + "EditViewModel.cs", Contents = GenerateEditViewModel(type, domain) };
+                    var file = new CodeFile { Name = type.Name.CSharpName + "EditViewModel.cs", Contents = GenerateEditViewModel(type, domain) };
                     files.Add(file);
                 }
             }
@@ -174,12 +174,12 @@ namespace Skeleton.Templating.Classes
                         {
                             if (op.UsesModel)
                             {
-                                var file = new CodeFile { Name = Util.CSharpNameFromName(op.Name) + "Model.cs", Contents = GenerateApiModel(op) };
+                                var file = new CodeFile { Name = op.Name.CSharpName + "Model.cs", Contents = GenerateApiModel(op) };
                                 files.Add(file);
                             } else if (op.ChangesData && op.RelatedType.IsAttachment)
                             {
                                 // generate special model for attachments, since the 
-                                var file = new CodeFile { Name = Util.CSharpNameFromName(op.Name) + "Model.cs", Contents = GenerateAttachmentApiModel(op) };
+                                var file = new CodeFile { Name = op.Name.CSharpName + "Model.cs", Contents = GenerateAttachmentApiModel(op) };
                                 files.Add(file);
                             }
                         }

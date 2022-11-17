@@ -18,7 +18,7 @@ public class DbTypeAdapterTests : DbTestBase
         {
             var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
-            var type = model.Types.First(t => t.Name == "Product");
+            var type = model.GetTypeByName("Product");
             var adapter = new DbTypeAdapter(type, new []{"insert"}, OperationType.Insert, model);
             var idField = adapter.InsertFields.SingleOrDefault(f => f.Name == "Id");
             idField.ShouldBeNull();
@@ -43,7 +43,7 @@ public class DbTypeAdapterTests : DbTestBase
         {
             var provider = new SqlServerTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
-            var type = model.Types.First(t => t.Name == "Product");
+            var type = model.GetTypeByName("Product");
             var adapter = new DbTypeAdapter(type, new []{"update"}, OperationType.Update, model);
             var updateFields = adapter.UpdateInputFields;
             updateFields.All(f => !string.IsNullOrEmpty(f.Name)).ShouldBeTrue();

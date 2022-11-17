@@ -52,9 +52,9 @@ public abstract class NamingConventionBase
         return _settings.ModifiedTimestampFieldNames.Contains(fieldName);
     }
 
-    public string CreateResultTypeNameForOperation(string operationName)
+    public string CreateResultTypeNameForOperation(Name operationName)
     {
-        return CreateNameFromFragments(new List<string>() { operationName, "result" }); // the literal string "result" here could be come a config setting
+        return CreateNameFromFragments(new List<string>(operationName.Parts) { "result" }); // the literal string "result" here could be come a config setting
     }
     
     public abstract string CreateNameFromFragments(List<string> fragments);

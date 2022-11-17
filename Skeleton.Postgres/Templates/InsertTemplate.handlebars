@@ -20,7 +20,7 @@ $$
 			new_id = uuid_generate_v1();
 		{{/if}}
 
-        insert into {{{escape_sql_keyword Name}}} (
+        insert into {{{Name.SqlEscaped}}} (
             {{#each InsertFields}}
             {{{escape_sql_keyword Name}}}{{#unless @last}},{{/unless}}
             {{/each}}

@@ -93,16 +93,16 @@ namespace Skeleton.Postgres
         {
             if (settings.NamingConventionSettings == null)
             {
-                return new SnakeCaseNamingConvention(null);
+                return new SnakeCaseNamingConvention(null, this);
             }
 
             switch (settings.NamingConventionSettings.DbNamingConvention)
             {
                 case DbNamingConvention.ProviderDefault:
                 case DbNamingConvention.SnakeCase:
-                    return new SnakeCaseNamingConvention(settings.NamingConventionSettings);
+                    return new SnakeCaseNamingConvention(settings.NamingConventionSettings, this);
                 case DbNamingConvention.PascalCase:
-                    return new PascalCaseNamingConvention(settings.NamingConventionSettings);
+                    return new PascalCaseNamingConvention(settings.NamingConventionSettings, this);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -221,7 +221,7 @@ namespace Skeleton.Postgres
                             {
                                 var resultType = reader["result_type"].ToString();
 
-                                var op = new Operation {Name = name, Namespace = ns};
+                                var op = new Operation(name, _namingConvention) {Namespace = ns};
                                 var description = GetField<string>(reader, "description");
 
                                 PopulateOperationAttributes(op, description);
@@ -271,7 +271,8 @@ namespace Skeleton.Postgres
 
         public void DropGeneratedOperations(Settings settings, StringBuilder sb)
         {
-            var dom = new Domain(settings, this, CreateNamingConvention(settings));
+            _namingConvention = CreateNamingConvention(settings);
+            var dom = new Domain(settings, this, _namingConvention);
             GetOperationsInternal(dom, false);
             foreach (var operation in dom.Operations.Where(a => a.IsGenerated))
             {
@@ -1079,7 +1080,7 @@ namespace Skeleton.Postgres
         
         private void DropGeneratedOperation(Operation op, StringBuilder sb)
         {
-            var cmdText = $"DROP FUNCTION IF EXISTS {op.Namespace}.{GetSqlName(op.Name)};";
+            var cmdText = $"DROP FUNCTION IF EXISTS {op.Namespace}.{GetSqlName(op.Name.ToString())};";
             sb.AppendLine(cmdText);
             ExecuteCommandText(cmdText);
         }
@@ -1166,7 +1167,7 @@ namespace Skeleton.Postgres
                     var col = SanitizeFieldName(GetField<string>(reader, 2));
                     var attributes = reader.GetString(3);
 
-                    var type = types.FirstOrDefault(t => t.Name == table && t.Namespace == schema);
+                    var type = types.FirstOrDefault(t => t.Name.ToString() == table && t.Namespace == schema);
                     if (type != null)
                     {
                         if (col == null)
@@ -1244,7 +1245,7 @@ namespace Skeleton.Postgres
 
         private OperationReturn GetReturnTypeFromTypeName(Domain domain, Operation operation, string typeName, bool multiple)
         {
-            var appType = domain.Types.SingleOrDefault(t => t.Name == typeName && t.Namespace == operation.Namespace);
+            var appType = domain.GetTypeByName(typeName, operation.Namespace);
             if (appType != null)
             {
                 return new OperationReturn { ReturnType = ReturnType.ApplicationType, SimpleReturnType = appType, Multiple = multiple};
@@ -1272,7 +1273,7 @@ namespace Skeleton.Postgres
                 else
                 {
                     // look in result types
-                    var returnType = domain.ResultTypes.SingleOrDefault(t => t.Name == typeName);
+                    var returnType = domain.ResultTypes.SingleOrDefault(t => t.Name.ToString() == typeName);
                     if (returnType != null)
                     {
                         returnType.Operations.Add(operation);
@@ -1409,7 +1410,7 @@ namespace Skeleton.Postgres
                         // TODO - we could check that the fields match here too?
                     }
 
-                    var existingReturnType = domain.ResultTypes.SingleOrDefault(t => t.Name == name);
+                    var existingReturnType = domain.ResultTypes.SingleOrDefault(t => t.Name.ToString() == name);
                     if (existingReturnType == null)
                     {
                         // possibly inaccurate since it just picks the related type of the operation it is returned by
@@ -1502,7 +1503,7 @@ namespace Skeleton.Postgres
             var type = n.Type.ClrType;
             if (type == null)
             {
-                var resultType = domain.ResultTypes.SingleOrDefault(rt => rt.Name == n.Type.Name && rt.Namespace == operation.Namespace);
+                var resultType = domain.ResultTypes.SingleOrDefault(rt => rt.Name.ToString() == n.Type.Name && rt.Namespace == operation.Namespace);
                 if (resultType == null)
                 {
                     resultType = ReadCustomOperationType(n.Type.Name, domain, operation);
@@ -1700,7 +1701,7 @@ AND KCU1.TABLE_SCHEMA = '{type.Namespace}'
 
                         var refTypeName = reader["referenced_table_name"].ToString();
                         var refNs = reader["REFERENCED_TABLE_SCHEMA"].ToString();
-                        var refType = allTypes.FirstOrDefault(a => a.Name == refTypeName && a.Namespace == refNs);
+                        var refType = allTypes.FirstOrDefault(a => a.Name.ToString() == refTypeName && a.Namespace == refNs);
                         if (refType == null)
                         {
                             throw new DataException($"Can't find related type {refTypeName} in Namespace {refNs} when creating foreign key relationship");

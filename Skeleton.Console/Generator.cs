@@ -8,7 +8,6 @@ using Skeleton.ProjectGeneration;
 using Skeleton.Model;
 using Skeleton.Templating.Classes;
 using Skeleton.Templating.DatabaseFunctions;
-using Skeleton.Templating.MvcViews;
 using Skeleton.Templating.ReactClient;
 using Skeleton.Templating.TestData;
 using Serilog;
@@ -116,14 +115,6 @@ namespace Skeleton.Console
                 Log.Information("Finished generating return types");
             }
             
-            if (_settings.WebUIType == WebUIType.MVC)
-            {
-                GenerateControllers(domain);
-                GenerateViews(domain);
-                GenerateViewModels(domain);
-                Log.Information("Finished generating MVC UI");
-            }
-
             if (_settings.WebUIType == WebUIType.React)
             {
                 GenerateWebApi(domain);
@@ -163,7 +154,7 @@ namespace Skeleton.Console
 
         private void FilterDomainToSingleType(Domain domain)
         {
-            var selectedType = domain.Types.FirstOrDefault(t => t.Name == _settings.TypeName);
+            var selectedType = domain.Types.FirstOrDefault(t => t.Name.ToString() == _settings.TypeName);
             if (selectedType == null)
             {
                 throw new InvalidOperationException("Unable to find the type you specified to operate on " +
@@ -242,15 +233,7 @@ namespace Skeleton.Console
 
             _fileWriter.ApplyCodeFiles(files, path);
         }
-
-        private void GenerateControllers(Domain domain)
-        {
-            var generator = new ClassGenerator();
-            var files = generator.GenerateControllers(domain);
-
-            _fileWriter.ApplyCodeFiles(files, "Controllers");
-        }
-
+        
         private void GenerateWebApi(Domain domain)
         {
             var generator = new ClassGenerator();
@@ -262,34 +245,6 @@ namespace Skeleton.Console
         {
             var generator = new ClassGenerator();
             var files = generator.GenerateWebApiModels(domain);
-            _fileWriter.ApplyCodeFiles(files, "Models");
-        }
-
-        private void GenerateViews(Domain domain)
-        {
-            var generator = new ViewGenerator();
-            var files = generator.Generate(domain);
-
-            if (files.Any())
-            {
-                foreach (var codeFile in files)
-                {
-                    var folder = _fs.Path.Combine(_settings.RootDirectory, codeFile.RelativePath);
-                    if (!_fs.Directory.Exists(folder))
-                    {
-                        _fs.Directory.CreateDirectory(folder);
-                    }
-
-                    _fs.File.WriteAllText(_fs.Path.Combine(folder, codeFile.Name), codeFile.Contents);
-                }
-            }
-        }
-
-        private void GenerateViewModels(Domain domain)
-        {
-            var generator = new ClassGenerator();
-            var files = generator.GenerateEditModels(domain);
-
             _fileWriter.ApplyCodeFiles(files, "Models");
         }
         
@@ -367,7 +322,7 @@ namespace Skeleton.Console
 
                 var operations = domain.Operations.Where(o => o.Returns.SimpleReturnType == resultType);
                 var parameters = domain.Operations.SelectMany(o => o.Parameters).Where(p =>
-                    p.ClrType == typeof(ResultType) && p.ProviderTypeName == resultType.Name);
+                    p.ClrType == typeof(ResultType) && p.ProviderTypeName == resultType.Name.ToString());
                 if (operations.Count() == 0 && parameters.Count() == 0)
                 {
                     Log.Warning("Result Type {ResultType} is not returned by, or used as a parameter in any operations", resultType.Name);

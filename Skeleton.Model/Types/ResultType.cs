@@ -7,6 +7,7 @@ namespace Skeleton.Model
     {
         public ResultType(string name, string ns, ApplicationType relatedType, bool isCustomType, Domain domain) : base(name, ns, domain)
         {
+            Name = new Name(name, domain.NamingConvention, () => RelatedType);
             Operations = new List<Operation>();
             RelatedType = relatedType;
             IsCustomType = isCustomType;

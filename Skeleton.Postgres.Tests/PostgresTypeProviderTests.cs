@@ -16,7 +16,7 @@ public class PostgresTypeProviderTests : DbTestBase
         {
             var provider = new PostgresTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
-            var lookupType = model.Types.SingleOrDefault(t => t.Name == "simple_lookup_table");
+            var lookupType = model.GetTypeByName("simple_lookup_table");
             lookupType.ShouldNotBeNull();
             lookupType.Fields.Count.ShouldBe(4);
             
@@ -80,7 +80,7 @@ public class PostgresTypeProviderTests : DbTestBase
             var customTypeParam = op.Parameters.Single(p => p.Name == "government_area_to_add");
             customTypeParam.ProviderTypeName.ShouldBe("government_area_new");
             customTypeParam.ClrType.ShouldBe(typeof(ResultType));
-            model.ResultTypes.Count(t => t.Name == customTypeParam.ProviderTypeName).ShouldBe(1);
+            model.ResultTypes.Count(t => t.Name.ToString() == customTypeParam.ProviderTypeName).ShouldBe(1);
         }
         finally
         {

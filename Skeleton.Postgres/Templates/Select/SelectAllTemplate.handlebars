@@ -11,7 +11,7 @@ CREATE OR REPLACE FUNCTION {{FunctionName}} (
 {{#if HasExcludedFields}}
 RETURNS SETOF {{Name}}_result AS 
 {{else}}
-RETURNS SETOF {{{escape_sql_keyword Name}}} AS
+RETURNS SETOF {{{Name.SqlEscaped}}} AS
 {{/if}}
 $$
     
@@ -30,7 +30,7 @@ $$
         {{else}}
             {{ShortName}}.*
         {{/if}}
-        FROM {{{escape_sql_keyword Name}}} {{ShortName}}
+        FROM {{{Name.SqlEscaped}}} {{ShortName}}
         {{#if SoftDelete}}
         WHERE deleted_date is NULL
         {{/if}}

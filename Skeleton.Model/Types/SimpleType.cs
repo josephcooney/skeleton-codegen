@@ -7,13 +7,12 @@ namespace Skeleton.Model
     {
         public SimpleType(string name, string ns, Domain domain)
         {
-            Name = name;
             Namespace = ns;
             Fields = new List<Field>();
             Domain = domain;
         }
 
-        public string Name { get; }
+        public Name Name { get; protected set; }
 
         public string Namespace { get; }
         

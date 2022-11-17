@@ -122,7 +122,7 @@ namespace Skeleton.Templating.Classes
             {
                 if (IsCustomTypeOrCustomArray)
                 {
-                    return _domain.ResultTypes.Single(rt => rt.Name == _parameter.ProviderTypeName && rt.Namespace == _parameter.Operation.Namespace);
+                    return _domain.ResultTypes.Single(rt => rt.Name.ToString() == _parameter.ProviderTypeName && rt.Namespace == _parameter.Operation.Namespace);
                 }
 
                 return null;

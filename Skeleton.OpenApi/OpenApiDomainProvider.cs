@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using NJsonSchema;
 using NSwag;
 using Serilog;
+using Skeleton.Model.NamingConventions;
 
 namespace Skeleton.OpenApi
 {
@@ -84,7 +85,7 @@ namespace Skeleton.OpenApi
                 return (null, MatchType.Error);
             }
             
-            var nameMatch = domain.Operations.Where(dmnOp => dmnOp.RelatedType != null && Util.CanonicalizeName(dmnOp.BareName) == verb && Util.CanonicalizeName(dmnOp.RelatedType.Name) == noun);
+            var nameMatch = domain.Operations.Where(dmnOp => dmnOp.RelatedType != null && Util.CanonicalizeName(dmnOp.Name.BareName.ToString()) == verb && Util.CanonicalizeName(dmnOp.RelatedType.Name.ToString()) == noun);
             if (nameMatch.Any())
             {
                 if (nameMatch.Count() == 1)
@@ -128,8 +129,8 @@ namespace Skeleton.OpenApi
                 Log.Information("Adding operation {Path} to domain", op.Path);
                 var parts = DecomposeRoutePath(op.Path);
                 var noun = Util.CanonicalizeName(parts.noun);
-                var relatedType = domain.Types.FirstOrDefault(t => Util.CanonicalizeName(t.Name) == noun);
-                var domainOp = new Operation {Name = $"{ConvertApiStyleNameToStandardName(parts.noun)}_{ConvertApiStyleNameToStandardName(parts.verb)}", Namespace = domain.DefaultNamespace, RelatedType = relatedType };
+                var relatedType = domain.Types.FirstOrDefault(t => t.Name.Canonical == noun);
+                var domainOp = new Operation($"{ConvertApiStyleNameToStandardName(parts.noun)}_{ConvertApiStyleNameToStandardName(parts.verb)}", new SnakeCaseNamingConvention(null, null)) {Namespace = domain.DefaultNamespace, RelatedType = relatedType };
                 domainOp.Attributes = new JObject();
                 domainOp.Attributes.HttpMethod = op.Method;
 
@@ -275,7 +276,7 @@ namespace Skeleton.OpenApi
             if (key != null)
             {
                 key = Util.CanonicalizeName(key);
-                SimpleType matchingTypeByName = domain.Types.SingleOrDefault(t => Util.CanonicalizeName(t.Name) == key);
+                SimpleType matchingTypeByName = domain.Types.SingleOrDefault(t => t.Name.Canonical == key);
                 if (matchingTypeByName != null)
                 {
                     if (FieldsMatch(matchingTypeByName, schemaReference))
@@ -285,7 +286,7 @@ namespace Skeleton.OpenApi
                     }
                 }
                 
-                matchingTypeByName = domain.ResultTypes.SingleOrDefault(t => Util.CanonicalizeName(t.Name) == key);
+                matchingTypeByName = domain.ResultTypes.SingleOrDefault(t => t.Name.Canonical == key);
                 if (matchingTypeByName != null)
                 {
                     if (FieldsMatch(matchingTypeByName, schemaReference))

@@ -90,7 +90,6 @@ namespace Skeleton.Model
     public enum WebUIType
     {
         Unknown,
-        MVC,
         React
     }
 

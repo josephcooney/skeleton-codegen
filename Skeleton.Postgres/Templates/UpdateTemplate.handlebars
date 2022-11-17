@@ -12,14 +12,14 @@ $$
 		    perform set_config('app.user_id', security_user_id_param::text, true);
         END IF;
 
-        UPDATE {{{escape_sql_keyword Name}}}
+        UPDATE {{{Name.SqlEscaped}}}
         SET 
             {{#each UpdateFields}}
             {{{escape_sql_keyword Name}}} = {{{Value}}}{{#unless @last}},{{/unless}}
             {{/each}}
         WHERE
         {{#each PrimaryKeyFields}}
-            {{{escape_sql_keyword Parent.Name}}}.{{{escape_sql_keyword Name}}} = {{escape_sql_keyword Parent.FunctionName}}.{{{escape_sql_keyword Name}}}{{#unless @last}} AND{{/unless}}{{/each}}{{#if SoftDelete}} AND deleted_date is NULL{{/if}};
+            {{{Parent.Name.SqlEscaped}}}.{{{escape_sql_keyword Name}}} = {{escape_sql_keyword Parent.FunctionName}}.{{{escape_sql_keyword Name}}}{{#unless @last}} AND{{/unless}}{{/each}}{{#if SoftDelete}} AND deleted_date is NULL{{/if}};
 
         get diagnostics update_count = row_count;
         

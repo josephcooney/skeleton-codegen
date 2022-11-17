@@ -10,7 +10,7 @@ public class CSharpNameFromNameTests
     [Fact]
     public void CanGetCsNameFromDbNameWithCamelCaseNamingConvention()
     {
-        var domain = TestUtil.CreateTestDomain(new MockFileSystem(), new PascalCaseNamingConvention(null));
+        var domain = TestUtil.CreateTestDomain(new MockFileSystem(), new PascalCaseNamingConvention(null, null));
         Skeleton.Templating.Util.RegisterHelpers(domain);
         var name = Skeleton.Templating.Util.CSharpNameFromName("Supervisor_display");
         name.Should().Be("SupervisorDisplay");

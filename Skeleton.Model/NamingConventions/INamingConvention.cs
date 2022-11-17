@@ -28,5 +28,7 @@ public interface INamingConvention
 
     string CreateNameFromFragments(List<string> fragments);
 
-    string CreateResultTypeNameForOperation(string operationName);
+    string CreateResultTypeNameForOperation(Name operationName);
+
+    string EscapeSqlReservedWord(string name);
 }

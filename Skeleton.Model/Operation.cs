@@ -1,37 +1,36 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Serilog;
+using Skeleton.Model.NamingConventions;
 
 namespace Skeleton.Model
 {
     [DebuggerDisplay("Operation: {Namespace} {Name} {ProviderType}")]
     public class Operation
     {
+        private readonly INamingConvention _namingConvention;
         private string _nameInternal;
         
-        public Operation()
+        public Operation(string name, INamingConvention namingConvention)
         {
+            _nameInternal = name;
+            _namingConvention = namingConvention;
             Parameters = new List<Parameter>();
         }
 
         public string Namespace { get; set; }
         
-        public string Name
+        public Name Name
         {
             get
             {
-                var fullName = Attributes?.fullName?.ToString();
+                string fullName = Attributes?.fullName?.ToString();
                 if (!string.IsNullOrEmpty(fullName))
                 {
-                    return fullName;
+                    return new Name(fullName, _namingConvention, () => RelatedType );
                 }
 
-                return _nameInternal;
-            }
-            set
-            {
-                _nameInternal = value;
+                return new Name(_nameInternal, _namingConvention, () => RelatedType);
             }
         }
 
@@ -72,22 +71,6 @@ namespace Skeleton.Model
         public bool CreatesNew => Attributes?.createsNew == true;
 
         public ApplicationType RelatedType { get; set; } // this is set from the Attributes.applicationType - looked up by name
-
-        public string BareName
-        {
-            get
-            {
-                if (RelatedType != null)
-                {
-                    var bareName = Name.Replace(RelatedType.Name, "").Trim('_').Replace("__", "_");
-                    Log.Debug("Bare Name of {BareName} was determined for operation {Operation} with related type {RelatedTypeName}", bareName, Name, RelatedType.Name);
-                    return bareName;
-                }
-
-                Log.Warning("Unable to determine bare name for operation {OperationName}", Name);
-                return null;
-            }
-        } 
         
         public string FriendlyName
         {
@@ -96,7 +79,7 @@ namespace Skeleton.Model
                 var friendly = Attributes?.friendlyName;
                 if (friendly == null)
                 {
-                    return BareName;
+                    return Name.BareName.ToString();
                 }
 
                 return friendly.ToString();

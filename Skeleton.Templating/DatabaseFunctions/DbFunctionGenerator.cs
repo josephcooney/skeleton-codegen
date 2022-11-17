@@ -288,7 +288,7 @@ namespace Skeleton.Templating.DatabaseFunctions
             {
                 Name = type.Name + "_policy" + SqlExtension,
                 Contents = Util.GetCompiledTemplate(DbTemplates.SecurityPolicy)(adapter),
-                RelativePath = type.Name
+                RelativePath = type.Name.ToString()
             };
         }
 

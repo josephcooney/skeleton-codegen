@@ -14,7 +14,7 @@ namespace Skeleton.Tests
         public static Domain CreateTestDomain(IFileSystem fs, INamingConvention namingConvention = null)
         {
             var mockTypeProvider = new Mock<ITypeProvider>();
-            namingConvention ??= new SnakeCaseNamingConvention(null);
+            namingConvention ??= new SnakeCaseNamingConvention(null, null);
             var domain = new Domain(new Settings(fs), mockTypeProvider.Object, namingConvention);
             var userType = new ApplicationType("user", TestNamespace, domain);
             var userIdField = new Field(userType) { Name = "id", ClrType = typeof(int), ProviderTypeName = "integer", IsKey = true, IsRequired = true };

@@ -99,7 +99,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
                 var nameSuffix =
                     _domain.NamingConvention.CreateNameFromFragments(DbFunctionGenerator.SelectAllForDisplayFunctionName
                         .ToList());
-                var selectAll = Operations.FirstOrDefault(op => op.Name.EndsWith(nameSuffix));
+                var selectAll = Operations.FirstOrDefault(op => op.Name.ToString().EndsWith(nameSuffix));
 
                 if (selectAll != null)
                 {
@@ -110,6 +110,6 @@ namespace Skeleton.Templating.ReactClient.Adapters
             }
         }
 
-        public string ListStateTypeName => $"ResultData<{Util.CSharpNameFromName(Name)}[]>";
+        public string ListStateTypeName => $"ResultData<{Name.CSharpName}[]>";
     }
 }

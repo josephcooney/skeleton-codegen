@@ -13,7 +13,7 @@ namespace Skeleton.Templating.Classes.Repository
         {
             get
             {
-                return _domain.TypeProvider.GetSqlName(_op.Name);
+                return _domain.TypeProvider.GetSqlName(_op.Name.ToString());
             }
         }
     }
