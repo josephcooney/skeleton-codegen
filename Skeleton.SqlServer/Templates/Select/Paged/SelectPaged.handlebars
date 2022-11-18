@@ -4,7 +4,6 @@ CREATE OR ALTER PROCEDURE {{{escape_sql_keyword Namespace}}}.{{FunctionName}}
 {{#each SelectInputFields}}
     @{{{Name}}} {{ProviderTypeName}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}}
 {{/each}}
-
 AS
 BEGIN
 
