@@ -470,6 +470,11 @@ public class SqlServerTypeProvider : ITypeProvider
     }
 
     public bool IncludeIdentityFieldsInInsertStatements => false;
+    public string GetProviderTypeForClrType(Type type)
+    {
+        var item = SqlClrTypes.FirstOrDefault(t => t.Value == type);
+        return item.Key;
+    }
 
     private void DropGeneratedOperation(Operation op, StringBuilder sb)
     {

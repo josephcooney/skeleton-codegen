@@ -29,6 +29,6 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 
         public IPseudoField SortField => new SortField();
 
-        public IPseudoField SortDescendingField => new SortDescendingField();
+        public IPseudoField SortDescendingField => new SortDescendingField(Domain.TypeProvider);
     }
 }
