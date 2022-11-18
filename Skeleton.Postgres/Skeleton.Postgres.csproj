@@ -29,15 +29,15 @@
     <EmbeddedResource Include="Templates\ResultType.handlebars" />
     <EmbeddedResource Include="Templates\SearchTemplate.handlebars" />
     <EmbeddedResource Include="Templates\SecurityPolicyTemplate.handlebars" />
+    <EmbeddedResource Include="Templates\Select\Paged\SelectPaged.handlebars" />
+    <EmbeddedResource Include="Templates\Select\Paged\SelectPagedByForeignKey.handlebars" />
+    <EmbeddedResource Include="Templates\Select\Paged\SelectPagedForDisplay.handlebars" />
+    <EmbeddedResource Include="Templates\Select\Paged\SelectPagedForDisplayByForeignKey.handlebars" />
     <EmbeddedResource Include="Templates\Select\SelectAllForDisplayByForeignKeyTemplate.handlebars" />
     <EmbeddedResource Include="Templates\Select\SelectAllForDisplayTemplate.handlebars" />
     <EmbeddedResource Include="Templates\Select\SelectAllForDisplayViaLinkTemplate.handlebars" />
     <EmbeddedResource Include="Templates\Select\SelectAllTemplate.handlebars" />
     <EmbeddedResource Include="Templates\Select\SelectByForeignKeyTemplate.handlebars" />
-    <EmbeddedResource Include="Templates\Select\SelectPaged.handlebars" />
-    <EmbeddedResource Include="Templates\Select\SelectPagedByForeignKey.handlebars" />
-    <EmbeddedResource Include="Templates\Select\SelectPagedForDisplay.handlebars" />
-    <EmbeddedResource Include="Templates\Select\SelectPagedForDisplayByForeignKey.handlebars" />
     <EmbeddedResource Include="Templates\UpdateTemplate.handlebars" />
   </ItemGroup>
 
