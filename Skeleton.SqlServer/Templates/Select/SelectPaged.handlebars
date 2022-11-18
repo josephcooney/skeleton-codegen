@@ -9,7 +9,7 @@ CREATE OR ALTER FUNCTION {{{escape_sql_keyword Namespace}}}.{{FunctionName}} (
 {{/each}}
 )
 {{#if HasExcludedFields}}
-    RETURNS SETOF {{Name}}_result AS
+    RETURNS SETOF {{Name}}Result AS
 {{else}}
     RETURNS SETOF {{{escape_sql_keyword Name}}} AS
 {{/if}}

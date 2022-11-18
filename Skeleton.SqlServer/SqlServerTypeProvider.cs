@@ -349,7 +349,7 @@ public class SqlServerTypeProvider : ITypeProvider
     {
         var dom = new Domain(settings, this, CreateNamingConvention(settings));
         GetOperationsInternal(dom, false);
-        foreach (var operation in dom.Operations.Where(a => a.IsGenerated))
+        foreach (var operation in dom.Operations.Where(a => a.IsGenerated).OrderBy(o => o.Namespace).ThenBy(o => o.Name))
         {
             DropGeneratedOperation(operation, sb);
         }
@@ -1370,5 +1370,6 @@ select st.name as 'type_name', s.name as 'schema_name'  from sys.types st
 inner join sys.schemas s 
 on st.schema_id = s.schema_id 
 where st.is_user_defined = 1 and st.is_table_type = 1
+order by s.name, st.name
 ";
 }
