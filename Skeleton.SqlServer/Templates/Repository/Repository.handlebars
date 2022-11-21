@@ -51,6 +51,9 @@ namespace {{cs_name Namespace}}.Data.Repository
                     {{/if}}
     
                     cn.Open();
+                    {{#if GenerateSecurityPolicies}}
+                    SetUserContext(cn, {{cml_case SecurityUserParameter.Name}});    
+                    {{/if}}
     
                     {{#if NoResult}}
                     cmd.ExecuteNonQuery();
@@ -94,6 +97,9 @@ namespace {{cs_name Namespace}}.Data.Repository
                     Set{{cs_name BareName}}Parameters(cmd, {{#each Parameters}}{{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}});
                     {{/if}}
                     await cn.OpenAsync(token);
+                    {{#if GenerateSecurityPolicies}}
+                    SetUserContext(cn, {{cml_case SecurityUserParameter.Name}});
+                    {{/if}}
     
                     {{#if NoResult}}
                     await cmd.ExecuteNonQueryAsync(token);

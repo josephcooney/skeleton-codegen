@@ -158,6 +158,10 @@ namespace Skeleton.Templating.Classes.Adapters
             }
         }
 
+        public bool SetUserContext => _op.Parameters.Any(p => p.IsSecurityUser) && _domain.Settings.GenerateSecurityPolicies;
+
+        public ParameterAdapter SecurityUserParameter => Parameters.SingleOrDefault(p => p.IsSecurityUser);
+        
         public SimpleType SimpleReturnType => _op.Returns?.SimpleReturnType;
 
         public bool NoResult => _op.Returns?.ReturnType == ReturnType.None;
