@@ -435,6 +435,10 @@ namespace Skeleton.Postgres
         }
 
         public bool IncludeIdentityFieldsInInsertStatements => true;
+        public string GetProviderTypeForClrType(Type clrType)
+        {
+            return PostgresType.ProviderTypeNameFromClrType(clrType);
+        }
 
         public static NpgsqlDbType GetNpgsqlDbTypeFromPostgresType(string postgresTypeName)
         {

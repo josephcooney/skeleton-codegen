@@ -84,20 +84,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Classes\Mvc\RelatedFieldListItem.handlebars" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Classes\Mvc\Controller.handlebars" />
     <EmbeddedResource Include="Classes\WebApi\ApiController.handlebars" />
-    <EmbeddedResource Include="Classes\Mvc\EditViewModel.handlebars" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Classes\Class.handlebars" />
     <EmbeddedResource Include="Classes\WebApi\ApiRequestModel.handlebars" />
-    <EmbeddedResource Include="MvcViews\EditTemplate.handlebars" />
-    <EmbeddedResource Include="MvcViews\IndexTemplate.handlebars" />
     <EmbeddedResource Include="ReactClient\Templates\AddEdit\ReactAddEditPage.handlebars" />
     <EmbeddedResource Include="ReactClient\Templates\List\ReactListPage.handlebars" />
     <EmbeddedResource Include="ReactClient\Templates\List\ReactListRendering.handlebars" />

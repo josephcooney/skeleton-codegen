@@ -11,9 +11,6 @@ namespace {{cs_name DefaultNamespace}}.Data.Repository
 {
     public class RepositoryBase
     {
-		private static byte[] _keyFileBytes;
-		private static object _keyFileSync = new object();
-
 		protected virtual T GetField<T>(DbDataReader reader, string fieldName)
 		{
 			if (reader[fieldName] == DBNull.Value)
@@ -60,6 +57,18 @@ namespace {{cs_name DefaultNamespace}}.Data.Repository
             var connection = new SqlConnection(connectionString);
             return connection;
         }
+    
+    {{#if Settings.GenerateSecurityPolicies}}
+        protected void SetUserContext(SqlConnection connection, {{Settings.UserIdentity.ClrType}} userId)
+        {
+            // this can't be done inside of a stored procedure because it messes up the meta-data reading process for stored procs
+            using var cmd = new SqlCommand("sp_set_session_context", connection);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.Add("@Key", "user_id");
+            cmd.Paramaters.Add("@Value", userId);
+            cmd.ExecuteNonQuery();
+        }         
+    {{/if}}
 
         protected string BuildConnectionString(IConfiguration configuration)
         {

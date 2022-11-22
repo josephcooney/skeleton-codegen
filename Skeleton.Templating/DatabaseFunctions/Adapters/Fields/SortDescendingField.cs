@@ -5,9 +5,16 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters.Fields
 {
     public class SortDescendingField : IPseudoField
     {
+        private readonly ITypeProvider _typeProvider;
+
+        public SortDescendingField(ITypeProvider typeProvider)
+        {
+            _typeProvider = typeProvider;
+        }
+        
         public string Name => "sort_descending";
         public string ParentAlias => null;
-        public string ProviderTypeName => "boolean";
+        public string ProviderTypeName => _typeProvider.GetProviderTypeForClrType(typeof(bool));
         public bool HasDisplayName => false;
         public string DisplayName  => null;
         public int Order => 0;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using NpgsqlTypes;
@@ -111,6 +112,12 @@ namespace Skeleton.Postgres
             
                 return null;
             }
+        }
+
+        public static string ProviderTypeNameFromClrType(Type clrType)
+        {
+            var item = _postgresClrTypes.FirstOrDefault(i => i.Value == clrType);
+            return item.Key;
         }
 
         public static bool IsDateOnly(string typeName)

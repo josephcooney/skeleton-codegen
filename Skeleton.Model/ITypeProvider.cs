@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using Skeleton.Model.Operations;
 
@@ -42,5 +43,7 @@ namespace Skeleton.Model
         IParamterPrototype CreateFieldAdapter(Field field, IOperationPrototype operationPrototype);
         
         bool IncludeIdentityFieldsInInsertStatements { get; }
+
+        string GetProviderTypeForClrType(Type type);
     }
 }

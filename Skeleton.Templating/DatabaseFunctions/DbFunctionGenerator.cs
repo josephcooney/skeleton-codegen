@@ -287,7 +287,7 @@ namespace Skeleton.Templating.DatabaseFunctions
             return new CodeFile
             {
                 Name = type.Name + "_policy" + SqlExtension,
-                Contents = Util.GetCompiledTemplate(DbTemplates.SecurityPolicy)(adapter),
+                Contents = Util.GetCompiledTemplateFromTypeProvider(DbTemplates.SecurityPolicy, domain.TypeProvider)(adapter),
                 RelativePath = type.Name
             };
         }

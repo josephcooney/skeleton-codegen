@@ -100,24 +100,7 @@ namespace Skeleton.Templating.Classes
 
             return files;
         }
-
-        public List<CodeFile> GenerateControllers(Domain domain)
-        {
-            Util.RegisterHelpers(domain);
-            var files = new List<CodeFile>();
-
-            foreach (var type in domain.Types)
-            {
-                if (type.GenerateApi)
-                {
-                    var file = new CodeFile { Name = Util.CSharpNameFromName(type.Name) + "Controller.cs", Contents = GenerateController(type, domain) };
-                    files.Add(file);
-                }
-            }
-
-            return files;
-        }
-
+        
         public List<CodeFile> GenerateWebApiControllers(Domain domain)
         {
             Util.RegisterHelpers(domain);
