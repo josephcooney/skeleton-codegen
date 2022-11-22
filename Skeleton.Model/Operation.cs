@@ -71,6 +71,8 @@ namespace Skeleton.Model
         public bool ChangesData => Attributes?.changesData == true;
         public bool CreatesNew => Attributes?.createsNew == true;
 
+        public bool IsPaged => Attributes?.paged == true;
+
         public ApplicationType RelatedType { get; set; } // this is set from the Attributes.applicationType - looked up by name
 
         public string BareName

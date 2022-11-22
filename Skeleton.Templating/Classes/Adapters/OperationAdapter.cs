@@ -173,6 +173,8 @@ namespace Skeleton.Templating.Classes.Adapters
 
         public bool IsSelectById => _op.IsSelectById;
 
+        public bool IsPaged => _op.IsPaged;
+
         public bool IsSearch
         {
             get

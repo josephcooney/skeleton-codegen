@@ -1,0 +1,48 @@
+import { TablePagination } from '@mui/material';
+import {useEffect, useState} from "react";
+import { {{cs_name Name}}List } from './{{cml_case Name}}List';
+import { {{cs_name Name}} } from '../{{cs_name Name}}';
+import { {{UnderlyingType.ClientApiInterfaceName}}, {{UnderlyingType.ClientApiTypeName}} } from '../{{cml_case UnderlyingType.Name}}ApiClient';
+
+type PageState = {
+    pageNumber: number;
+    pageSize: number;
+    resultCount: number;
+}
+
+export const AddressListPaged  = (props: any) => {
+    const [pageState, setPageState] = useState<PageState>({pageNumber: 0, pageSize: 10, resultCount: 1000});
+    const [pagedData, setPagedData] = useState<{{cs_name Name}}[]>([]);
+    const api = new AddressApiClient();
+    
+    const handleChangePage = (event: unknown, newPage: number) => {
+        setPageState(prev => { return {...prev, pageNumber: newPage}});
+    };
+
+    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setPageState(prev => { return {...prev, pageNumber: 0, pageSize: +event.target.value}});
+    };
+    
+    useEffect(() => {
+        api.{{cml_case PagedOperation.BareName}}(pageState.pageSize, pageState.pageNumber, "id", null).then(result => {
+            if (result.parsedBody){
+                setPagedData(result.parsedBody);
+            }
+        })
+    }, [pageState.pageNumber, pageState.pageSize]);
+    
+    return (
+        <>
+            <{{cs_name Name}}List data={pagedData} dataProvided={true} />
+            <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={pageState.resultCount}
+                rowsPerPage={pageState.pageSize}
+                page={pageState.pageNumber}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+        </>
+    );
+}

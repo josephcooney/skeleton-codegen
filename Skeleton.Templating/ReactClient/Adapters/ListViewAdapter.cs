@@ -110,6 +110,14 @@ namespace Skeleton.Templating.ReactClient.Adapters
             }
         }
 
+        public OperationAdapter PagedOperation
+        {
+            get
+            {
+                return Operations.FirstOrDefault(o => o.IsPaged);
+            }
+        }
+
         public string ListStateTypeName => $"ResultData<{Util.CSharpNameFromName(Name)}[]>";
     }
 }
