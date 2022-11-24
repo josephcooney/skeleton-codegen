@@ -114,7 +114,12 @@ namespace Skeleton.Templating.ReactClient.Adapters
         {
             get
             {
-                return Operations.FirstOrDefault(o => o.IsPaged);
+                var pagedOps = _domain.Operations.Where(op => op.Returns.SimpleReturnType == _type && !op.SingleResult && op.IsPaged).ToList();
+                if (pagedOps.Count > 1)
+                {
+                    Log.Warning("There are multiple candidate paged operations for {TypeName} - {PagedOperations}", _type.Name, pagedOps);
+                }
+                return pagedOps.Select(o => new OperationAdapter(o, base._domain, _underlyingType)).FirstOrDefault();
             }
         }
 
