@@ -40,4 +40,4 @@ GO
 GRANT EXECUTE ON OBJECT::{{{escape_sql_keyword Namespace}}}.{{FunctionName}} TO web_app_role;
 GO
 
-EXEC sys.sp_addextendedproperty @name=N'codegen_meta', @value=N'{"applicationtype":"{{Name}}", "generated":true, "fullName":"{{FunctionName}}", "paged":true, "returnTypeName":"{{Name}}SelectForDisplayResult"}', @level0type=N'SCHEMA', @level0name=N'{{Namespace}}', @level1type=N'PROCEDURE', @level1name=N'{{FunctionName}}';
+EXEC sys.sp_addextendedproperty @name=N'codegen_meta', @value=N'{"applicationtype":"{{Name}}", "generated":true, "fullName":"{{FunctionName}}", "paged":true, "returnTypeName":"{{Name}}Display"}', @level0type=N'SCHEMA', @level0name=N'{{Namespace}}', @level1type=N'PROCEDURE', @level1name=N'{{FunctionName}}';
