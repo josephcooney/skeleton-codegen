@@ -10,7 +10,7 @@ type PageState = {
     resultCount: number;
 }
 
-export const AddressListPaged  = (props: any) => {
+export const {{cs_name Name}}ListPaged  = (props: any) => {
     const [pageState, setPageState] = useState<PageState>({pageNumber: 0, pageSize: 10, resultCount: 1000});
     const [pagedData, setPagedData] = useState<{{cs_name Name}}[]>([]);
     const api = new AddressApiClient();
@@ -24,7 +24,7 @@ export const AddressListPaged  = (props: any) => {
     };
     
     useEffect(() => {
-        api.{{cml_case PagedOperation.BareName}}(pageState.pageSize, pageState.pageNumber, "id", null).then(result => {
+        api.{{cml_case PagedOperation.BareName}}(pageState.pageSize, pageState.pageNumber, "{{IdentityField.Name}}", null).then(result => {
             if (result.parsedBody){
                 setPagedData(result.parsedBody);
             }

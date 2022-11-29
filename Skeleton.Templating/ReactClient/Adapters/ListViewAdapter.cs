@@ -119,7 +119,9 @@ namespace Skeleton.Templating.ReactClient.Adapters
                 {
                     Log.Warning("There are multiple candidate paged operations for {TypeName} - {PagedOperations}", _type.Name, pagedOps);
                 }
-                return pagedOps.Select(o => new OperationAdapter(o, base._domain, _underlyingType)).FirstOrDefault();
+                // this is pretty hacky - we should ensure that the # of parameters is _just_ the paging params + security user id and no additional filters, or 
+                // create a separate attribute to express this.
+                return pagedOps.OrderBy(o => o.Parameters.Count).Select(o => new OperationAdapter(o, base._domain, _underlyingType)).FirstOrDefault();
             }
         }
 
