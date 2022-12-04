@@ -23,12 +23,12 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
             }
         }
 
-        public IPseudoField PageSizeField => new PageSizeField();
+        public IPseudoField PageSizeField => new PageSizeField(_applicationType.Domain.NamingConvention);
 
-        public IPseudoField PageNumberField => new PageNumberField();
+        public IPseudoField PageNumberField => new PageNumberField(_applicationType.Domain.NamingConvention);
 
-        public IPseudoField SortField => new SortField();
+        public IPseudoField SortField => new SortField(_applicationType.Domain.NamingConvention);
 
-        public IPseudoField SortDescendingField => new SortDescendingField(Domain.TypeProvider);
+        public IPseudoField SortDescendingField => new SortDescendingField(Domain.TypeProvider, Domain.NamingConvention);
     }
 }

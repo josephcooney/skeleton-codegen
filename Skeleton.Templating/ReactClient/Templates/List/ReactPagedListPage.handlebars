@@ -10,10 +10,17 @@ type PageState = {
     resultCount: number;
 }
 
-export const {{cs_name Name}}ListPaged  = (props: any) => {
+type {{cs_name Name}}ListPagedProps = {
+    filterBy?: 'GovernmentAreaId' | 'ValidationStatusId'; // in practice we would only filter by 1 of these via the UI
+    governmentAreaId?: number;
+    validationStatusId?: number;
+    api? : {{UnderlyingType.ClientApiInterfaceName}};
+}
+
+export const {{cs_name Name}}ListPaged  = (props: {{cs_name Name}}ListPagedProps) => {
     const [pageState, setPageState] = useState<PageState>({pageNumber: 0, pageSize: 10, resultCount: 1000});
     const [pagedData, setPagedData] = useState<{{cs_name Name}}[]>([]);
-    const api = new AddressApiClient();
+    const api : {{UnderlyingType.ClientApiInterfaceName}} = props.api ?? new {{UnderlyingType.ClientApiTypeName}}();
     
     const handleChangePage = (event: unknown, newPage: number) => {
         setPageState(prev => { return {...prev, pageNumber: newPage}});
@@ -24,7 +31,7 @@ export const {{cs_name Name}}ListPaged  = (props: any) => {
     };
     
     useEffect(() => {
-        api.{{cml_case PagedOperation.BareName}}(pageState.pageSize, pageState.pageNumber, "{{IdentityField.Name}}", null).then(result => {
+        api.{{cml_case PrimaryPagedOperation.BareName}}(pageState.pageSize, pageState.pageNumber, "{{IdentityField.Name}}", null).then(result => {
             if (result.parsedBody){
                 setPagedData(result.parsedBody);
             }

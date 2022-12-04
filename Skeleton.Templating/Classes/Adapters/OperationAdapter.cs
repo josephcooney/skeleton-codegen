@@ -466,6 +466,14 @@ namespace Skeleton.Templating.Classes.Adapters
                 return Parameters.Where(p => p.IsCustomTypeOrCustomArray);
             }
         }
+
+        public List<ParameterAdapter> NonPagingParameters
+        {
+            get
+            {
+                return Parameters.Where(p => _op.IsPaged && p.IsPagingParameter).ToList();
+            }
+        }
         
         public SecurityRoles SecurityRoles => _securityRoles;
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Skeleton.Model;
 using Skeleton.Templating.Classes.Adapters;
+using Skeleton.Templating.DatabaseFunctions.Adapters.Fields;
 
 namespace Skeleton.Templating.Classes
 {
@@ -140,6 +141,21 @@ namespace Skeleton.Templating.Classes
 
                 return null;
             }
-        } 
+        }
+
+        public bool IsPagingParameter
+        {
+            get
+            {
+                var pageSizeParamName = PageSizeField.GetNameForNamingConvention(_domain.NamingConvention);
+                var pageNumParamName = PageNumberField.GetNameForNamingConvention(_domain.NamingConvention);
+                var sortFieldName = SortField.GetNameForNamingConvention(_domain.NamingConvention);
+                var sortDescendingFieldName = SortDescendingField.GetNameForNamingConvention(_domain.NamingConvention);
+                
+                var names = new List<string> { pageSizeParamName, pageNumParamName, sortFieldName, sortDescendingFieldName };
+
+                return !names.Contains(Name);
+            }  
+        }
     }
 }
