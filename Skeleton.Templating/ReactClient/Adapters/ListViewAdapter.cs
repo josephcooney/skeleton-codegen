@@ -115,11 +115,6 @@ namespace Skeleton.Templating.ReactClient.Adapters
             get
             {
                 var pagedOps = _domain.Operations.Where(op => op.Returns.SimpleReturnType == _type && !op.SingleResult && op.IsPaged).ToList();
-                if (pagedOps.Count > 1)
-                {
-                    Log.Warning("There are multiple candidate paged operations for {TypeName} - {PagedOperations}", _type.Name, pagedOps);
-                }
-
                 return pagedOps.OrderBy(o => o.Parameters.Count).Select(o => new OperationAdapter(o, base._domain, _underlyingType)).ToList();
             }
         }
@@ -128,12 +123,30 @@ namespace Skeleton.Templating.ReactClient.Adapters
         {
             get
             {
-                // this is pretty hacky - paged operations have been sorted (above) by # of parameters so taking the first will give us the one with the least options
-                // instead we should ensure that the # of parameters is _just_ the paging params + security user id and no additional filters, or create a separate attribute to express this.
-                return PagedOperations.FirstOrDefault();
+                return PagedOperations.SingleOrDefault(p => p.Parameters.All(param => param.IsPagingParameter || param.IsSecurityUser));
             }
         }
 
+        public List<ParameterOperationPair> SecondaryPagingOperations
+        {
+            get
+            {
+                var primary = PrimaryPagedOperation;
+                var secondary = PagedOperations
+                    .Where(o => o != primary && o.Parameters.Count(p => !p.IsPagingParameter && !p.IsSecurityUser) == 1)
+                    .Select(o => new ParameterOperationPair {Parameter = o.Parameters.Single(p => !p.IsPagingParameter && !p.IsSecurityUser), Operation = o});
+                return secondary.ToList();
+            }
+        }
+
+        public bool HasSecondaryPagingOperations => SecondaryPagingOperations.Any();
+
         public string ListStateTypeName => $"ResultData<{Util.CSharpNameFromName(Name)}[]>";
+    }
+
+    public class ParameterOperationPair
+    {
+        public ParameterAdapter Parameter { get; set; }
+        public OperationAdapter Operation { get; set; }
     }
 }

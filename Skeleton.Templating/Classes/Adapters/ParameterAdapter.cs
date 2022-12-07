@@ -143,18 +143,24 @@ namespace Skeleton.Templating.Classes
             }
         }
 
+        private List<string> _pagingParameterNames = null;
+        
         public bool IsPagingParameter
         {
             get
             {
-                var pageSizeParamName = PageSizeField.GetNameForNamingConvention(_domain.NamingConvention);
-                var pageNumParamName = PageNumberField.GetNameForNamingConvention(_domain.NamingConvention);
-                var sortFieldName = SortField.GetNameForNamingConvention(_domain.NamingConvention);
-                var sortDescendingFieldName = SortDescendingField.GetNameForNamingConvention(_domain.NamingConvention);
+                if (_pagingParameterNames == null)
+                {
+                    // lazy-load list of paging param names
+                    var pageSizeParamName = PageSizeField.GetNameForNamingConvention(_domain.NamingConvention);
+                    var pageNumParamName = PageNumberField.GetNameForNamingConvention(_domain.NamingConvention);
+                    var sortFieldName = SortField.GetNameForNamingConvention(_domain.NamingConvention);
+                    var sortDescendingFieldName = SortDescendingField.GetNameForNamingConvention(_domain.NamingConvention);
                 
-                var names = new List<string> { pageSizeParamName, pageNumParamName, sortFieldName, sortDescendingFieldName };
-
-                return !names.Contains(Name);
+                    _pagingParameterNames = new List<string> { pageSizeParamName, pageNumParamName, sortFieldName, sortDescendingFieldName };
+                }
+                
+                return _pagingParameterNames.Contains(Name);
             }  
         }
     }
