@@ -35,6 +35,25 @@ export const {{cs_name Name}}ListPaged = (props: {{cs_name Name}}ListPagedProps)
     };
     
     useEffect(() => {
+    {{#if HasSecondaryPagingOperations}}
+        if (props.filterBy) {
+        {{#each SecondaryPagingOperations}}
+            switch (props.filterBy) {
+                case '{{Parameter.Name}}': {
+                    if (props.{{cml_case Parameter.Name}}) {
+                        api.{{cml_case Operation.BareName}}(props.{{cml_case Parameter.Name}}, pageState.pageSize, pageState.pageNumber, "Id", null).then(result => {
+                            if (result.parsedBody) {
+                                setPagedData(result.parsedBody);
+                            }
+                        });
+                    }
+                    break;
+                }
+            }
+        {{/each}}
+            return;
+        }
+    {{/if}}    
         api.{{cml_case PrimaryPagedOperation.BareName}}(pageState.pageSize, pageState.pageNumber, "{{IdentityField.Name}}", null).then(result => {
             if (result.parsedBody){
                 setPagedData(result.parsedBody);
