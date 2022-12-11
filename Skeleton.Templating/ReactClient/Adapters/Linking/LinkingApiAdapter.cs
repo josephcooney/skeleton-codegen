@@ -1,8 +1,7 @@
 ﻿using System.Linq;
 using Skeleton.Model;
-using Skeleton.Templating.Classes;
 
-namespace Skeleton.Templating.ReactClient.Adapters
+namespace Skeleton.Templating.ReactClient.Adapters.Linking
 {
     public class LinkingApiAdapter : ClientApiAdapter
     {

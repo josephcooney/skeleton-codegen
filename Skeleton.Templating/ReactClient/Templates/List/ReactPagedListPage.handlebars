@@ -37,8 +37,8 @@ export const {{cs_name Name}}ListPaged = (props: {{cs_name Name}}ListPagedProps)
     useEffect(() => {
     {{#if HasSecondaryPagingOperations}}
         if (props.filterBy) {
-        {{#each SecondaryPagingOperations}}
             switch (props.filterBy) {
+            {{#each SecondaryPagingOperations}}
                 case '{{Parameter.Name}}': {
                     if (props.{{cml_case Parameter.Name}}) {
                         api.{{cml_case Operation.BareName}}(props.{{cml_case Parameter.Name}}, pageState.pageSize, pageState.pageNumber, "Id", null).then(result => {
@@ -49,8 +49,8 @@ export const {{cs_name Name}}ListPaged = (props: {{cs_name Name}}ListPagedProps)
                     }
                     break;
                 }
+            {{/each}}
             }
-        {{/each}}
             return;
         }
     {{/if}}    

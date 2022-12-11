@@ -3,7 +3,7 @@ using System.Linq;
 using Serilog;
 using Skeleton.Model;
 
-namespace Skeleton.Templating.ReactClient.Adapters
+namespace Skeleton.Templating.ReactClient.Adapters.Linking
 {
     public class LinkByFieldClientApiAdapter : ClientApiAdapter
     {

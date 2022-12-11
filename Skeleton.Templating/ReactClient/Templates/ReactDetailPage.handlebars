@@ -17,7 +17,11 @@ import {apiCall} from "../../api";
 {{#each RelatedDetails}}
 import { {{ClientApiTypeName}}, {{ClientApiInterfaceName}} } from '../{{kb_case Name}}/{{cml_case Name}}ApiClient';
 import { {{cs_name SelectAllType.Name}} } from '../{{kb_case Name}}/{{cs_name SelectAllType.Name}}';
+{{#if Paged}}
+import { {{cs_name SelectAllType.Name}}ListPaged } from '../{{kb_case Name}}/list/{{cml_case SelectAllType.Name}}ListPaged';
+{{else}}
 import { {{cs_name SelectAllType.Name}}List } from '../{{kb_case Name}}/list/{{cml_case SelectAllType.Name}}List';
+{{/if}}
 {{/each}}
 
 interface {{cs_name Name}}DetailProps {
@@ -62,10 +66,12 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : JSX
 	{{/each}}
 
 	{{#each DirectlyRelatedDetails}}
+        {{#unless Paged}}
 	const get{{cs_name Name}}Details = (id: {{LinkingFieldTsType}}) => {
         apiCall({{cml_case Name}}Api.selectForDisplayBy{{cs_name LinkingFieldBareName}}(id), set{{cs_name Name}}DetailState, {errorText: 'Error fetching {{HumanizedName}}.'}, enqueueSnackbar);
 	}
-
+    
+        {{/unless}}
 	{{/each}}
 
     {{#each UpdateOperations}}
@@ -84,7 +90,9 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : JSX
         if (idToFetch){
             getItemDetails(idToFetch);
             {{#each RelatedDetails}}
+                {{#unless Paged}}
             get{{cs_name Name}}Details(idToFetch);
+                {{/unless}}
             {{/each}}
         }
     }, [props.id, id])
@@ -117,7 +125,10 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : JSX
     }
 
     {{#each RelatedDetails}}
-    var {{cml_case Name}}Contents = null;
+        {{#if Paged}}
+    const {{cml_case Name}}Contents = {{cml_case ../Name}}DetailState.data ? <{{cs_name SelectAllType.Name}}ListPaged filterBy='{{LinkingFieldName}}' {{cml_case LinkingFieldName}}={ {{cml_case ../Name}}DetailState.data.id } /> : null ;
+        {{else}}
+    let {{cml_case Name}}Contents = null;
     if ({{cml_case Name}}DetailState.error) {
         {{cml_case Name}}Contents = <ErrorControl message={"unable to load {{hmn Name}}."}></ErrorControl>;
     } else {
@@ -128,6 +139,7 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : JSX
             {{cml_case Name}}Contents = <{{cs_name SelectAllType.Name}}List data={ {{cml_case Name}}DetailState.data } dataProvided={true} linkedType='{{../Name}}' linkedId={ {{cml_case ../Name}}DetailState.data ? {{cml_case ../Name}}DetailState.data.id : null} />;		
         }
     }
+        {{/if}}
     {{/each}}
 
     if ({{cml_case Name}}DetailState.data) {
