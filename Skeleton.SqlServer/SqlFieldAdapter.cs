@@ -106,7 +106,7 @@ public class SqlFieldAdapter : IParamterPrototype
             }
         }
         public bool HasDisplayName => false;
-        public string DisplayName => null;
+        public string DisplayName => Name;
 
         public IPseudoField ReferencesTypeField
         {

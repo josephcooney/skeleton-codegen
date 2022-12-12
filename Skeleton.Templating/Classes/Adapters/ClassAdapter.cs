@@ -114,5 +114,7 @@ namespace Skeleton.Templating.Classes
         }
 
         public SecurityRoles SecurityRoles => _securityRoles;
+
+        public bool Paged => (_type as ApplicationType).Paged;
     }
 }

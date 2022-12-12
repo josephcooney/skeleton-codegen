@@ -913,12 +913,14 @@ public class SqlServerTypeProvider : ITypeProvider
     private static OperationReturn GetReturnForOperationFromFields(Domain domain, Operation op, List<Field> fields)
     {
         var existingType = domain.FindTypeByFields(fields, op, true);
+        var singleResult = op.Attributes?.single_result == true;
         if (existingType != null)
         {
             return new OperationReturn()
             {
                 ReturnType = ReturnType.ApplicationType,
-                SimpleReturnType = existingType
+                SimpleReturnType = existingType,
+                Multiple = !singleResult
             };
         }
         else
@@ -962,7 +964,7 @@ public class SqlServerTypeProvider : ITypeProvider
                 {
                     ReturnType = ReturnType.CustomType,
                     SimpleReturnType = result,
-                    Multiple = true
+                    Multiple = !singleResult
                 };
             }
             else
@@ -974,7 +976,7 @@ public class SqlServerTypeProvider : ITypeProvider
                     {
                         ReturnType = ReturnType.CustomType,
                         SimpleReturnType = existingReturnType,
-                        Multiple = true
+                        Multiple = !singleResult
                     };
                 }
             }

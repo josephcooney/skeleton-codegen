@@ -131,6 +131,11 @@ namespace Skeleton.Templating.ReactClient
                     files.Add(new CodeFile { Name = nameStart + "Header.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactListHeader), RelativePath = listPath, Template = TemplateNames.ReactListHeader});
                     files.Add(new CodeFile { Name = nameStart + "Row.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactListRow), RelativePath = listPath, Template = TemplateNames.ReactListRow});
                     files.Add(new CodeFile { Name = nameStart + "ListRendering.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactListRendering), RelativePath = listPath, Template = TemplateNames.ReactListRendering});
+
+                    if (rt.RelatedType.Paged)
+                    {
+                        files.Add(new CodeFile { Name = nameStart + "ListPaged.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactPagedListPage), RelativePath = listPath, Template = TemplateNames.ReactPagedListPage});
+                    }
                 }
             }
 
@@ -203,6 +208,7 @@ namespace Skeleton.Templating.ReactClient
         public const string ApiClientModel = "ApiClientModel";
         public const string ApiClientResult = "ApiClientResult";
         public const string ReactListPage = "ReactListPage";
+        public const string ReactPagedListPage = "ReactPagedListPage";
         public const string ReactListHeader = "ReactListHeader";
         public const string ReactListRow = "ReactListRow";
         public const string ReactListRendering = "ReactListRendering";

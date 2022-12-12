@@ -173,6 +173,8 @@ namespace Skeleton.Templating.Classes.Adapters
 
         public bool IsSelectById => _op.IsSelectById;
 
+        public bool IsPaged => _op.IsPaged;
+
         public bool IsSearch
         {
             get
@@ -462,6 +464,14 @@ namespace Skeleton.Templating.Classes.Adapters
             get
             {
                 return Parameters.Where(p => p.IsCustomTypeOrCustomArray);
+            }
+        }
+
+        public List<ParameterAdapter> NonPagingParameters
+        {
+            get
+            {
+                return Parameters.Where(p => _op.IsPaged && p.IsPagingParameter).ToList();
             }
         }
         

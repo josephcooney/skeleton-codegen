@@ -1,16 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using Skeleton.Model;
+using Skeleton.Model.NamingConventions;
 
 namespace Skeleton.Templating.DatabaseFunctions.Adapters.Fields
 {
     public class PageSizeField : IPseudoField
     {
-        public PageSizeField()
+        private readonly INamingConvention _namingConvention;
+
+        public PageSizeField(INamingConvention namingConvention)
         {
-            
+            _namingConvention = namingConvention;
         }
-        
-        public string Name => "page_size";
+
+        public string Name => GetNameForNamingConvention(_namingConvention);
         public string ParentAlias => null; // TODO - maybe should be operation name?
         public string ProviderTypeName => "integer"; // TODO - could be more db-agnostic?
         public bool HasDisplayName => false;
@@ -27,5 +31,10 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters.Fields
         public Type ClrType => typeof(string);
         public bool IsGenerated => false;
         public bool IsRequired => false;
+
+        public static string GetNameForNamingConvention(INamingConvention namingConvention)
+        {
+            return namingConvention.CreateNameFromFragments(new List<string> { "page", "size" });
+        }
     }
 }

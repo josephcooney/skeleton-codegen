@@ -81,6 +81,8 @@
     <EmbeddedResource Include="ReactClient\Templates\ReactLeftNavItems.handlebars" />
     <None Remove="ReactClient\Templates\ReactDetailDisplay.handlebars" />
     <EmbeddedResource Include="ReactClient\Templates\ReactDetailDisplay.handlebars" />
+    <None Remove="ReactClient\Templates\List\ReactPagedListPage.handlebars" />
+    <EmbeddedResource Include="ReactClient\Templates\List\ReactPagedListPage.handlebars" />
   </ItemGroup>
 
   <ItemGroup>

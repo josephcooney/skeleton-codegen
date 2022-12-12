@@ -2,7 +2,11 @@
 import React from 'react';
 import { Route, Routes } from 'react-router';
 import {useLocation, useNavigate} from "react-router-dom";
+{{#if Paged}}
+import { {{cs_name SelectAllType.Name}}ListPaged } from './list/{{cml_case SelectAllType.Name}}ListPaged';
+{{else}}    
 import { {{cs_name SelectAllType.Name}}List } from './list/{{cml_case SelectAllType.Name}}List';
+{{/if}}
 import {NotFound} from "../../notFound";
 import {useSnackbar} from "notistack";
 {{#if CanDelete}}
@@ -23,7 +27,11 @@ export const {{cs_name Name}}Component = ():JSX.Element => {
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
     return (<Routes>
-            <Route path='/' element={<{{cs_name SelectAllType.Name}}List />} />
+            {{#if Paged}}
+            <Route path='/' element={<{{cs_name SelectAllType.Name}}ListPaged />} />
+            {{else}}
+            <Route path='/' element={<{{cs_name SelectAllType.Name}}List />} />             
+            {{/if}}
             {{#if CanDelete}}
             <Route path='/delete/:id' element={<{{cs_name Name}}ConfirmDelete />} />
             {{/if}}

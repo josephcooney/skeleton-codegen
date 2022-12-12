@@ -2,6 +2,7 @@
 using System.Linq;
 using Skeleton.Model;
 using Serilog;
+using Skeleton.Templating.ReactClient.Adapters.Linking;
 
 namespace Skeleton.Templating.ReactClient.Adapters
 {
@@ -26,7 +27,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
 
                 return related;
             }
-        } 
+        }
 
         public List<LinkingApiAdapter> LinkedDetails
         {
@@ -61,11 +62,11 @@ namespace Skeleton.Templating.ReactClient.Adapters
             get
             {
                 var types = _domain.Types.Where(t =>
-                    t.Fields.Any(f => f.HasReferenceType && f.ReferencesType == _type && !f.IsTrackingUser) && !t.IsLink && t != (ApplicationType)this._type).OrderBy(t => t.Name);
+                    t.Fields.Any(f => f.HasReferenceType && f.ReferencesType == _type && !f.IsTrackingUser) && !t.IsLink && t != (ApplicationType)_type).OrderBy(t => t.Name);
 
                 return types.Select(t =>
                         new LinkByFieldClientApiAdapter(t, _domain,
-                            t.Fields.First(f => f.ReferencesType == this._type)))
+                            t.Fields.First(f => f.ReferencesType == _type)))
                     .ToList();
             }
         }

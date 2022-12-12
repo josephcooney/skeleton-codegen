@@ -110,6 +110,43 @@ namespace Skeleton.Templating.ReactClient.Adapters
             }
         }
 
+        public List<OperationAdapter> PagedOperations
+        {
+            get
+            {
+                var pagedOps = _domain.Operations.Where(op => op.Returns.SimpleReturnType == _type && !op.SingleResult && op.IsPaged).ToList();
+                return pagedOps.OrderBy(o => o.Parameters.Count).Select(o => new OperationAdapter(o, base._domain, _underlyingType)).ToList();
+            }
+        }
+
+        public OperationAdapter PrimaryPagedOperation
+        {
+            get
+            {
+                return PagedOperations.SingleOrDefault(p => p.Parameters.All(param => param.IsPagingParameter || param.IsSecurityUser));
+            }
+        }
+
+        public List<ParameterOperationPair> SecondaryPagingOperations
+        {
+            get
+            {
+                var primary = PrimaryPagedOperation;
+                var secondary = PagedOperations
+                    .Where(o => o != primary && o.Parameters.Count(p => !p.IsPagingParameter && !p.IsSecurityUser) == 1)
+                    .Select(o => new ParameterOperationPair {Parameter = o.Parameters.Single(p => !p.IsPagingParameter && !p.IsSecurityUser), Operation = o});
+                return secondary.ToList();
+            }
+        }
+
+        public bool HasSecondaryPagingOperations => SecondaryPagingOperations.Any();
+
         public string ListStateTypeName => $"ResultData<{Util.CSharpNameFromName(Name)}[]>";
+    }
+
+    public class ParameterOperationPair
+    {
+        public ParameterAdapter Parameter { get; set; }
+        public OperationAdapter Operation { get; set; }
     }
 }
