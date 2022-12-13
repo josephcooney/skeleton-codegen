@@ -30,6 +30,7 @@ interface {{cs_name Name}}ListProps {
     linkedType? : string | null;
     linkedId? : number | string | null;
     api? : {{UnderlyingType.ClientApiInterfaceName}} | null;
+    onHeaderClick? : (fieldName: string) => void;
 }
 
 export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps> = (props: {{cs_name Name}}ListProps) => {
@@ -62,7 +63,7 @@ export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps>
                 <TableContainer>
                     <Table>
                         <TableHead>
-                            <{{cs_name Name}}Header />
+                            <{{cs_name Name}}Header onClick={props.onHeaderClick} />
                         </TableHead>
                         <TableBody>
                             {data.map(s =>
