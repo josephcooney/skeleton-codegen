@@ -45,5 +45,6 @@ namespace Skeleton.Model
         bool IncludeIdentityFieldsInInsertStatements { get; }
 
         string GetProviderTypeForClrType(Type type);
+        ISortField CreateSortField(Field field, IOperationPrototype operationPrototype);
     }
 }

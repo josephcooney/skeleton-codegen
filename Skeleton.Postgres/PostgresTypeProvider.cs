@@ -440,6 +440,11 @@ namespace Skeleton.Postgres
             return PostgresType.ProviderTypeNameFromClrType(clrType);
         }
 
+        public ISortField CreateSortField(Field field, IOperationPrototype prototype)
+        {
+            return new PostgresSortField(field, prototype);
+        }
+
         public static NpgsqlDbType GetNpgsqlDbTypeFromPostgresType(string postgresTypeName)
         {
             if (_postgresNpgSqlTypes.ContainsKey(postgresTypeName))

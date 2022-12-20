@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Skeleton.Model;
 using Skeleton.Model.Operations;
 using Skeleton.Templating.DatabaseFunctions.Adapters.Fields;
@@ -31,5 +32,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         public IPseudoField SortField => new SortField(Domain.NamingConvention);
 
         public IPseudoField SortDescendingField => new SortDescendingField(Domain.TypeProvider, Domain.NamingConvention);
+        
+        public List<ISortField> SortFields => _applicationType.Fields.Where(f => (!f.IsExcludedFromResults)).Select(a => _applicationType.Domain.TypeProvider.CreateSortField(a, this)).ToList();
     }
 }
