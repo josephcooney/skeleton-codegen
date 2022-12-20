@@ -9,25 +9,49 @@ BEGIN
 
     SET ROWCOUNT @{{PageSizeField.Name}};
 
-    SELECT
-    {{#if HasExcludedFields}}
-        {{#each Fields}}
-            {{../ShortName}}.{{{escape_sql_keyword Name}}}{{#unless @last}},{{/unless}}
-        {{/each}}
-    {{else}}
-        {{ShortName}}.*
-    {{/if}}
-    FROM {{{escape_sql_keyword Name}}} {{ShortName}}
-    {{#if SoftDelete}}
-        WHERE deleted_date is NULL
-    {{/if}}
-    ORDER BY
-{{#each Fields}}
-        CASE WHEN @{{../SortField.Name}} = '{{{Name}}}' AND @{{../SortDescendingField.Name}} = 0 THEN {{{escape_sql_keyword Name}}} END ASC,
-        CASE WHEN @{{../SortField.Name}} = '{{{Name}}}' AND @{{../SortDescendingField.Name}} = 1 THEN {{{escape_sql_keyword Name}}} END DESC,
-{{/each}}
-        CASE WHEN @{{SortField.Name}} IS NULL THEN {{{escape_sql_keyword PrimaryKeyField.Name}}} END
-    OFFSET @{{PageSizeField.Name}} * @{{PageNumberField.Name}} ROWS;
+    IF @{{SortDescendingField.Name}} = 1
+        BEGIN
+            SELECT
+            {{#if HasExcludedFields}}
+                {{#each Fields}}
+                    {{../ShortName}}.{{{escape_sql_keyword Name}}}{{#unless @last}},{{/unless}}
+                {{/each}}
+            {{else}}
+                {{ShortName}}.*
+            {{/if}}
+            FROM {{{escape_sql_keyword Name}}} {{ShortName}}
+            {{#if SoftDelete}}
+                WHERE deleted_date is NULL
+            {{/if}}
+            ORDER BY CASE
+            {{#each Fields}}
+                WHEN @{{../SortField.Name}} = '{{{Name}}}' THEN {{{escape_sql_keyword Name}}}
+            {{/each}}
+                ELSE {{{escape_sql_keyword PrimaryKeyField.Name}}}
+            END
+            DESC
+        END
+    ELSE
+        BEGIN
+            SELECT
+            {{#if HasExcludedFields}}
+                {{#each Fields}}
+                    {{../ShortName}}.{{{escape_sql_keyword Name}}}{{#unless @last}},{{/unless}}
+                {{/each}}
+            {{else}}
+                {{ShortName}}.*
+            {{/if}}
+            FROM {{{escape_sql_keyword Name}}} {{ShortName}}
+            {{#if SoftDelete}}
+                WHERE deleted_date is NULL
+            {{/if}}
+            ORDER BY CASE
+            {{#each Fields}}
+                WHEN @{{../SortField.Name}} = '{{{Name}}}' THEN {{{escape_sql_keyword Name}}}
+            {{/each}}
+                ELSE {{{escape_sql_keyword PrimaryKeyField.Name}}}
+            END
+        END
 
     SET ROWCOUNT 0;
 END;
