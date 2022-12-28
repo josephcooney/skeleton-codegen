@@ -45,6 +45,8 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         public int PageSizeParameterIndex => SelectFieldsWithIndices.Count + 1;
         
         public int OffsetIndex => PageSizeParameterIndex + 1;
+        
+        public List<ISortField> SortFields => _applicationType.Fields.Where(f => (!f.IsExcludedFromResults)).Select(a => _applicationType.Domain.TypeProvider.CreateSortField(a, this)).ToList();
     }
 
     public class PseudoFieldWithIndex

@@ -30,6 +30,7 @@ BEGIN
                 ELSE {{{escape_sql_keyword PrimaryKeyField.Name}}}
             END
             DESC
+            OFFSET @{{PageSizeField.Name}} * @{{PageNumberField.Name}} ROWS;
         END
     ELSE
         BEGIN
@@ -51,8 +52,8 @@ BEGIN
             {{/each}}
                 ELSE {{{escape_sql_keyword PrimaryKeyField.Name}}}
             END
+            OFFSET @{{PageSizeField.Name}} * @{{PageNumberField.Name}} ROWS;
         END
-
     SET ROWCOUNT 0;
 END;
 
