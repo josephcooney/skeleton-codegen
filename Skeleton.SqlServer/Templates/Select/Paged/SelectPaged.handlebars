@@ -24,8 +24,8 @@ BEGIN
                 WHERE deleted_date is NULL
             {{/if}}
             ORDER BY CASE
-            {{#each Fields}}
-                WHEN @{{../SortField.Name}} = '{{{Name}}}' THEN {{{escape_sql_keyword Name}}}
+            {{#each SortFields}}
+                WHEN @{{../SortField.Name}} = '{{{Name}}}' THEN {{{SortExpression}}}
             {{/each}}
                 ELSE {{{escape_sql_keyword PrimaryKeyField.Name}}}
             END
@@ -46,8 +46,8 @@ BEGIN
                 WHERE deleted_date is NULL
             {{/if}}
             ORDER BY CASE
-            {{#each Fields}}
-                WHEN @{{../SortField.Name}} = '{{{Name}}}' THEN {{{escape_sql_keyword Name}}}
+            {{#each SortFields}}
+                WHEN @{{../SortField.Name}} = '{{{Name}}}' THEN {{{SortExpression}}}
             {{/each}}
                 ELSE {{{escape_sql_keyword PrimaryKeyField.Name}}}
             END
