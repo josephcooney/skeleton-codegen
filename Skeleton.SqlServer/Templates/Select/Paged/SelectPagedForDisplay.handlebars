@@ -9,64 +9,33 @@ BEGIN
 
     SET ROWCOUNT @{{PageSizeField.Name}};
 
-    IF @{{SortDescendingField.Name}} = 1
-        BEGIN
-            SELECT
-                {{#each DisplayAllFields}}
-                {{ParentAlias}}.{{{escape_sql_keyword Name}}}{{#if HasDisplayName}} AS {{{escape_sql_keyword DisplayName}}}{{/if}}{{#unless @last}},{{/unless}}
-                {{/each}}
-            FROM {{{escape_sql_keyword Namespace}}}.{{{escape_sql_keyword Name}}} {{ShortName}}
-            {{#each RelatedFields}}
-            LEFT JOIN {{{escape_sql_keyword Field.ReferencesType.Namespace}}}.{{{escape_sql_keyword Field.ReferencesType.Name}}} AS {{ParentAlias}} ON {{PrimaryAlias}}.{{escape_sql_keyword Field.Name}} = {{ParentAlias}}.{{{escape_sql_keyword Field.ReferencesTypeField.Name}}} 
-            {{/each}}
-            {{#if FilterListOperation}}
-            WHERE {{OwnershipExpression}}
-                {{#if SoftDelete}}
+    SELECT
+    {{#each DisplayAllFields}}
+        {{ParentAlias}}.{{{escape_sql_keyword Name}}}{{#if HasDisplayName}} AS {{{escape_sql_keyword DisplayName}}}{{/if}}{{#unless @last}},{{/unless}}
+    {{/each}}
+    FROM {{{escape_sql_keyword Namespace}}}.{{{escape_sql_keyword Name}}} {{ShortName}}
+    {{#each RelatedFields}}
+        LEFT JOIN {{{escape_sql_keyword Field.ReferencesType.Namespace}}}.{{{escape_sql_keyword Field.ReferencesType.Name}}} AS {{ParentAlias}} ON {{PrimaryAlias}}.{{escape_sql_keyword Field.Name}} = {{ParentAlias}}.{{{escape_sql_keyword Field.ReferencesTypeField.Name}}}
+    {{/each}}
+    {{#if FilterListOperation}}
+        WHERE {{OwnershipExpression}}
+        {{#if SoftDelete}}
             AND {{ShortName}}.deleted_date is NULL
-                {{/if}}        
-            {{else}}
-                {{#if SoftDelete}}
+        {{/if}}
+    {{else}}
+        {{#if SoftDelete}}
             WHERE {{ShortName}}.deleted_date is NULL
-                {{/if}}
-            {{/if}}
-            ORDER BY CASE
-            {{#each DisplayAllSortFields}}
-                WHEN @{{../SortParameter.Name}} = '{{{DisplayName}}}' THEN {{{SortExpressionWithParentAlias}}}
-            {{/each}}
-                ELSE {{PrimaryKeyField.ParentAlias}}.{{PrimaryKeyField.Name}}
-            END
-            DESC
-            OFFSET @{{PageSizeField.Name}} * @{{PageNumberField.Name}} ROWS;
-        END
-    ELSE
-        BEGIN
-            SELECT
-            {{#each DisplayAllFields}}
-                {{ParentAlias}}.{{{escape_sql_keyword Name}}}{{#if HasDisplayName}} AS {{{escape_sql_keyword DisplayName}}}{{/if}}{{#unless @last}},{{/unless}}
-            {{/each}}
-            FROM {{{escape_sql_keyword Namespace}}}.{{{escape_sql_keyword Name}}} {{ShortName}}
-            {{#each RelatedFields}}
-                LEFT JOIN {{{escape_sql_keyword Field.ReferencesType.Namespace}}}.{{{escape_sql_keyword Field.ReferencesType.Name}}} AS {{ParentAlias}} ON {{PrimaryAlias}}.{{escape_sql_keyword Field.Name}} = {{ParentAlias}}.{{{escape_sql_keyword Field.ReferencesTypeField.Name}}}
-            {{/each}}
-            {{#if FilterListOperation}}
-                WHERE {{OwnershipExpression}}
-                {{#if SoftDelete}}
-                    AND {{ShortName}}.deleted_date is NULL
-                {{/if}}
-            {{else}}
-                {{#if SoftDelete}}
-                    WHERE {{ShortName}}.deleted_date is NULL
-                {{/if}}
-            {{/if}}
-            ORDER BY CASE
-            {{#each DisplayAllSortFields}}
-                WHEN @{{../SortParameter.Name}} = '{{{DisplayName}}}' THEN {{{SortExpressionWithParentAlias}}}
-            {{/each}}
-                ELSE {{PrimaryKeyField.ParentAlias}}.{{PrimaryKeyField.Name}}
-            END
-            OFFSET @{{PageSizeField.Name}} * @{{PageNumberField.Name}} ROWS;
-        END
+        {{/if}}
+    {{/if}}
+    ORDER BY
+    {{#each DisplayAllSortFields}}
+        CASE WHEN @{{../SortParameter.Name}} = '{{{DisplayName}}}' AND @{{../SortDescendingField.Name}} = 0 THEN {{{SortExpressionWithParentAlias}}} END,
+        CASE WHEN @{{../SortParameter.Name}} = '{{{DisplayName}}}' AND @{{../SortDescendingField.Name}} = 1 THEN {{{SortExpressionWithParentAlias}}} END DESC,
+    {{/each}}
+        CASE WHEN @{{SortParameter.Name}} is null THEN {{PrimaryKeyField.ParentAlias}}.{{PrimaryKeyField.Name}} END
+    OFFSET @{{PageSizeField.Name}} * @{{PageNumberField.Name}} ROWS;
     SET ROWCOUNT 0;
+
 END
 
 REVOKE ALL ON OBJECT::{{{escape_sql_keyword Namespace}}}.{{FunctionName}} FROM public;
