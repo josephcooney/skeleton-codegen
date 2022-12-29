@@ -154,7 +154,7 @@ namespace Skeleton.Templating.Classes
                     // lazy-load list of paging param names
                     var pageSizeParamName = PageSizeField.GetNameForNamingConvention(_domain.NamingConvention);
                     var pageNumParamName = PageNumberField.GetNameForNamingConvention(_domain.NamingConvention);
-                    var sortFieldName = SortField.GetNameForNamingConvention(_domain.NamingConvention);
+                    var sortFieldName = SortParameter.GetNameForNamingConvention(_domain.NamingConvention);
                     var sortDescendingFieldName = SortDescendingField.GetNameForNamingConvention(_domain.NamingConvention);
                 
                     _pagingParameterNames = new List<string> { pageSizeParamName, pageNumParamName, sortFieldName, sortDescendingFieldName };

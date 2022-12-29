@@ -36,7 +36,7 @@ FROM {{{escape_sql_keyword Name}}} {{ShortName}}
 {{#if SoftDelete}}
     WHERE deleted_date is NULL
 {{/if}}
-ORDER BY ' || coalesce(quote_ident({{SortField.Name}}), '{{{escape_sql_keyword PrimaryKeyField.Name}}}');
+ORDER BY ' || coalesce(quote_ident({{SortParameter.Name}}), '{{{escape_sql_keyword PrimaryKeyField.Name}}}');
 
 IF ({{SortDescendingField.Name}} = true) THEN
 query_txt = query_txt || ' DESC ';

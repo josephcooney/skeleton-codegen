@@ -198,7 +198,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
             get
             {
                 var fields  = UserEditableFields.Where(f => f.Add).ToList();
-                if (!fields.Any(f => f.IsIdentity) && _domain.TypeProvider.IncludeIdentityFieldsInInsertStatements)
+                if (!fields.Any(f => f.IsKey) && _domain.TypeProvider.IncludeIdentityFieldsInInsertStatements)
                 {
                     fields.AddRange(PrimaryKeyFields);
                 }

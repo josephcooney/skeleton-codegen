@@ -5,7 +5,7 @@ using System.Linq;
 namespace Skeleton.Model
 {
     [DebuggerDisplay("Name: {Name} {ClrType}")]
-    public class Field
+    public class Field : IPseudoField
     {
         private const int RankOffset = 1000000;
 
@@ -27,11 +27,15 @@ namespace Skeleton.Model
         public const string ThumbnailFieldType = "thumbnail";
 
         public string Name { get; set; }
+        public string ParentAlias => null;
 
+        public string DisplayName => Name;
         public int Order { get; set; }
+        public bool IsUuid => ClrType == typeof(Guid);
 
         public dynamic Attributes { get; set; }
 
+        public bool HasSize => Size != null;
         public int? Size { get; set; }
 
         public bool IsRequired { get; set; }
@@ -44,7 +48,8 @@ namespace Skeleton.Model
         public Type ClrType { get; set; }
 
         public string ProviderTypeName { get; set; }
-        
+        public bool HasDisplayName => false;
+
         public bool IsGenerated { get; set; }
         
         public bool IsComputed { get; set; }

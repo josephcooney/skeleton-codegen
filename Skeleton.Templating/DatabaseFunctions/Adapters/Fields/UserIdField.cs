@@ -27,7 +27,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         public bool Edit => true;
         public bool IsUserEditable => false;
 
-        public bool IsIdentity => false;
+        public bool IsKey => false;
         public bool IsInt => _domain.UserIdentity.IsInt;
         public bool HasSize => _domain.UserIdentity.Size != null;
         public int? Size => _domain.UserIdentity.Size;

@@ -6,13 +6,15 @@ namespace Skeleton.Postgres;
 
 public class PostgresSortField : ISortField
 {
-    private readonly Field _field;
+    private readonly IPseudoField _field;
     private readonly IOperationPrototype _prototype;
+    private readonly ITypeProvider _typeProvider;
 
-    public PostgresSortField(Field field, IOperationPrototype prototype)
+    public PostgresSortField(IPseudoField field, IOperationPrototype prototype, ITypeProvider typeProvider)
     {
         _field = field;
         _prototype = prototype;
+        _typeProvider = typeProvider;
     }
 
     public string Name => _field.Name;
@@ -25,13 +27,14 @@ public class PostgresSortField : ISortField
     public bool Add => _field.Add;
     public bool Edit => _field.Edit;
     public bool IsUserEditable => _field.IsUserEditable;
-    public bool IsIdentity => _field.IsKey;
+    public bool IsKey => _field.IsKey;
     public bool IsInt => _field.IsInt;
     public bool HasSize => _field.Size != null;
     public int? Size => _field.Size;
     public Type ClrType => _field.ClrType;
     public bool IsGenerated => _field.IsGenerated;
-    public bool IsRequired => _field.IsBoolean;
+    public bool IsRequired => _field.IsRequired;
 
-    public string SortExpression => _field.Name; // posgres doesn't really  need this...it only exists for SQL Server
+    public string SortExpression => _typeProvider.EscapeReservedWord(_field.Name); // posgres doesn't really  need this...it only exists for SQL Server
+    public string SortExpressionWithParentAlias => $"{_field.ParentAlias}.{_field.Name}";
 }

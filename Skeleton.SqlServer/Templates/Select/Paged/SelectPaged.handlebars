@@ -25,7 +25,7 @@ BEGIN
             {{/if}}
             ORDER BY CASE
             {{#each SortFields}}
-                WHEN @{{../SortField.Name}} = '{{{Name}}}' THEN {{{SortExpression}}}
+                WHEN @{{../SortParameter.Name}} = '{{{Name}}}' THEN {{{SortExpression}}}
             {{/each}}
                 ELSE {{{escape_sql_keyword PrimaryKeyField.Name}}}
             END
@@ -48,7 +48,7 @@ BEGIN
             {{/if}}
             ORDER BY CASE
             {{#each SortFields}}
-                WHEN @{{../SortField.Name}} = '{{{Name}}}' THEN {{{SortExpression}}}
+                WHEN @{{../SortParameter.Name}} = '{{{Name}}}' THEN {{{SortExpression}}}
             {{/each}}
                 ELSE {{{escape_sql_keyword PrimaryKeyField.Name}}}
             END

@@ -476,7 +476,7 @@ public class SqlServerTypeProvider : ITypeProvider
         return item.Key;
     }
 
-    public ISortField CreateSortField(Field field, IOperationPrototype operationPrototype)
+    public ISortField CreateSortField(IPseudoField field, IOperationPrototype operationPrototype)
     {
         return new SqlSortField(field, operationPrototype, this);
     }

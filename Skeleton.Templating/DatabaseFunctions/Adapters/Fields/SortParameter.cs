@@ -5,11 +5,11 @@ using Skeleton.Model.NamingConventions;
 
 namespace Skeleton.Templating.DatabaseFunctions.Adapters.Fields
 {
-    public class SortField : IPseudoField
+    public class SortParameter : IPseudoField
     {
         private readonly INamingConvention _namingConvention;
 
-        public SortField(INamingConvention namingConvention)
+        public SortParameter(INamingConvention namingConvention)
         {
             _namingConvention = namingConvention;
         }
@@ -24,7 +24,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters.Fields
         public bool Add => false;
         public bool Edit => false;
         public bool IsUserEditable => true;
-        public bool IsIdentity => false;
+        public bool IsKey => false;
         public bool IsInt => false;
         public bool HasSize => false;
         public int? Size => 100;

@@ -24,7 +24,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters.Fields
         public bool Add => false;
         public bool Edit => false;
         public bool IsUserEditable => true;
-        public bool IsIdentity => false;
+        public bool IsKey => false;
         public bool IsInt => true;
         public bool HasSize => false;
         public int? Size => null;

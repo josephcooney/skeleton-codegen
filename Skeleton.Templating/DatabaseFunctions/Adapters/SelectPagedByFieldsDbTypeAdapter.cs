@@ -19,7 +19,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
                 var fields = base.SelectInputFields;
                 fields.Add(PageSizeField);
                 fields.Add(PageNumberField);
-                fields.Add(SortField);
+                fields.Add(SortParameter);
                 fields.Add(SortDescendingField);
                 return fields;
             }
@@ -29,7 +29,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 
         public IPseudoField PageNumberField => new PageNumberField(Domain.NamingConvention);
 
-        public IPseudoField SortField => new SortField(Domain.NamingConvention);
+        public IPseudoField SortParameter => new SortParameter(Domain.NamingConvention);
 
         public IPseudoField SortDescendingField => new SortDescendingField(Domain.TypeProvider, Domain.NamingConvention);
 

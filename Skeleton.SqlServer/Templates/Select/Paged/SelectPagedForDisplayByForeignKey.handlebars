@@ -25,10 +25,10 @@ BEGIN
     {{/if}}
     ORDER BY
     {{#each DisplayAllFields}}
-        CASE WHEN @{{../SortField.Name}} = '{{{DisplayName}}}' AND @{{../SortDescendingField.Name}} = 0 THEN {{ParentAlias}}.{{{escape_sql_keyword Name}}} END ASC,
-        CASE WHEN @{{../SortField.Name}} = '{{{DisplayName}}}' AND @{{../SortDescendingField.Name}} = 1 THEN {{ParentAlias}}.{{{escape_sql_keyword Name}}} END DESC,
+        CASE WHEN @{{../SortParameter.Name}} = '{{{DisplayName}}}' AND @{{../SortDescendingField.Name}} = 0 THEN {{ParentAlias}}.{{{escape_sql_keyword Name}}} END ASC,
+        CASE WHEN @{{../SortParameter.Name}} = '{{{DisplayName}}}' AND @{{../SortDescendingField.Name}} = 1 THEN {{ParentAlias}}.{{{escape_sql_keyword Name}}} END DESC,
     {{/each}}
-    CASE WHEN @{{SortField.Name}} IS NULL THEN {{ShortName}}.{{{escape_sql_keyword PrimaryKeyField.Name}}} END
+    CASE WHEN @{{SortParameter.Name}} IS NULL THEN {{ShortName}}.{{{escape_sql_keyword PrimaryKeyField.Name}}} END
     OFFSET @{{PageSizeField.Name}} * @{{PageNumberField.Name}} ROWS;
 
     SET ROWCOUNT 0;

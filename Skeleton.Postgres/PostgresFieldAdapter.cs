@@ -109,7 +109,7 @@ public class PostgresFieldAdapter : IParamterPrototype
         public bool Edit => _field.Edit;
 
         public bool IsUserEditable => _field.IsCallerProvided;
-        public bool IsIdentity => _field.IsKey;
+        public bool IsKey => _field.IsKey;
         public bool IsInt => _field.IsInt;
 
         public bool HasSize => _field.Size != null;
