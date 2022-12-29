@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Skeleton.Model.NamingConventions;
 using Skeleton.Model.Operations;
 
 namespace Skeleton.Model
@@ -46,5 +47,7 @@ namespace Skeleton.Model
 
         string GetProviderTypeForClrType(Type type);
         ISortField CreateSortField(IPseudoField field, IOperationPrototype operationPrototype);
+
+        IPseudoField CreateSortParameter(INamingConvention namingConvention);
     }
 }

@@ -27,9 +27,9 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 
         public IPseudoField PageNumberField => new PageNumberField(_applicationType.Domain.NamingConvention);
 
-        public IPseudoField SortParameter => new SortParameter(_applicationType.Domain.NamingConvention);
+        public IPseudoField SortParameter =>  _applicationType.Domain.TypeProvider.CreateSortParameter(_applicationType.Domain.NamingConvention);
 
-        public IPseudoField SortDescendingField => new SortDescendingField(Domain.TypeProvider, Domain.NamingConvention);
+        public IPseudoField SortDescendingField => new SortDescendingParameter(Domain.TypeProvider, Domain.NamingConvention);
 
         public int LinkFieldParameterIndex = 1;
 
