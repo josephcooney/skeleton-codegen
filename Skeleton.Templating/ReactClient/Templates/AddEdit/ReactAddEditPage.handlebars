@@ -7,6 +7,7 @@ import { Location, NavigateFunction } from 'react-router';
 import { ErrorControl } from '../../controls/error-control';
 import {Button, FormControlLabel, FormHelperText, FormGroup, Grid, Rating, TextField, Typography} from "@mui/material";
 import {TriStateCheckbox} from "../../controls/TriStateCheckbox";
+import Title from "../../controls/Title";
 import { DateTimePicker, DatePicker } from '@mui/lab';
 import {OptionsObject, SnackbarKey, SnackbarMessage} from 'notistack';
 import { motion, AnimatePresence } from "framer-motion";
@@ -460,7 +461,7 @@ export class {{cs_name Name}}{{OperationNameFriendly}} extends Component<I{{cs_n
 
 	renderTitle() : JSX.Element | null {
 		if (this.props.title){
-			return <h1>{this.props.title}</h1>;
+			return <Title>{this.props.title}</Title>;
 		}
 		
 		var customTitle = this.rendering.renderCustomTitle(this.state);
@@ -468,7 +469,7 @@ export class {{cs_name Name}}{{OperationNameFriendly}} extends Component<I{{cs_n
 			return customTitle;
 		}
 
-		return <h1>{{OperationNameFriendly}} {{hmn Name}}</h1>;
+		return <Title>{{OperationNameFriendly}} {{hmn Name}}</Title>;
 	}
 
 	{{#if IsUpdate}}
