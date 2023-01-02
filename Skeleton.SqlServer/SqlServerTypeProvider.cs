@@ -476,6 +476,16 @@ public class SqlServerTypeProvider : ITypeProvider
         return item.Key;
     }
 
+    public ISortField CreateSortField(IPseudoField field, IOperationPrototype operationPrototype)
+    {
+        return new SqlSortField(field, operationPrototype, this);
+    }
+
+    public IPseudoField CreateSortParameter(INamingConvention namingConvention)
+    {
+        return new SqlSortParameter(namingConvention);
+    }
+
     private void DropGeneratedOperation(Operation op, StringBuilder sb)
     {
         var cmdText = $"DROP {op.ProviderType} IF EXISTS {op.Namespace}.{GetSqlName(op.Name)};";

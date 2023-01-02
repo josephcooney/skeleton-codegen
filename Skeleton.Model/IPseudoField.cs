@@ -16,7 +16,7 @@ namespace Skeleton.Model
         
         bool IsUserEditable { get; }
         
-        bool IsIdentity { get; }
+        bool IsKey { get; }
         
         bool IsInt { get; }
         

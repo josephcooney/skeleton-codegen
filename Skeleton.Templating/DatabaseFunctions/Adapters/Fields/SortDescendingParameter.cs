@@ -5,12 +5,12 @@ using Skeleton.Model.NamingConventions;
 
 namespace Skeleton.Templating.DatabaseFunctions.Adapters.Fields
 {
-    public class SortDescendingField : IPseudoField
+    public class SortDescendingParameter : IPseudoField
     {
         private readonly ITypeProvider _typeProvider;
         private readonly INamingConvention _namingConvention;
 
-        public SortDescendingField(ITypeProvider typeProvider, INamingConvention namingConvention)
+        public SortDescendingParameter(ITypeProvider typeProvider, INamingConvention namingConvention)
         {
             _typeProvider = typeProvider;
             _namingConvention = namingConvention;
@@ -26,7 +26,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters.Fields
         public bool Add => false;
         public bool Edit => false;
         public bool IsUserEditable => true;
-        public bool IsIdentity => false;
+        public bool IsKey => false;
         public bool IsInt => false;
         public bool HasSize => false;
         public int? Size  => null;

@@ -9,6 +9,8 @@ type PageState = {
     pageNumber: number;
     pageSize: number;
     resultCount: number;
+    sortColumn: string;
+    sortDescending: boolean;
 }
 
 type {{cs_name Name}}ListPagedProps = {
@@ -22,7 +24,7 @@ type {{cs_name Name}}ListPagedProps = {
 }
 
 export const {{cs_name Name}}ListPaged = (props: {{cs_name Name}}ListPagedProps) => {
-    const [pageState, setPageState] = useState<PageState>({pageNumber: 0, pageSize: 10, resultCount: 1000});
+    const [pageState, setPageState] = useState<PageState>({pageNumber: 0, pageSize: 10, resultCount: 1000, sortColumn: "{{IdentityField.Name}}", sortDescending: false});
     const [pagedData, setPagedData] = useState<{{cs_name Name}}[]>([]);
     const api : {{UnderlyingType.ClientApiInterfaceName}} = props.api ?? new {{UnderlyingType.ClientApiTypeName}}();
     
@@ -33,6 +35,14 @@ export const {{cs_name Name}}ListPaged = (props: {{cs_name Name}}ListPagedProps)
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
         setPageState(prev => { return {...prev, pageNumber: 0, pageSize: +event.target.value}});
     };
+
+    const onHeaderClick = (fieldName: string) => {
+        if (pageState.sortColumn === fieldName) {
+            setPageState(prev => { return { ...prev, pageNumber: 0, sortColumn: fieldName, sortDescending: !prev.sortDescending } });
+        } else {
+            setPageState(prev => { return { ...prev, pageNumber: 0, sortColumn: fieldName, sortDescending: false } });
+        }
+    }
     
     useEffect(() => {
     {{#if HasSecondaryPagingOperations}}
@@ -41,7 +51,7 @@ export const {{cs_name Name}}ListPaged = (props: {{cs_name Name}}ListPagedProps)
             {{#each SecondaryPagingOperations}}
                 case '{{Parameter.Name}}': {
                     if (props.{{cml_case Parameter.Name}}) {
-                        api.{{cml_case Operation.BareName}}(props.{{cml_case Parameter.Name}}, pageState.pageSize, pageState.pageNumber, "Id", null).then(result => {
+                        api.{{cml_case Operation.BareName}}(props.{{cml_case Parameter.Name}}, pageState.pageSize, pageState.pageNumber, pageState.sortColumn, pageState.sortDescending).then(result => {
                             if (result.parsedBody) {
                                 setPagedData(result.parsedBody);
                             }
@@ -54,16 +64,16 @@ export const {{cs_name Name}}ListPaged = (props: {{cs_name Name}}ListPagedProps)
             return;
         }
     {{/if}}    
-        api.{{cml_case PrimaryPagedOperation.BareName}}(pageState.pageSize, pageState.pageNumber, "{{IdentityField.Name}}", null).then(result => {
+        api.{{cml_case PrimaryPagedOperation.BareName}}(pageState.pageSize, pageState.pageNumber, pageState.sortColumn, pageState.sortDescending).then(result => {
             if (result.parsedBody){
                 setPagedData(result.parsedBody);
             }
         })
-    }, [pageState.pageNumber, pageState.pageSize]);
+    }, [pageState.pageNumber, pageState.pageSize, pageState.sortColumn, pageState.sortDescending]);
     
     return (
         <>
-            <{{cs_name Name}}List data={pagedData} dataProvided={true} />
+            <{{cs_name Name}}List data={pagedData} dataProvided={true} onHeaderClick={onHeaderClick} />
             <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
                 component="div"

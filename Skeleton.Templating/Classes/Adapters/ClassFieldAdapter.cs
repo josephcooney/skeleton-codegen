@@ -18,9 +18,7 @@ namespace Skeleton.Templating.Classes
             IsKey = field.IsKey;
             ProviderTypeName = field.ProviderTypeName;
         }
-
-        public bool HasSize => Size != null;
-
+        
         public bool IsReferenceField => ReferencesType != null;
 
     }
@@ -43,7 +41,7 @@ namespace Skeleton.Templating.Classes
             _domain = domain;
         }
 
-        public string DisplayName => _displayName;
+        public new string DisplayName => _displayName;
 
         public bool IsLinkingField => _linkingIdField != null;
 

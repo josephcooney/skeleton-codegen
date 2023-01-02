@@ -5,11 +5,12 @@ import { Formik, Field, Form, ErrorMessage, FormikErrors, getIn, FormikProps } f
 import * as queryString from 'query-string';
 import { Location, NavigateFunction } from 'react-router';
 import { ErrorControl } from '../../controls/error-control';
-import {AnimateIn} from "../../controls/animate-in";
 import {Button, FormControlLabel, FormHelperText, FormGroup, Grid, Rating, TextField, Typography} from "@mui/material";
 import {TriStateCheckbox} from "../../controls/TriStateCheckbox";
+import Title from "../../controls/Title";
 import { DateTimePicker, DatePicker } from '@mui/lab';
 import {OptionsObject, SnackbarKey, SnackbarMessage} from 'notistack';
+import { motion, AnimatePresence } from "framer-motion";
 {{#if IsUpdate}}import { Loading } from '../../controls/loading';{{/if}}
 
 // sub-components for {{cs_name Name}} 
@@ -54,6 +55,7 @@ export interface {{StateTypeName}} {
     {{cml_case Name}}: {{ResolvedTypescriptTypeUnderlying}} | null;
     {{/each}}
 	{{/if}}
+    visible: boolean;
     error: boolean;
 	message?: string | null;
 	{{#if IsUpdate}}
@@ -148,7 +150,8 @@ export class {{cs_name Name}}{{OperationNameFriendly}} extends Component<I{{cs_n
 			{{#if IsUpdate}}
 			loading: providedData == null,
 			{{/if}}
-			error: false
+			error: false,
+            visible: true
 		};
 
 		this.cancelSave = this.cancelSave.bind(this);
@@ -157,8 +160,10 @@ export class {{cs_name Name}}{{OperationNameFriendly}} extends Component<I{{cs_n
     }
 
     goBack(){
-        if (this.props.navigation) {
-            this.props.navigation(-1);
+        const nav = this.props.navigation;
+        if (nav) {
+            this.setState((prevState: {{StateTypeName}}) => ({ ...prevState, visible: false }));
+            setTimeout(() => { nav(-1) }, 250); // time for exit animation to run
         }
     }
 
@@ -330,7 +335,10 @@ export class {{cs_name Name}}{{OperationNameFriendly}} extends Component<I{{cs_n
 
     render() {
         return (
-		<AnimateIn>
+        <AnimatePresence> {this.state.visible ?
+        <motion.div initial={ { opacity: 0, x: -1000 } }
+                    animate={ { opacity: 1, x: 0 } }
+                    exit={ { opacity: 0, x: -1000 } }>            
 		<Formik {{#if IsUpdate}}enableReinitialize{{/if}} initialValues={ {{CurrentOperation.StatePath}} } onSubmit={this.handleSubmit} validate={this.validate}>
             {formik => (
 			<div>
@@ -446,14 +454,14 @@ export class {{cs_name Name}}{{OperationNameFriendly}} extends Component<I{{cs_n
                 </Form>
             </div>
 			)}
-        </Formik>
-		</AnimateIn>
+        </Formik></motion.div> : null }
+        </AnimatePresence>
         );
     }
 
 	renderTitle() : JSX.Element | null {
 		if (this.props.title){
-			return <h1>{this.props.title}</h1>;
+			return <Title>{this.props.title}</Title>;
 		}
 		
 		var customTitle = this.rendering.renderCustomTitle(this.state);
@@ -461,7 +469,7 @@ export class {{cs_name Name}}{{OperationNameFriendly}} extends Component<I{{cs_n
 			return customTitle;
 		}
 
-		return <h1>{{OperationNameFriendly}} {{hmn Name}}</h1>;
+		return <Title>{{OperationNameFriendly}} {{hmn Name}}</Title>;
 	}
 
 	{{#if IsUpdate}}

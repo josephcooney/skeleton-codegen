@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Skeleton.Model;
 using Skeleton.Model.Operations;
 using Skeleton.Templating.DatabaseFunctions.Adapters.Fields;
@@ -18,7 +19,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
                 var fields = base.SelectInputFields;
                 fields.Add(PageSizeField);
                 fields.Add(PageNumberField);
-                fields.Add(SortField);
+                fields.Add(SortParameter);
                 fields.Add(SortDescendingField);
                 return fields;
             }
@@ -28,8 +29,10 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 
         public IPseudoField PageNumberField => new PageNumberField(Domain.NamingConvention);
 
-        public IPseudoField SortField => new SortField(Domain.NamingConvention);
+        public IPseudoField SortParameter => Domain.TypeProvider.CreateSortParameter(Domain.NamingConvention);
 
-        public IPseudoField SortDescendingField => new SortDescendingField(Domain.TypeProvider, Domain.NamingConvention);
+        public IPseudoField SortDescendingField => new SortDescendingParameter(Domain.TypeProvider, Domain.NamingConvention);
+        
+        public List<ISortField> SortFields => _applicationType.Fields.Where(f => (!f.IsExcludedFromResults)).Select(a => _applicationType.Domain.TypeProvider.CreateSortField(a, this)).ToList();
     }
 }

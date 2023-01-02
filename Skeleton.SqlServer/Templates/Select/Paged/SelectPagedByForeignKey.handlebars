@@ -8,7 +8,7 @@ AS
 BEGIN
 
     SET ROWCOUNT @{{PageSizeField.Name}};
-    
+
     SELECT
     {{#if HasExcludedFields}}
         {{#each Fields}}
@@ -18,19 +18,19 @@ BEGIN
         {{ShortName}}.*
     {{/if}}
     FROM {{{escape_sql_keyword Name}}} {{ShortName}}
-    WHERE 
+    WHERE
     {{#each SelectFieldsWithIndices}}
         {{../ShortName}}.{{{escape_sql_keyword Field.Name}}} = @{{{Field.Name}}} {{#unless @last}}AND{{/unless}}
     {{/each}}
     {{#if SoftDelete}}
-    AND deleted_date is NULL
+        AND deleted_date is NULL
     {{/if}}
     ORDER BY
-    {{#each Fields}}
-        CASE WHEN @{{../SortField.Name}} = '{{{Name}}}' AND @{{../SortDescendingField.Name}} = 0 THEN {{{escape_sql_keyword Name}}} END ASC,
-        CASE WHEN @{{../SortField.Name}} = '{{{Name}}}' AND @{{../SortDescendingField.Name}} = 1 THEN {{{escape_sql_keyword Name}}} END DESC,
+    {{#each SortFields}}
+        CASE WHEN @{{../SortParameter.Name}} = '{{{Name}}}' AND @{{../SortDescendingField.Name}} = 0 THEN {{{SortExpression}}} END,
+        CASE WHEN @{{../SortParameter.Name}} = '{{{Name}}}' AND @{{../SortDescendingField.Name}} = 1 THEN {{{SortExpression}}} END DESC,
     {{/each}}
-        CASE WHEN @{{SortField.Name}} IS NULL THEN {{{escape_sql_keyword PrimaryKeyField.Name}}} END
+        CASE WHEN @{{SortParameter.Name}} is null THEN {{{escape_sql_keyword PrimaryKeyField.Name}}} END
     OFFSET @{{PageSizeField.Name}} * @{{PageNumberField.Name}} ROWS;
 
     SET ROWCOUNT 0;

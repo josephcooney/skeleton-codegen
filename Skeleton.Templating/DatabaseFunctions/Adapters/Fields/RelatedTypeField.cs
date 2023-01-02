@@ -40,7 +40,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         public bool Add => _field.Add;
         public bool Edit => _field.Edit;
         public bool IsUserEditable => _field.IsCallerProvided;
-        public bool IsIdentity => _field.IsKey;
+        public bool IsKey => _field.IsKey;
         public bool IsInt => _field.IsInt;
 
         public string PrimaryAlias => _alias;
