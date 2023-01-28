@@ -132,7 +132,7 @@ namespace Skeleton.Templating.ReactClient
                     files.Add(new CodeFile { Name = nameStart + "Row.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactListRow), RelativePath = listPath, Template = TemplateNames.ReactListRow});
                     files.Add(new CodeFile { Name = nameStart + "ListRendering.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactListRendering), RelativePath = listPath, Template = TemplateNames.ReactListRendering});
 
-                    if (rt.RelatedType.Paged)
+                    if (rt.RelatedType.Paged && listAdapter.PrimaryPagedOperation != null)
                     {
                         files.Add(new CodeFile { Name = nameStart + "ListPaged.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactPagedListPage), RelativePath = listPath, Template = TemplateNames.ReactPagedListPage});
                     }
