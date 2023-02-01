@@ -26,12 +26,7 @@ namespace Skeleton.Flutter
         public void Generate(Domain domain)
         {
             Log.Information("Starting Flutter Generation");
-            _rootFolder = _fs.Path.Combine(_settings.RootDirectory, "..\\flutter\\");
-            if (!_fs.Directory.Exists(_rootFolder))
-            {
-                var newProjectGenerator = new NewProjectGenerator(_rootFolder, _settings, _fs, _fileWriter);
-                newProjectGenerator.Generate();
-            }
+            _rootFolder = _fs.Path.Combine(_settings.RootDirectory, _settings.FlutterSettings.FlutterRootDirectory);
         }
 
         public static Func<object, string> GetCompiledTemplate(string templateName)

@@ -60,18 +60,7 @@ namespace Skeleton.Console
         public void Generate(ITypeProvider typeProvider)
         {
             Log.Information("Starting Code Generation in {RootDirectory}", _settings.RootDirectory);
-
-            if (_settings.NewAppSettings?.CreateNew == true)
-            {
-                var newProjectGen = new NewProjectGenerator(_settings, _fs);
-                var newProjectResult = newProjectGen.Generate();
-                if (newProjectResult == false)
-                {
-                    Log.Error("Error generating new project - exiting");
-                    return;
-                }
-            }
-
+            
             if (_settings.AddGeneratedOptionsToDatabase)
             {
                 var sb = new StringBuilder();
