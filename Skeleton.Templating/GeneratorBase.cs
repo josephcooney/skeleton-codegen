@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Skeleton.Model;
 using Serilog;
 
@@ -9,7 +10,8 @@ namespace Skeleton.Templating
     {
         public abstract List<CodeFile> Generate(Domain domain);
         private Dictionary<string, Func<object, string>> compiledTemplates = new Dictionary<string, Func<object, string>>();
-
+        public abstract Assembly Assembly { get; }
+        
         protected string GenerateFromTemplate(object model, string templateName)
         {
             Func<object, string> template = null;
@@ -20,7 +22,7 @@ namespace Skeleton.Templating
             }
             else
             {
-                template = Util.GetCompiledTemplate(templateName);
+                template = Util.GetCompiledTemplate(templateName, Assembly);
                 compiledTemplates.Add(templateName, template);
             }
 

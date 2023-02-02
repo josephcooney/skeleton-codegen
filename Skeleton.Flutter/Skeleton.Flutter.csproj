@@ -11,6 +11,10 @@
 
   <ItemGroup>
     <EmbeddedResource Include="NewProject\main.dart.colorfragment.handlebars" />
+    <None Remove="ApiClient\result.dart.handlebars" />
+    <EmbeddedResource Include="ApiClient\result.dart.handlebars" />
+    <None Remove="ApiClient\model.dart.handlebars" />
+    <EmbeddedResource Include="ApiClient\model.dart.handlebars" />
   </ItemGroup>
 
   <ItemGroup>

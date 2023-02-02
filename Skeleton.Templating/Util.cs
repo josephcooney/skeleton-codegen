@@ -17,12 +17,6 @@ namespace Skeleton.Templating
     {
         private static IPluralize _pluralize = new Pluralizer();
         
-        public static string GetTemplate(string templateName)
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            return GetTemplate(templateName, assembly);
-        }
-
         public static string GetTemplate(string templateName, Assembly assembly)
         {
             string resourceName;
@@ -44,9 +38,9 @@ namespace Skeleton.Templating
             }
         }
 
-        public static Func<object, string> GetCompiledTemplate(string templateName)
+        public static Func<object, string> GetCompiledTemplate(string templateName, Assembly assembly)
         {
-            var template = GetTemplate(templateName);
+            var template = GetTemplate(templateName, assembly);
             try
             {
                 return Handlebars.Compile(template);
@@ -412,6 +406,12 @@ namespace Skeleton.Templating
             }
 
             return name.Replace('_', '-');
+        }
+
+        public static string SnakeCase(string name)
+        {
+            var parts = _namingConvention.GetNameParts(name);
+            return string.Join("_", parts.Select(p => p.ToLowerInvariant()));
         }
 
         public static string BareName(string itemName, string typeName)

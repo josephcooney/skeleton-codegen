@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Skeleton.Model;
 using Skeleton.Templating.Classes;
 using Skeleton.Templating.Classes.Adapters;
@@ -27,6 +28,8 @@ namespace Skeleton.Templating.ReactClient
 
             return files;
         }
+
+        public override Assembly Assembly => Assembly.GetExecutingAssembly();
 
         public List<CodeFile> GenerateClientModels(Domain domain)
         {

@@ -124,8 +124,10 @@ namespace Skeleton.Console
 
             if (_settings.ClientAppTypes.Contains(ClientAppUIType.Flutter))
             {
-                var flutterGen = new Flutter.Generator(_fs, _settings, _fileWriter);
-                flutterGen.Generate(domain);
+                var flutterGen = new Flutter.Generator(_fs, _settings);
+                var flutterFiles = flutterGen.Generate(domain);
+                _fileWriter.ApplyCodeFiles(flutterFiles, flutterGen.FlutterRootFolder);
+                Log.Information("Finished generating flutter UI");
             }
 
             if (_settings.TestDataSize != null && _settings.TestDataSize > 0)
