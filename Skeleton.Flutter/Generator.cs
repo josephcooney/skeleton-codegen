@@ -15,12 +15,18 @@ namespace Skeleton.Flutter
     {
         private readonly IFileSystem _fs;
         private readonly Settings _settings;
-        private const string DartFileExtension = ".dart";
+        public const string DartFileExtension = ".dart";
 
         public Generator(IFileSystem fileSystem, Settings settings)
         {
             _fs = fileSystem;
             _settings = settings;
+            
+            FlutterRootFolder = _fs.Path.Combine(_settings.RootDirectory, _settings.FlutterSettings.FlutterRootDirectory);
+            if (!FlutterRootFolder.ToLowerInvariant().EndsWith("lib"))
+            {
+                FlutterRootFolder = _fs.Path.Combine(FlutterRootFolder, ".\\lib");
+            }
         }
 
         public string FlutterRootFolder { get; private set; }
@@ -28,11 +34,6 @@ namespace Skeleton.Flutter
         public override List<CodeFile> Generate(Domain domain)
         {
             Log.Information("Starting Flutter Generation");
-            FlutterRootFolder = _fs.Path.Combine(_settings.RootDirectory, _settings.FlutterSettings.FlutterRootDirectory);
-            if (!FlutterRootFolder.ToLowerInvariant().EndsWith("lib"))
-            {
-                FlutterRootFolder = _fs.Path.Combine(FlutterRootFolder, ".\\lib");
-            }
             Log.Debug("Generating flutter code into {FlutterDirectory}", FlutterRootFolder);
 
             var files = GenerateClientModels(domain);

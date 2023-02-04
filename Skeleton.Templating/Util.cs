@@ -612,7 +612,7 @@ namespace Skeleton.Templating
                 [typeof(object)] = "Object",
                 [typeof(void)] = "void",
                 [typeof(DateTime)] = "DateTime",
-                [typeof(byte[])] = "File",            
+                [typeof(byte[])] = "Uint8List",            
             };
         }
     }
