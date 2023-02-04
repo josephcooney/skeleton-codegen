@@ -262,9 +262,22 @@ namespace Skeleton.Templating
                     return;
                 }
 
-                System.Type type = (System.Type)parameters[0];
+                var type = (Type)parameters[0];
                 var tsType = GetTypeScriptTypeForClrType(type);
                 writer.Write(tsType);
+            });
+            
+            Handlebars.RegisterHelper("get_dart_type", (writer, context, parameters) =>
+            {
+                if (parameters == null || parameters.Length == 0 || parameters[0] == null || parameters[0] is not System.Type)
+                {
+                    writer.Write("ERROR: No type provided");
+                    return;
+                }
+
+                var type = (Type)parameters[0];
+                var dartType = GetDartTypeForClrType(type);
+                writer.Write(dartType);
             });
 
 
@@ -500,6 +513,22 @@ namespace Skeleton.Templating
             return "any";
         }
 
+        public static string GetDartTypeForClrType(System.Type clrType)
+        {
+            if (clrType.IsArray && clrType != typeof(byte[]))
+            {
+                return GetDartTypeForClrType(clrType.GetElementType()) + "[]";
+            }
+            
+            var type = System.Nullable.GetUnderlyingType(clrType) ?? clrType;
+            if (_dartTypes.ContainsKey(type))
+            {
+                return _dartTypes[type];
+            }
+
+            return "Object";
+        }
+
         public static string RemoveSuffix(string name, string suffix)
         {
             if (name.EndsWith(suffix))
@@ -519,6 +548,7 @@ namespace Skeleton.Templating
         private static INamingConvention _namingConvention;
 
         private static Dictionary<System.Type, string> _typeScriptTypes;
+        private static Dictionary<System.Type, string> _dartTypes;
 
         private static Dictionary<System.Type, string> _inputTypes;
 
@@ -561,6 +591,28 @@ namespace Skeleton.Templating
                 [typeof(decimal)] = "number",
                 [typeof(bool)] = "checkbox",
                 [typeof(byte[])] = "file",
+            };
+
+            _dartTypes = new Dictionary<Type, string>()
+            {
+                [typeof(string)] = "String",
+                [typeof(char)] = "String",
+                [typeof(byte)] = "number",
+                [typeof(sbyte)] = "number",
+                [typeof(short)] = "int",
+                [typeof(ushort)] = "int",
+                [typeof(int)] = "int",
+                [typeof(uint)] = "int",
+                [typeof(long)] = "int",
+                [typeof(ulong)] = "int",
+                [typeof(float)] = "double",
+                [typeof(double)] = "double",
+                [typeof(decimal)] = "double",
+                [typeof(bool)] = "bool",
+                [typeof(object)] = "Object",
+                [typeof(void)] = "void",
+                [typeof(DateTime)] = "DateTime",
+                [typeof(byte[])] = "File",            
             };
         }
     }
