@@ -173,11 +173,6 @@ namespace Skeleton.Templating.ReactClient
         private string GenerateApiClient(ApplicationType type, Domain domain)
         {
             var adapter = new ClientApiAdapter(type, domain);
-            foreach (var operation in adapter.Operations)
-            {
-                Log.Debug("Api Client operation will be generated for {OperationName}", operation.Name);
-            }
-
             try
             {
                 return GenerateFromTemplate(adapter, TemplateNames.ApiClient);

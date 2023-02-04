@@ -33,10 +33,12 @@ namespace Skeleton.Flutter
         
         public override List<CodeFile> Generate(Domain domain)
         {
+            var files = new List<CodeFile>();
+            
             Log.Information("Starting Flutter Generation");
             Log.Debug("Generating flutter code into {FlutterDirectory}", FlutterRootFolder);
 
-            var files = GenerateClientModels(domain);
+            files.AddRange(GenerateClientModels(domain));
             return files;
         }
 
@@ -73,6 +75,15 @@ namespace Skeleton.Flutter
                                 files.Add(file);
                             }
                         }
+
+                        // generate api client
+                        var apiClientFile = new CodeFile
+                        {
+                            Name = Util.SnakeCase(type.Name) + "api_client" + DartFileExtension,
+                            Contents = GenerateFromTemplate(adapter, FlutterTemplateNames.ApiClient),
+                            RelativePath = ".\\api", Template = TemplateNames.ApiClient
+                        };
+                        files.Add(apiClientFile);
                     }
                 }
             }
@@ -95,5 +106,6 @@ namespace Skeleton.Flutter
     {
         public const string ApiClientModel = "model.dart";
         public const string ApiClientResult = "result.dart";
+        public const string ApiClient = "api.dart";
     } 
 }
