@@ -54,7 +54,7 @@ namespace Skeleton.Console
                 var flutterRoot = flutterGenerator.FlutterRootFolder;
                 if (_fileSystem.Directory.Exists(flutterRoot))
                 {
-                    var flutterFiles = _fileSystem.Directory.GetFiles(flutterRoot, "*." + Skeleton.Flutter.Generator.DartFileExtension, SearchOption.AllDirectories);
+                    var flutterFiles = _fileSystem.Directory.GetFiles(flutterRoot, "*" + Skeleton.Flutter.Generator.DartFileExtension, SearchOption.AllDirectories);
                     foreach (var file in flutterFiles)
                     {
                         var contents = _fileSystem.File.ReadAllLines(file);

@@ -25,7 +25,7 @@ namespace Skeleton.Flutter
             FlutterRootFolder = _fs.Path.Combine(_settings.RootDirectory, _settings.FlutterSettings.FlutterRootDirectory);
             if (!FlutterRootFolder.ToLowerInvariant().EndsWith("lib"))
             {
-                FlutterRootFolder = _fs.Path.Combine(FlutterRootFolder, ".\\lib");
+                FlutterRootFolder = _fs.Path.Combine(FlutterRootFolder, "lib");
             }
         }
 
@@ -63,7 +63,7 @@ namespace Skeleton.Flutter
                             // generate the request model if there is one
                             if (op.HasCustomType)
                             {
-                                var file = new CodeFile { Name = Util.SnakeCase(op.CustomType.Name) + DartFileExtension, Contents = GenerateClientApiModel(op), RelativePath = path, Template = TemplateNames.ApiClientModel};
+                                var file = new CodeFile { Name = op.CustomType.DartFileName + DartFileExtension, Contents = GenerateClientApiModel(op), RelativePath = path, Template = TemplateNames.ApiClientModel};
                                 files.Add(file);
                             }
 
