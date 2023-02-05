@@ -21,13 +21,13 @@ class {{ClientApiTypeName}} {
 
 	{{#each ApiOperations}}
 	{{#if HasCustomType}}
-	Future<{{{DartReturn}}}> {{cml_case BareName}}({{#if ../IsAttachment}}FormData{{else}}{{cs_name CustomType.Name}}{{/if}} model) {
+	Future<{{{DartReturn}}}> {{cml_case BareName}}({{#if ../IsAttachment}}FormData{{else}}{{cs_name CustomType.Name}}{{/if}} model) async {
 		var uri = "$baseAddress/api/{{kb_case ../Name}}/{{cs_name BareName}}";
 		print("calling {{Name}} on " + uri);
 		{{#if ../IsAttachment}}
 		var result = await postForm<{{TypeScriptReturn}}>(uri, model);
 		{{else}}
-		var result = await {{ts_fix_http HttpMethod}}<{{TypeScriptReturn}}>(uri, model);
+		final response = await http.{{lc HttpMethod}}(Uri.parse(uri), model);
 		{{/if}}
 		{{#if IsStructuredResult}}
 		{{#if ResultHasAnyDateFields}}
@@ -54,7 +54,7 @@ class {{ClientApiTypeName}} {
 		{{/if}}
 		return result;
 	{{else}}
-	Future<{{{DartReturn}}}> {{cml_case BareName}}({{#each UserProvidedParameters}} {{{ResolvedDartType}}} {{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}}) { 
+	Future<{{{DartReturn}}}> {{cml_case BareName}}({{#each UserProvidedParameters}} {{{ResolvedDartType}}} {{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}}) async { 
     {{#if ProvideDataByUri}}
         var uri = "$baseAddress/api/{{kb_case ../Name}}/{{cs_name BareName}}?{{#each UserProvidedParameters}}{{cml_case Name}}=${({{cml_case Name}})}{{#unless @last}}&{{/unless}}{{/each}}";
     {{else}}
@@ -62,9 +62,9 @@ class {{ClientApiTypeName}} {
     {{/if}}
 		print("calling {{Name}} on " + uri);
     {{#if ProvideDataByUri}}
-        var result = await {{ts_fix_http HttpMethod}}<{{TypeScriptReturn}}>(uri);
+        final response = await http.{{lc HttpMethod}}(Uri.parse(uri));
     {{else}}
-        var result = await {{ts_fix_http HttpMethod}}<{{TypeScriptReturn}}>(uri, {{#each UserProvidedParameters}}{{cml_case Name}}{{/each}});
+        final response = await http.{{lc HttpMethod}}(Uri.parse(uri), {{#each UserProvidedParameters}}{{cml_case Name}}{{/each}});
     {{/if}}    
 		{{#if IsStructuredResult}}
 		{{#if ResultHasAnyDateFields}}

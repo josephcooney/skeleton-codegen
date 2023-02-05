@@ -5,4 +5,16 @@ class {{cs_name CustomType.Name}} {
 {{#each CustomType.Fields}}
     {{get_dart_type ClrType}}? {{cml_case Name}};
 {{/each}}
+
+    Map<String, dynamic> toJson() {
+        return {
+        {{#each CustomType.Fields}}
+            {{#if IsRequired}}
+            '{{cml_case Name}}' : {{cml_case Name}}{{#unless @last}}, {{/unless}}
+            {{else}}    
+            if ({{cml_case Name}} != null) '{{cml_case Name}}' : {{cml_case Name}}{{#unless @last}}, {{/unless}}   
+            {{/if}}
+        {{/each}}
+        };
+    }
 }
