@@ -98,6 +98,24 @@ namespace Skeleton.Templating.Classes
             }
         }
 
+        public string ResolvedDartType
+        {
+            get
+            {
+                if (IsCustomType)
+                {
+                    return Util.CSharpNameFromName(_parameter.ProviderTypeName);                    
+                }
+                
+                if (IsCustomArrayType)
+                {
+                    return $"List<{Util.CSharpNameFromName(_parameter.ProviderTypeName)}>";
+                }
+                
+                return Util.GetDartTypeForClrType(_parameter.ClrType);
+            }
+        }
+
         public string ResolvedTypescriptTypeUnderlying
         {
             get

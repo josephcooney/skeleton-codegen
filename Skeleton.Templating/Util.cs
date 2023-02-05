@@ -194,6 +194,19 @@ namespace Skeleton.Templating
                 var formatted = KebabCase(name);
                 writer.Write(formatted);
             });
+            
+            Handlebars.RegisterHelper("snake_case", (writer, context, parameters) =>
+            {
+                if (!(parameters[0] is string))
+                {
+                    writer.Write("undefined");
+                    return;
+                }
+
+                string name = (string)parameters[0];
+                var formatted = SnakeCase(name);
+                writer.Write(formatted);
+            });
 
             Handlebars.RegisterHelper("hmn", (writer, context, parameters) =>
             {

@@ -158,6 +158,34 @@ namespace Skeleton.Templating.Classes.Adapters
             }
         }
 
+        public string DartReturn
+        {
+            get
+            {
+                if (_op.Returns?.ReturnType == ReturnType.None)
+                {
+                    return "void";
+                }
+
+                if (_op.Returns?.ReturnType == ReturnType.Primitive)
+                {
+                    return Util.GetDartTypeForClrType(_op.Returns.ClrReturnType);
+                }
+
+                if (_op.Returns?.ReturnType == ReturnType.ApplicationType || _op.Returns?.ReturnType == ReturnType.CustomType)
+                {
+                    if (_op.SingleResult)
+                    {
+                        return Util.CSharpNameFromName(_op.Returns.SimpleReturnType.Name);
+                    }
+
+                    return $"List<{Util.CSharpNameFromName(_op.Returns.SimpleReturnType.Name)}>";
+                }
+
+                return "TODO";
+            }
+        }
+
         public bool SetUserContext => _op.Parameters.Any(p => p.IsSecurityUser) && _domain.Settings.GenerateSecurityPolicies;
 
         public ParameterAdapter SecurityUserParameter => Parameters.SingleOrDefault(p => p.IsSecurityUser);

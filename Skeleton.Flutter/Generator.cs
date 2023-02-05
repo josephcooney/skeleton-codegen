@@ -79,7 +79,7 @@ namespace Skeleton.Flutter
                         // generate api client
                         var apiClientFile = new CodeFile
                         {
-                            Name = Util.SnakeCase(type.Name) + "api_client" + DartFileExtension,
+                            Name = Util.SnakeCase(type.Name) + "_api_client" + DartFileExtension,
                             Contents = GenerateFromTemplate(adapter, FlutterTemplateNames.ApiClient),
                             RelativePath = ".\\api", Template = TemplateNames.ApiClient
                         };
