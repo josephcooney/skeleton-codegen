@@ -31,7 +31,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
             }
         }
 
-        public string StatePath => UsesModel ? "this.state.data" : "this.state";
+        public string StatePath => UsesModel ? "state.data" : "state";
 
         public List<UserInputFieldModel> UserInputFields {
             get
