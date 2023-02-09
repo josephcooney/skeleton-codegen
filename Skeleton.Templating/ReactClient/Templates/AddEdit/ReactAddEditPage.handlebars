@@ -108,9 +108,9 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
             return props.id;
         }
     
-        // get from uri
+        // get from uri - {{IdentityField.ClrType}}
         if (id) {
-            {{#if IdentityField.ClrType.IsInt}}
+            {{#if IdentityField.IsInt}} 
             return parseInt(id);
             {{else}}
             return id;    
@@ -245,14 +245,14 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
 			{{/unless}}
             enqueueSnackbar('{{HumanizedName}} saved', {variant: 'success'});
 			if (props.onSaved && data.parsedBody) {
-                onSaved(data.parsedBody);
+                props.onSaved(data.parsedBody);
             } else {
                 goBack();
             }
         }).catch(err => {
             enqueueSnackbar('Error saving {{HumanizedName}}. ' + err, {variant: 'error'});
             err.text().then((value: string) => {     
-                setState({ error: true, message: value });
+                setState((prevState) => { return {...prevState, error: true, message: value }});
             });
         });
     }
@@ -280,7 +280,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
         }).catch(err => {
             enqueueSnackbar('Error saving {{HumanizedName}}. ' + err, {variant: 'error'});
             err.text().then((value: string) => {
-                setState({ error: true, message: value });
+                setState((prevState) => { return {...prevState, error: true, message: value }});
             });
         });
     }
@@ -473,12 +473,12 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
 					{{/if}}
 					{{/each}}				
 				}
-				setState({ data: newData, loading: false, fetched: data.parsedBody });								
+				setState((prevState) => { return {...prevState, data: newData, loading: false, fetched: data.parsedBody! }});								
 			} else {
-				setState({ loading: false, error: true, message: "Item Not Found" });				
+				setState((prevState) => { return {...prevState, loading: false, error: true, message: "Item Not Found" }});				
 			}            
         }).catch(err => {
-            setState({ loading: false, error: true, message: err.message });
+            setState((prevState) => { return {...prevState, loading: false, error: true, message: err.message }});
         });
     }
 	{{/if}}

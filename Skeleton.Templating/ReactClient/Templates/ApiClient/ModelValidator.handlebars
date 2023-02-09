@@ -6,7 +6,7 @@ import { FormikErrors, setIn } from 'formik';
 {{#if UsesModel}}
 import { {{cs_name Name}}{{OperationName}}Model } from "./{{cs_name Name}}{{OperationName}}Model";
 {{else}}
-import { I{{cs_name RelatedType.Name}}{{FriendlyName}}State } from './{{cml_case RelatedType.Name}}{{FriendlyName}}';
+import { {{cs_name RelatedType.Name}}{{FriendlyName}}State } from './{{cml_case RelatedType.Name}}{{FriendlyName}}';
 {{/if}}
 {{/if}}
 {{/each}}
@@ -35,9 +35,9 @@ export class {{cs_name Name}}Validate {
 	}
 	
 	{{else}}
-	public validate{{cs_name BareName}}(state: I{{cs_name RelatedType.Name}}{{FriendlyName}}State): FormikErrors<I{{cs_name RelatedType.Name}}{{FriendlyName}}State> {
+	public validate{{cs_name BareName}}(state: {{cs_name RelatedType.Name}}{{FriendlyName}}State): FormikErrors<{{cs_name RelatedType.Name}}{{FriendlyName}}State> {
         console.log('validating');
-        let errors: FormikErrors<I{{cs_name RelatedType.Name}}{{FriendlyName}}State> = {};
+        let errors: FormikErrors<{{cs_name RelatedType.Name}}{{FriendlyName}}State> = {};
 
 		{{#each UserProvidedParameters}}
             {{#if IsCustomTypeOrCustomArray}}
