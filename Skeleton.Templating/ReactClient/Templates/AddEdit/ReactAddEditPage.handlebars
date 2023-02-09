@@ -217,12 +217,55 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
     }
 
 	{{#if IsUpdate}}
+	async function getItemDetails(id: {{get_ts_type IdentityField.ClrType}}) {
+        await api.selectForDisplayById(id).then(data => {
+            if (data.parsedBody) {
+				const newData = {
+					{{#each CurrentOperation.UserProvidedParameters}}
+					{{#if IsFile}}
+					{{cml_case Name}}: null,
+					{{else}}
+					{{cml_case Name}}: data.parsedBody.{{cml_case Name}},
+					{{/if}}
+					{{/each}}				
+				}
+				setState((prevState) => { return {...prevState, data: newData, loading: false, fetched: data.parsedBody! }});								
+			} else {
+				setState((prevState) => { return {...prevState, loading: false, error: true, message: "Item Not Found" }});				
+			}            
+        }).catch(err => {
+            setState((prevState) => { return {...prevState, loading: false, error: true, message: err.message }});
+        });
+    }
+
     useEffect(() => {
         const idToFetch = getId();
         if (idToFetch){
             getItemDetails(idToFetch);
         }
     }, [props.id, id])
+	{{/if}}
+
+    {{#if AssociateViaLink}}
+	const createLinkedItemAssociation = (id: number | string) => {
+		// creation via location from a link, or via linkedId and linkedType properties
+        var linked : [string, number | string] | null = null;
+        if (props.linkedId && props.linkedType){
+            linked = [props.linkedType, props.linkedId];
+        } else {
+            linked = linkedItem(locationState);			
+        }
+
+        if (linked) {
+            {{#each LinkedDetails}}
+            if (linked[0] == "{{Name}}") {
+                var {{cml_case LinkingType.Name}}Client = props.{{cs_name LinkingType.Name}}Client ? props.{{cs_name LinkingType.Name}}Client : new {{LinkingType.ClientApiTypeName}}();
+                var {{cml_case LinkingType.Name}}ToAdd: {{cs_name LinkingType.Name}}New = { {{cml_case LinkingTypeIdField.Name}}: linked[1] as {{get_ts_type LinkingTypeIdField.ClrType}}, {{cml_case CurrentTypeIdField.Name}}: id as {{get_ts_type CurrentTypeIdField.ClrType}} };
+                {{cml_case LinkingType.Name}}Client.insert({{cml_case LinkingType.Name}}ToAdd);
+            }
+            {{/each}}
+        }		
+    }
 	{{/if}}
 
 	{{#if IsAttachment}}
@@ -290,28 +333,6 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
         return validation.validate{{cs_name CurrentOperation.BareName}}(newState);
     }
 
-	{{#if AssociateViaLink}}
-	const createLinkedItemAssociation = (id: number | string) => {
-		// creation via location from a link, or via linkedId and linkedType properties
-        var linked : [string, number | string] | null = null;
-        if (props.linkedId && props.linkedType){
-            linked = [props.linkedType, props.linkedId];
-        } else {
-            linked = linkedItem(locationState);			
-        }
-
-        if (linked) {
-            {{#each LinkedDetails}}
-            if (linked[0] == "{{Name}}") {
-                var {{cml_case LinkingType.Name}}Client = props.{{cs_name LinkingType.Name}}Client ? props.{{cs_name LinkingType.Name}}Client : new {{LinkingType.ClientApiTypeName}}();
-                var {{cml_case LinkingType.Name}}ToAdd: {{cs_name LinkingType.Name}}New = { {{cml_case LinkingTypeIdField.Name}}: linked[1] as {{get_ts_type LinkingTypeIdField.ClrType}}, {{cml_case CurrentTypeIdField.Name}}: id as {{get_ts_type CurrentTypeIdField.ClrType}} };
-                {{cml_case LinkingType.Name}}Client.insert({{cml_case LinkingType.Name}}ToAdd);
-            }
-            {{/each}}
-        }		
-    }
-	{{/if}}
-
     const hasError = (key: string, formik: FormikProps<Readonly<{{FormDataTypeName}}>>) : boolean => {
         return getIn(formik.errors, key) && getIn(formik.touched, key);
     }
@@ -321,6 +342,19 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
             return getIn(formik.errors, key);
         }
         return null;
+    }
+
+    const renderTitle = () : JSX.Element | null => {
+        if (props.title){
+            return <Title>{props.title}</Title>;
+        }
+        
+        var customTitle = rendering.renderCustomTitle(state);
+        if (customTitle){
+            return customTitle;
+        }
+        
+        return <Title>{{OperationNameFriendly}} {{hmn Name}}</Title>;
     }
 
         return (
@@ -446,40 +480,4 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
         </Formik></motion.div> : null }
         </AnimatePresence>
         );
-
-	const renderTitle = () : JSX.Element | null => {
-		if (props.title){
-			return <Title>{props.title}</Title>;
-		}
-		
-		var customTitle = rendering.renderCustomTitle(state);
-		if (customTitle){
-			return customTitle;
-		}
-
-		return <Title>{{OperationNameFriendly}} {{hmn Name}}</Title>;
-	}
-
-	{{#if IsUpdate}}
-	async function getItemDetails(id: {{get_ts_type IdentityField.ClrType}}) {
-        await api.selectForDisplayById(id).then(data => {
-            if (data.parsedBody) {
-				const newData = {
-					{{#each CurrentOperation.UserProvidedParameters}}
-					{{#if IsFile}}
-					{{cml_case Name}}: null,
-					{{else}}
-					{{cml_case Name}}: data.parsedBody.{{cml_case Name}},
-					{{/if}}
-					{{/each}}				
-				}
-				setState((prevState) => { return {...prevState, data: newData, loading: false, fetched: data.parsedBody! }});								
-			} else {
-				setState((prevState) => { return {...prevState, loading: false, error: true, message: "Item Not Found" }});				
-			}            
-        }).catch(err => {
-            setState((prevState) => { return {...prevState, loading: false, error: true, message: err.message }});
-        });
-    }
-	{{/if}}
 }
