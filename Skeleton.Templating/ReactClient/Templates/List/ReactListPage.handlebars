@@ -4,6 +4,7 @@ import React, { FunctionComponent, useRef, useEffect, useState } from 'react';
 // material imports
 import { TableHead, TableContainer, TableBody, Table, Fab, Grid } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
+import {useTheme} from "@mui/material/styles";
 
 // other libraries
 import { useNavigate } from 'react-router-dom';
@@ -18,6 +19,7 @@ import Title from "../../../controls/Title";
 import {useSnackbar} from "notistack";
 import {ResultData} from "../../../http";
 import {apiCall} from "../../../api";
+import {StyledTable} from "../../../controls/styled-table";
 {{#if UnderlyingType.IsReferenceData}}
 import { UserConsumer, isAdmin } from '../../../api-authorization/UserContext';
 {{/if}}
@@ -40,7 +42,8 @@ export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps>
     const [state , setState] = useState<{{{ListStateTypeName}}}>({data: props.dataProvided ? props.data ? props.data : [] : [], loading : !props.dataProvided, error: false});
     const mounted = useRef();
     const navigate = useNavigate();
-    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
+    const theme = useTheme();
 
 {{#if HasOperations}}
     useEffect(() => {
@@ -61,7 +64,7 @@ export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps>
     function render{{cs_name Name}}Table(data: {{cs_name Name}}[]) {
 		return (
                 <TableContainer>
-                    <Table>
+                    <StyledTable>
                         <TableHead>
                             <{{cs_name Name}}Header onClick={props.onHeaderClick} />
                         </TableHead>
@@ -70,7 +73,7 @@ export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps>
                                 <{{cs_name Name}}Row data={s} key={ s.{{cml_case IdentityField.Name}} } />
                             )}
                         </TableBody>
-                    </Table>
+                    </StyledTable>
                 </TableContainer>    
         );
     }
@@ -92,6 +95,8 @@ export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps>
 			}
         }
 
+        const buttonRowStyle = {paddingTop: theme.spacing(1), paddingBottom: theme.spacing(1)};
+
         return (
             <React.Fragment>
                 { renderHeading() }                
@@ -103,14 +108,14 @@ export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps>
                     {{#if UnderlyingType.IsReferenceData}}
                         <UserConsumer>
                             {userProps => {
-                            return isAdmin(userProps) ? (<Grid container direction="column" alignItems="flex-end">
+                            return isAdmin(userProps) ? (<Grid container direction="column" alignItems="flex-end" style={buttonRowStyle}>
                             <Fab onClick={onAddClick} size="medium" color="primary" aria-label="add {{UnderlyingType.HumanizedName}}">
                                 <AddIcon />
                             </Fab>
                         </Grid>) : null;} }
                         </UserConsumer>
                     {{else}}
-                        <Grid container direction="column" alignItems="flex-end">
+                        <Grid container direction="column" alignItems="flex-end" style={buttonRowStyle}>
                             <Fab onClick={onAddClick} size="medium" color="primary" aria-label="add {{UnderlyingType.HumanizedName}}">
                                 <AddIcon />
                             </Fab>

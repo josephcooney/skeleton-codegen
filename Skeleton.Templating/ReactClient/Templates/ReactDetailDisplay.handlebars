@@ -6,6 +6,7 @@ import DateTimeDisplay from '../../controls/DateTimeDisplay';
 import Thumbnail from '../../controls/thumbnail';
 import Title from "../../controls/Title";
 import { StyledTableRow } from '../../controls/styled-table-row';
+import { StyledTable } from '../../controls/styled-table';
 
 interface {{cs_name Name}}DetailDisplayProps {
     item: {{cs_name DetailType.Name}}
@@ -13,7 +14,7 @@ interface {{cs_name Name}}DetailDisplayProps {
 
 export const {{cs_name Name}}DetailDisplay = (props: {{cs_name Name}}DetailDisplayProps):JSX.Element => {
 return (
-    <Table>
+    <StyledTable>
         <TableBody>
             {{#each DisplayFields}}
                 <StyledTableRow>
@@ -50,6 +51,6 @@ return (
                 </StyledTableRow>
             {{/each}}
         </TableBody>
-    </Table>);
+    </StyledTable>);
 }
 
