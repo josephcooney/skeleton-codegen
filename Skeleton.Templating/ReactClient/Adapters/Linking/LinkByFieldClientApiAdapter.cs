@@ -50,9 +50,8 @@ namespace Skeleton.Templating.ReactClient.Adapters.Linking
                         return distinctReturnTypes.First();
                     }
 
-                    Log.Error("There are multiple operations to return {TypeName} from linking field {LinkingFieldName} with different return types. Operation names are {OperationNames}", _type.Name, _linkingField.Name, operations.Select(o => o.Name).ToList());
-                    
-                    throw new InvalidOperationException($"There are multiple operations to return {_type.Name} from linking field {_linkingField.Name} with different return types.");
+                    Log.Warning("There are multiple operations to return {TypeName} from linking field {LinkingFieldName} with different return types. Operation names are {OperationNames}. The first one will be used.", _type.Name, _linkingField.Name, operations.Select(o => o.Name).ToList());
+                    return distinctReturnTypes.First();
                 }
 
                 return null;
