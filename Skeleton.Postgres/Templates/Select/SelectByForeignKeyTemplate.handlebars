@@ -9,7 +9,7 @@ CREATE OR REPLACE FUNCTION {{FunctionName}} (
 {{/each}}
 )
 RETURNS {{#unless ReturnsSingle}}SETOF {{/unless}}{{{ResultTypeName}}} AS
-$function$
+$$
 {{#if ReturnsSingle}}DECLARE result {{{ResultTypeName}}};{{/if}}
     BEGIN
 		
@@ -32,7 +32,7 @@ $function$
         {{/if}}
         {{#if ReturnsSingle}}RETURN result;{{/if}}
     END
-$function$
+$$
   LANGUAGE plpgsql STABLE SECURITY INVOKER
   COST 100;
 
