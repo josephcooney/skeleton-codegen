@@ -23,37 +23,15 @@ class {{ClientApiTypeName}} {
 		var uri = "$baseAddress/api/{{kb_case ../Name}}/{{cs_name BareName}}";
 		print("calling {{Name}} on " + uri);
 		{{#if ../IsAttachment}}
-		final response = await postForm<{{TypeScriptReturn}}>(uri, model);
+		final response = await postForm<{{TypeScriptReturn}}>(uri, headers: ApiUtil.getHeaders(), body: model);
 		{{else}}
 		final response = await http.{{lc HttpMethod}}(Uri.parse(uri), headers: ApiUtil.getHeaders(), body: model.toJson());
 		{{/if}}
 		{{#if IsStructuredResult}}
-		{{#if ResultHasAnyDateFields}}
-        if (ApiUtil.responseStatusIsSuccess(response.statusCode)){
-
-        }            
-		if (result.parsedBody) {
-        {{#if SingleResult}}
-            let d = result.parsedBody;
-        {{else}}
-            for (let d of result.parsedBody) {
-        {{/if}}
-                {{#each SimpleReturnType.Fields}}
-                {{#unless IsExcludedFromResults}}
-				{{#if IsDateTime}}
-				{{#if IsRequired}}
-				d.{{cml_case Name}} = fixJsonDate(d.{{cml_case Name}});
-				{{else}}
-				d.{{cml_case Name}} = fixNullableJsonDate(d.{{cml_case Name}});
-				{{/if}}
-				{{/if}}
-                {{/unless}}
-				{{/each}}
-            {{#unless SingleResult}} }{{/unless}}
-        }
+        // TODO
+        {{else}}    
+        return {{DartSimpleTypeReturnCast}};                
 		{{/if}}
-		{{/if}}
-		return result;
 	{{else}}
 	Future<{{{DartReturn}}}> {{cml_case BareName}}({{#each UserProvidedParameters}} {{{ResolvedDartType}}} {{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}}) async { 
     {{#if ProvideDataByUri}}
@@ -63,19 +41,23 @@ class {{ClientApiTypeName}} {
     {{/if}}
         print("calling {{Name}} on " + uri);
     {{#if ProvideDataByUri}}
-        final response = await http.{{lc HttpMethod}}(Uri.parse(uri));
+        final response = await http.{{lc HttpMethod}}(Uri.parse(uri), headers: ApiUtil.getHeaders());
     {{else}}
-        final response = await http.{{lc HttpMethod}}(Uri.parse(uri), {{#each UserProvidedParameters}}{{cml_case Name}}{{/each}});
+        final response = await http.{{lc HttpMethod}}(Uri.parse(uri), headers: ApiUtil.getHeaders(), {{#each UserProvidedParameters}}body: {{cml_case Name}}{{/each}});
     {{/if}}
         if (ApiUtil.responseStatusIsSuccess(response.statusCode)){
             {{#if SingleResult}}
-            return {{{DartReturn}}}.fromJson(jsonDecode(response.body));
+                {{#if IsStructuredResult}}
+        return {{{DartReturn}}}.fromJson(jsonDecode(response.body));
+                {{else}}
+        return {{DartSimpleTypeReturnCast}};
+                {{/if}}    
             {{else}}
             Iterable l = json.decode(response.body);
             return {{{DartReturn}}}.from(l.map((model)=> {{ReturnTypeName}}.fromJson(model)));
             {{/if}}
         } else {
-            throw Exception('Failed to load'); // TODO
+            throw Exception('Failed to load'); // TODO - throw something more specific?
         }
 	{{/if}}
 	}
