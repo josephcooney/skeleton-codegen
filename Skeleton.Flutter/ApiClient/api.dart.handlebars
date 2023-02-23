@@ -2,6 +2,7 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_application_1/api/api_constants.dart';
+import 'dart:developer';
 
 {{#each ApiOperations}}
     {{#if HasCustomType}}
@@ -19,18 +20,24 @@ class {{ClientApiTypeName}} {
 
 	{{#each ApiOperations}}
 	{{#if HasCustomType}}
-	Future<{{{DartReturn}}}> {{cml_case BareName}}({{#if ../IsAttachment}}FormData{{else}}{{cs_name CustomType.Name}}{{/if}} model) async {
+	Future<{{{DartReturn}}}> {{cml_case BareName}}({{cs_name CustomType.Name}} model) async {
 		var uri = "$baseAddress/api/{{kb_case ../Name}}/{{cs_name BareName}}";
-		print("calling {{Name}} on " + uri);
+		log("calling {{Name}} on $uri", name: "{{../ClientApiTypeName}}");
 		{{#if ../IsAttachment}}
-		final response = await postForm<{{TypeScriptReturn}}>(uri, headers: ApiUtil.getHeaders(), body: model);
+        var map = new Map<String, dynamic>();
+        // iterate over model fields and add to map
+		final response = await http.{{lc HttpMethod}}(Uri.parse(uri), headers: ApiUtil.getHeaders(), body: map);
 		{{else}}
 		final response = await http.{{lc HttpMethod}}(Uri.parse(uri), headers: ApiUtil.getHeaders(), body: model.toJson());
 		{{/if}}
+        if (ApiUtil.responseStatusIsSuccess(response.statusCode)){
 		{{#if IsStructuredResult}}
-        // TODO
+            // TODO
         {{else}}    
-        return {{DartSimpleTypeReturnCast}};                
+            return {{DartSimpleTypeReturnCast}};
+        } else {
+            throw Exception('Failed to load'); // TODO - throw something more specific?
+        }
 		{{/if}}
 	{{else}}
 	Future<{{{DartReturn}}}> {{cml_case BareName}}({{#each UserProvidedParameters}} {{{ResolvedDartType}}} {{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}}) async { 
@@ -39,7 +46,7 @@ class {{ClientApiTypeName}} {
     {{else}}
         var uri = "$baseAddress/api/{{kb_case ../Name}}/{{cs_name BareName}}";
     {{/if}}
-        print("calling {{Name}} on " + uri);
+        log("calling {{Name}} on $uri", name: "{{../ClientApiTypeName}}");
     {{#if ProvideDataByUri}}
         final response = await http.{{lc HttpMethod}}(Uri.parse(uri), headers: ApiUtil.getHeaders());
     {{else}}
