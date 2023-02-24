@@ -25,7 +25,9 @@ class {{ClientApiTypeName}} {
 		log("calling {{Name}} on $uri", name: "{{../ClientApiTypeName}}");
 		{{#if ../IsAttachment}}
         var map = new Map<String, dynamic>();
-        // iterate over model fields and add to map
+        {{#each CustomType.Fields}}
+        map['{{Name}}'] = model.{{cml_case Name}};   
+        {{/each}}
 		final response = await http.{{lc HttpMethod}}(Uri.parse(uri), headers: ApiUtil.getHeaders(), body: map);
 		{{else}}
 		final response = await http.{{lc HttpMethod}}(Uri.parse(uri), headers: ApiUtil.getHeaders(), body: model.toJson());
