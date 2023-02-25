@@ -12,7 +12,7 @@ class {{cs_name Name}} {
     factory {{cs_name Name}}.fromJson(Map<String, dynamic> data) {
 {{#each Fields}}
     {{#unless IsExcludedFromResults}}
-        final {{cml_case Name}} = data['{{cml_case Name}}'] as {{get_dart_type ClrType}}{{#unless IsRequired}}?{{/unless}};
+        final {{cml_case Name}} = {{#if IsDateTime}}{{#if IsRequired}}DateTime.parse(data['{{cml_case Name}}']){{else}}data['{{cml_case Name}}'] != null ? DateTime.parse(data['{{cml_case Name}}']) : null{{/if}} {{else}}data['{{cml_case Name}}'] as {{get_dart_type ClrType}}{{#unless IsRequired}}?{{/unless}}{{/if}};
     {{/unless}}
 {{/each}}
         return {{cs_name Name}}({{#each Fields}}{{#unless IsExcludedFromResults}} {{cml_case Name}}: {{cml_case Name}}{{#unless @last}}, {{/unless}}{{/unless}}{{/each}});
