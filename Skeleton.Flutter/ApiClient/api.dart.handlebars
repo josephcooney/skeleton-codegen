@@ -18,6 +18,12 @@ import '../model/{{snake_Case Item2.Name}}/{{snake_case Item1.Name}}.dart';
 
 class {{ClientApiTypeName}} {
 
+    late ApiUtil _apiUtil;
+
+    {{ClientApiTypeName}}(ApiUtil apiUtil) {
+        _apiUtil = apiUtil;
+    }
+
 	{{#each ApiOperations}}
 	{{#if HasCustomType}}
 	Future<{{{DartReturn}}}> {{cml_case BareName}}({{cs_name CustomType.Name}} model) async {
@@ -28,11 +34,11 @@ class {{ClientApiTypeName}} {
         {{#each CustomType.Fields}}
         map['{{Name}}'] = model.{{cml_case Name}};   
         {{/each}}
-		final response = await http.{{lc HttpMethod}}(Uri.parse(uri), headers: ApiUtil.getHeaders(), body: map);
+		final response = await http.{{lc HttpMethod}}(Uri.parse(uri), headers: await _apiUtil.getHeaders(), body: map);
 		{{else}}
-		final response = await http.{{lc HttpMethod}}(Uri.parse(uri), headers: ApiUtil.getHeaders(), body: model.toJson());
+		final response = await http.{{lc HttpMethod}}(Uri.parse(uri), headers: await _apiUtil.getHeaders(), body: model.toJson());
 		{{/if}}
-        if (ApiUtil.responseStatusIsSuccess(response.statusCode)){
+        if (_apiUtil.responseStatusIsSuccess(response.statusCode)){
 		{{#if IsStructuredResult}}
             // TODO
         {{else}}    
@@ -50,11 +56,11 @@ class {{ClientApiTypeName}} {
     {{/if}}
         log("calling {{Name}} on $uri", name: "{{../ClientApiTypeName}}");
     {{#if ProvideDataByUri}}
-        final response = await http.{{lc HttpMethod}}(Uri.parse(uri), headers: ApiUtil.getHeaders());
+        final response = await http.{{lc HttpMethod}}(Uri.parse(uri), headers: await _apiUtil.getHeaders());
     {{else}}
-        final response = await http.{{lc HttpMethod}}(Uri.parse(uri), headers: ApiUtil.getHeaders(), {{#each UserProvidedParameters}}body: {{cml_case Name}}{{/each}});
+        final response = await http.{{lc HttpMethod}}(Uri.parse(uri), headers: await _apiUtil.getHeaders(), {{#each UserProvidedParameters}}body: {{cml_case Name}}{{/each}});
     {{/if}}
-        if (ApiUtil.responseStatusIsSuccess(response.statusCode)){
+        if (_apiUtil.responseStatusIsSuccess(response.statusCode)){
             {{#if SingleResult}}
                 {{#if IsStructuredResult}}
         return {{{DartReturn}}}.fromJson(jsonDecode(response.body));
