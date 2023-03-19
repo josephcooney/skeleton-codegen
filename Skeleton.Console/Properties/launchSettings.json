@@ -4,7 +4,8 @@
       "commandName": "Project",
       "commandLineArgs3": "-u -c sqltest",
       "commandLineArgs": "-u -c bins -x hangfire --del --no-policy -adm bins.admin --flutter",
-      "commandLineArgs2": "-u -c bins2 -x HangFire --del --no-policy -adm bins.admin"
+      "commandLineArgs2": "-u -c bins2 -x HangFire --del --no-policy -adm bins.admin",
+      "commandLineArgs4": "-u -c tenseg --no-policy -adm tenseg.admin"
     }
   }
 }
