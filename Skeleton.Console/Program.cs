@@ -34,8 +34,15 @@ namespace Skeleton.Console
                 return;
             }
 
+            var currentDir = Directory.GetCurrentDirectory();
+            var settingsFilePath = _fileSystem.Path.Combine(currentDir, settings.ConfigurationFile);
+            if (!_fileSystem.File.Exists(settingsFilePath))
+            {
+                Log.Error("Configuration file {} could not be found, check the file name", settingsFilePath);
+            }
+
             var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
+                .SetBasePath(currentDir)
                 .AddJsonFile(settings.ConfigurationFile, optional: true, reloadOnChange: true);
 
             IConfigurationRoot configuration = builder.Build();

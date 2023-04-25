@@ -134,7 +134,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                 return locationState.linkedId;
             {{/if}}
         }
-        const qry: any = queryString.parse(location.search);
+        const qry: any = queryString.default.parse(location.search);
         if (qry.{{cml_case Name}} && !Array.isArray(qry.{{cml_case Name}})) {
         {{#if IsInt}}
             return parseInt(qry.{{cml_case Name}});

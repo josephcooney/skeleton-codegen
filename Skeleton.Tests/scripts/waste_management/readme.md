@@ -21,3 +21,11 @@ you can get a mapbox token from here https://account.mapbox.com/
 
 ## Set Startup Args  
 `"commandLineArgs": "-u -c bins -x hangfire -del --no-policy"`
+
+## Clean up prior to demo
+```sql
+delete from address;
+delete from file_import;
+delete from address_file_column;
+delete from address_file;
+```
