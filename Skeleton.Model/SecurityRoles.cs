@@ -24,5 +24,6 @@
         public const string EditAll = "edit-all";
         public const string List = "list";
         public const string None = "none";
+        public const string Execute = "execute";
     }
 }

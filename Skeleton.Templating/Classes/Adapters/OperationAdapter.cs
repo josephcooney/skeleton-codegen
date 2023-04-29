@@ -371,6 +371,12 @@ namespace Skeleton.Templating.Classes.Adapters
         {
             get
             {
+                var opAnon = _op.Attributes?.security?.anon;
+                if (opAnon != null && SecurityUtil.HasExecuteRight(opAnon))
+                {
+                    return true;
+                }
+                
                 var anon = _type.Attributes?.security?.anon;
 
                 if (_op.CreatesNew)

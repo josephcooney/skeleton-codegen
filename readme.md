@@ -156,6 +156,7 @@ Attributes are set as a JSON text string 'comment' on the respective database en
 - single_result: true|false - when set to true it causes the generated repository and API operations to return singular items instead of lists. Defaults to false.
 - fullName: string - used to get around the 63 byte length limit of postgres entities. The pattern of <entity>_<operation> often leads to names greater than 63 characters.
 - paged: true|false - indicates that the operation supports paging. Defaults to false.
+- security: an array of roles with the rights that they have. There are 3 built-in 'roles' - 'user' (authenticated users), 'admin' (administrators) and 'anon' (anonymous/unauthenticated users). If no security information is provided then whether a user group can execute a function is determined by the security attributes (if any) of the underlying type. The only right that can be assigned at the function level is 'execute'. Security is implemented as a combination of row-level security (RLS) policy and attributes on ASPNET controllers. An example security setting that would allow anonymous users to execute a custom function `{"security":{"anon":["execute"]}}`.
 
 ### Field Level ### 
 - largeContent : true|false - Signals to UI generators when set to true that a particular field should be displayed with more screen area. Defaults to false.
