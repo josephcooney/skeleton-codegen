@@ -23,11 +23,11 @@ Skeleton attempts to generate a 'full stack' of an application once the database
 - In-memory repositories to make tests easier to set up
 
 ## Databases ##
-Relational databases provide a rich source of machine-readable information about the entities and their relationships in a domain. Skeleton uses this, with some augmentation via attributes, to generate the basics of an application. Skeleton is currently very postgres-centric, but could be enhanced to support other databases in the future.
+Relational databases provide a rich source of machine-readable information about the entities and their relationships in a domain. Skeleton uses this, with some augmentation via attributes, to generate the basics of an application. Skeleton is currently very postgres-centric, but also works with SQL Server (see table below for comparison).
 
 ## Pre-Requisites ##
 Skeleton and the apps it generates depend on the following:
-1. Postgres - if you don't have it installed a docker image is probably the easiest way to get started.
+1. Your database of choice (Postgres or SQL Server) - if you don't have it installed a docker image is probably the easiest way to get started.
 2. The .NET SDK
 3. Node (for building react front-ends)
 4. Git
@@ -173,6 +173,18 @@ Attributes are set as a JSON text string 'comment' on the respective database en
 Postgres SQL Syntax for adding comments to fields is
 ```sql
 COMMENT ON COLUMN public.foo.bar IS '{"rank": 1}';
+```
+
+The equivalent syntax for SQL Server is a little more complicated
+```sql
+EXEC sp_addextendedproperty   
+    @name = N'codegen_meta',   
+    @value = '{""rank"": 1}',  
+    @level0type = N'Schema', @level0name = 'dbo',  
+    @level1type = N'Table',  @level1name = 'Foo',  
+    @level2type = N'Column', @level2name = 'Bar';  
+GO    
+";
 ```
 
 ### Switching to AAD for Auth ###
