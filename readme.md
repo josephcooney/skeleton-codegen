@@ -182,9 +182,7 @@ EXEC sp_addextendedproperty
     @value = '{""rank"": 1}',  
     @level0type = N'Schema', @level0name = 'dbo',  
     @level1type = N'Table',  @level1name = 'Foo',  
-    @level2type = N'Column', @level2name = 'Bar';  
-GO    
-";
+    @level2type = N'Column', @level2name = 'Bar';
 ```
 
 ### Switching to AAD for Auth ###
