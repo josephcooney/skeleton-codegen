@@ -34,7 +34,8 @@ namespace Skeleton.Console
                 return;
             }
 
-            var currentDir = Directory.GetCurrentDirectory();
+            CopySettingsFiles();
+            var currentDir = _fileSystem.Directory.GetCurrentDirectory();
             var settingsFilePath = _fileSystem.Path.Combine(currentDir, settings.ConfigurationFile);
             if (!_fileSystem.File.Exists(settingsFilePath))
             {
@@ -77,6 +78,21 @@ namespace Skeleton.Console
             }
 
             generator.Generate(provider);
+        }
+
+        private static void CopySettingsFiles()
+        {
+            // copy settings files from 'root' project dir into \bin\debug\ so you don't need to
+            var parentPath = _fileSystem.Path.Combine(_fileSystem.Directory.GetCurrentDirectory(), "../../../");
+            System.Console.WriteLine(parentPath);
+            var files = _fileSystem.Directory.GetFiles(parentPath, "*.codegen.json");
+            foreach (var file in files)
+            {
+                var fileInfo = _fileSystem.FileInfo.New(file);
+                var target = _fileSystem.Path.Combine(_fileSystem.Directory.GetCurrentDirectory(), fileInfo.Name);
+                _fileSystem.File.Copy(file, target, true);
+                Log.Information("Copied {ConfigFile} to {UpdatedLocation}", file, target);
+            }
         }
 
         private static ITypeProvider CreateTypeProvider(Settings settings)
