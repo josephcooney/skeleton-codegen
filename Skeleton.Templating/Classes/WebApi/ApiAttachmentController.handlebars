@@ -74,9 +74,7 @@ namespace {{cs_name Namespace}}.Controllers
                 }
                 else
                 {
-	                var filePath = _attachmentService.GetFilePathForMimeType(item.{{cs_name AttachmentFieldContentType.Name}}, _hostingEnvironment);
-	                var fs = new FileStream(filePath, FileMode.Open);
-	                return File(fs, "image/svg+xml");
+                    return _attachmentService.GetThumbnail(item.{{cs_name AttachmentFileField.Name}}, item.{{cs_name AttachmentFieldContentType.Name}}, _hostingEnvironment);
                 }
 			}
 
