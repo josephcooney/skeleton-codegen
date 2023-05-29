@@ -1,5 +1,5 @@
-﻿using Skeleton.Model;
-using Skeleton.Templating.Classes;
+﻿using System.Linq;
+using Skeleton.Model;
 
 namespace Skeleton.Templating.ReactClient.Adapters
 {
@@ -27,5 +27,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
         public string ModelTypeName => _operation.UsesModel ? $"{Util.CSharpNameFromName(Name)}{OperationName}{NamingConventions.ModelClassNameSuffix}" : null;
 
         public string FormDataTypeName => _operation.UsesModel ? ModelTypeName : StateTypeName;
+
+        public bool HasAnyHtmlFields => _operation.Parameters.Any(p => p.IsHtml) || (_operation.HasCustomType && _operation.CustomType.Fields.Any(f => f.IsHtml));
     }
 }

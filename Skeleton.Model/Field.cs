@@ -124,14 +124,10 @@ namespace Skeleton.Model
                 return IsFile && !IsAttachmentThumbnail;
             }
         }
+
+        public bool IsLargeTextContent => ClrType == typeof(string) && (Size > 500 || Attributes?.largeContent == true);
         
-        public bool IsLargeTextContent
-        {
-            get
-            {
-                return ClrType == typeof(string) && (Size > 500 || Attributes?.largeContent == true);
-            }
-        }
+        public bool IsHtml => ClrType == typeof(string) && Attributes?.html == true;
         
         public bool IsColor => Attributes?.type == ColorFieldType;
 

@@ -60,14 +60,10 @@ namespace Skeleton.Model
 
         public bool IsBoolean => ClrType == typeof(bool) || ClrType == typeof(bool?);
 
-        public bool IsLargeTextContent
-        {
-            get
-            {
-                return RelatedTypeField?.IsLargeTextContent == true;
-            }
-        }
+        public bool IsLargeTextContent => RelatedTypeField?.IsLargeTextContent == true;
 
+        public bool IsHtml => RelatedTypeField?.IsHtml == true;
+        
         public bool IsFile => this.RelatedTypeField?.IsFile == true;
 
         public bool IsRating => this.RelatedTypeField?.IsRating == true;
