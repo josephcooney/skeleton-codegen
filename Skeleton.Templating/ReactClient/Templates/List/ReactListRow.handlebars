@@ -17,6 +17,9 @@ import { StyledTableRow } from '../../../controls/styled-table-row';
 {{#if UnderlyingType.IsReferenceData}}
 import { UserConsumer, isAdmin } from '../../../api-authorization/UserContext';
 {{/if}}
+{{#if HasAnyHtmlFields}}
+import {HtmlPreview} from "../../../controls/html-preview";
+{{/if}}
 
 interface {{cs_name Name}}RowProps {
     data: {{cs_name Name}};
@@ -46,7 +49,11 @@ export class {{cs_name Name}}Row extends Component<{{cs_name Name}}RowProps, any
                                                     {{#if IsLinkingFieldToAttachmentWithThumbnail}}
                             <TableCell><Thumbnail id={ s.{{cml_case LinkingField.Name}} } name={ s.{{cml_case Name}} }  entityName="{{kb_case RelatedType.Name}}" /></TableCell>
                                                     {{else}}
+                                                        {{#if IsHtml}}
+                            <TableCell><HtmlPreview content={s.{{cml_case Name}} } /></TableCell>
+                                                        {{else}}
                             <TableCell>{ s.{{cml_case Name}} }</TableCell>
+                                                        {{/if}}
                                                     {{/if}}
                                                 {{/if}}
                                             {{/if}}
