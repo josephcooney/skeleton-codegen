@@ -7,6 +7,7 @@ import Thumbnail from '../../controls/thumbnail';
 import Title from "../../controls/Title";
 import { StyledTableRow } from '../../controls/styled-table-row';
 import { StyledTable } from '../../controls/styled-table';
+import {Interweave} from "interweave";
 
 interface {{cs_name Name}}DetailDisplayProps {
     item: {{cs_name DetailType.Name}}
@@ -40,7 +41,11 @@ return (
                                             {{#if IsFile}}
                         <Thumbnail id={ props.item.{{cml_case Type.IdentityField.Name}} } name={ props.item.{{cml_case Name}} } entityName="{{kb_case Type.Name}}" />                       
                                             {{else}}
-                        { props.item.{{cml_case Name}} }
+                                                {{#if IsHtml}}
+                            <Interweave content={ props.item.{{cml_case Name}} } />                        
+                                                {{else}}
+                            { props.item.{{cml_case Name}} }                                                    
+                                                {{/if}}
                                             {{/if}}    
                                         {{/if}}
                                     {{/if}}
