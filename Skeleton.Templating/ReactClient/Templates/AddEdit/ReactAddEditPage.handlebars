@@ -62,7 +62,7 @@ export interface {{StateTypeName}} {
 	{{#if IsUpdate}}
 	loading: boolean;	
 	{{/if}}
-    linkedType? : {{#each CurrentOperation.EditableLinkingFields}} "{{cml_case ReferencesType.Name}}" | {{/each}} null;
+    linkedType? : {{#each CurrentOperation.EditableLinkingFields}} "{{ReferencesType.Name}}" | {{/each}} null;
     linkedId? : number | string | null;
 }
 
@@ -70,7 +70,7 @@ export interface {{cs_name Name}}{{OperationNameFriendly}}Props {
 	onSaved? (result: {{CurrentOperation.TypeScriptReturn}}) : void;
 	title? : string;
 	{{#if AssociateViaLink}}
-	linkedType? : {{#each CurrentOperation.EditableLinkingFields}} "{{cml_case ReferencesType.Name}}" | {{/each}} null;
+	linkedType? : {{#each CurrentOperation.EditableLinkingFields}} "{{ReferencesType.Name}}" | {{/each}} null;
 	linkedId? : number | string | null;
 	{{/if}}
 	{{#if IsUpdate}}
@@ -128,7 +128,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
             return props.{{cml_case Name}};
         }
     
-        if (locationState && locationState.linkedType == "{{cml_case ReferencesType.Name}}" && locationState.linkedId) {
+        if (locationState && locationState.linkedType == "{{ReferencesType.Name}}" && locationState.linkedId) {
             {{#if IsInt}}
                 return +locationState.linkedId;
             {{else}}
