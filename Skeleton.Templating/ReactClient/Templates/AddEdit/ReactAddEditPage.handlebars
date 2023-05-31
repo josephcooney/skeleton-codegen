@@ -12,7 +12,7 @@ import { DateTimePicker, DatePicker } from '@mui/lab';
 import {useSnackbar} from "notistack";
 import { motion, AnimatePresence } from "framer-motion";
 {{#if IsUpdate}}import { Loading } from '../../controls/loading';{{/if}}
-{{#if HasAnyHtmlFields}}import HtmlEditor from "../../controls/HtmlEditor/HtmlEditor";{{/if}}
+{{#if HasAnyHtmlFields}}import CodeEditor from "../../controls/CodeEditor";{{/if}}
 
 // sub-components for {{cs_name Name}} 
 import { {{cs_name Name}} } from './{{cs_name Name}}';
@@ -455,7 +455,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                                 </FormGroup>
                                             {{else}}
                                                 {{#if IsHtml}}
-                                <HtmlEditor value={ formik.values.{{NameWithPathSafeCamelCase}} } onChange={(val) => formik.setFieldValue("{{NameWithPathCamelCase}}", val)} placeholder={'Enter {{hmn Name}}'} />
+                                <CodeEditor value={ formik.values.{{NameWithPathSafeCamelCase}} } onChange={(val) => formik.setFieldValue("{{NameWithPathCamelCase}}", val)} placeholder={'Enter {{hmn Name}}'} />
 										        {{else}}
 								<TextField id="{{NameWithPathCamelCase}}" fullWidth name="{{NameWithPathCamelCase}}" value={ formik.values.{{NameWithPathSafeCamelCase}} } onChange={formik.handleChange} onBlur={formik.handleBlur} label="{{hmn Field}}" {{#if Field.IsRequired}}required={true}{{/if}}  type="{{input_type ClrType}}" error={ hasError('{{NameWithPathCamelCase}}', formik)} helperText={ errorMessage('{{NameWithPathCamelCase}}', formik)} placeholder="Enter {{hmn Name}}" />                                
                                                 {{/if}}
