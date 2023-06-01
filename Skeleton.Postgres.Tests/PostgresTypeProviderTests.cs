@@ -133,7 +133,7 @@ public class PostgresTypeProviderTests : DbTestBase
 CREATE OR REPLACE FUNCTION public.government_area_insert(security_user_id_param integer, created_by integer, government_area_to_add government_area_new)
  RETURNS integer
  LANGUAGE plpgsql
-AS $function$
+AS $$
     DECLARE new_id integer;
 
     BEGIN
@@ -169,7 +169,7 @@ AS $function$
         new_id = currval(pg_get_serial_sequence('government_area', 'id'));
         return new_id;
     END
-    $function$
+    $$
     ;
 ";
 }

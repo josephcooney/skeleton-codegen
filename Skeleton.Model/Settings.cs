@@ -50,7 +50,6 @@ namespace Skeleton.Model
         public string ConnectionString { get; set; }
         
         public DatabaseType DatabaseType { get; set; }
-        public NewAppSettings NewAppSettings { get; set; }
         public bool DeleteGeneratedFiles { get; set; }  
         
         public string OpenApiUri { get; set; }
@@ -74,19 +73,15 @@ namespace Skeleton.Model
         public string ResolveClientAppDirectory() => !string.IsNullOrEmpty(ClientAppDirectory)
             ? ClientAppDirectory
             : @"ClientApp\src\components\";
+
+        public FlutterSettings FlutterSettings { get; set; }
     }
 
-    public class NewAppSettings 
+    public class FlutterSettings
     {
-        public bool CreateNew { get; set; }
-        public string BrandColour { get; set; }
-        public string LogoFileName { get; set; }
-        
-        public string TemplateProjectDirectory { get; set; }
-        
-        public string TemplateBranchName { get; set; }
+        public string FlutterRootDirectory { get; set; }
     }
-
+    
     public enum WebUIType
     {
         Unknown,

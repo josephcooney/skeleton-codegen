@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Skeleton.Model;
 using Skeleton.Templating.Classes.Adapters;
 using Skeleton.Templating.Classes.Repository;
@@ -134,7 +135,7 @@ namespace Skeleton.Templating.Classes
 
             if (files.Any())
             {
-                var file = new CodeFile { Name = "RelatedFieldListItem.cs", Contents = Util.GetCompiledTemplate("RelatedFieldListItem")(new { Namespace  = domain.DefaultNamespace }) };
+                var file = new CodeFile { Name = "RelatedFieldListItem.cs", Contents = Util.GetCompiledTemplate("RelatedFieldListItem", Assembly.GetExecutingAssembly())(new { Namespace  = domain.DefaultNamespace }) };
                 files.Add(file);
             }
 
@@ -175,7 +176,7 @@ namespace Skeleton.Templating.Classes
 
         private string GenerateCode(ApplicationType applicationType, Domain domain)
         {
-            return Util.GetCompiledTemplate("Class")(new ClassAdapter(applicationType, domain));
+            return Util.GetCompiledTemplate("Class", Assembly.GetExecutingAssembly())(new ClassAdapter(applicationType, domain));
         }
 
         private string GenerateReturnType(SimpleType simpleType, Domain domain)
@@ -199,7 +200,7 @@ namespace Skeleton.Templating.Classes
         
         private string GenerateTestRepo(RepositoryAdapter adapter)
         {
-            var templateFunction = Util.GetCompiledTemplate("TestRepository");
+            var templateFunction = Util.GetCompiledTemplate("TestRepository", Assembly.GetExecutingAssembly());
             try
             {
                 return templateFunction(adapter);
@@ -224,7 +225,7 @@ namespace Skeleton.Templating.Classes
 
         private string GenerateController(ApplicationType applicationType, Domain domain)
         {
-            return Util.GetCompiledTemplate("Controller")(new ControllerAdapter(applicationType, domain));
+            return Util.GetCompiledTemplate("Controller", Assembly.GetExecutingAssembly())(new ControllerAdapter(applicationType, domain));
         }
 
         private string GenerateApiController(ApplicationType applicationType, Domain domain)
@@ -233,12 +234,12 @@ namespace Skeleton.Templating.Classes
             {
                 if (applicationType.IsAttachment)
                 {
-                    return Util.GetCompiledTemplate("ApiAttachmentController")(
+                    return Util.GetCompiledTemplate("ApiAttachmentController", Assembly.GetExecutingAssembly())(
                         new AttachmentControllerAdapter(applicationType, domain));
                 }
                 else
                 {
-                    return Util.GetCompiledTemplate("ApiController")(new ControllerAdapter(applicationType, domain));
+                    return Util.GetCompiledTemplate("ApiController", Assembly.GetExecutingAssembly())(new ControllerAdapter(applicationType, domain));
                 }
             }
             catch (Exception ex)
@@ -250,17 +251,17 @@ namespace Skeleton.Templating.Classes
 
         private string GenerateApiModel(OperationAdapter operation)
         {
-            return Util.GetCompiledTemplate("ApiRequestModel")(operation);
+            return Util.GetCompiledTemplate("ApiRequestModel", Assembly.GetExecutingAssembly())(operation);
         }
         
         private string GenerateAttachmentApiModel(OperationAdapter operation)
         {
-            return Util.GetCompiledTemplate("ApiAttachmentRequestModel")(operation.CustomType);
+            return Util.GetCompiledTemplate("ApiAttachmentRequestModel", Assembly.GetExecutingAssembly())(operation.CustomType);
         }
 
         private string GenerateEditViewModel(ApplicationType applicationType, Domain domain)
         {
-            return Util.GetCompiledTemplate("EditViewModel")(new ClassAdapter(applicationType, domain));
+            return Util.GetCompiledTemplate("EditViewModel", Assembly.GetExecutingAssembly())(new ClassAdapter(applicationType, domain));
         }
     }
 }

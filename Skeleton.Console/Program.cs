@@ -34,8 +34,16 @@ namespace Skeleton.Console
                 return;
             }
 
+            CopySettingsFiles();
+            var currentDir = _fileSystem.Directory.GetCurrentDirectory();
+            var settingsFilePath = _fileSystem.Path.Combine(currentDir, settings.ConfigurationFile);
+            if (!_fileSystem.File.Exists(settingsFilePath))
+            {
+                Log.Error("Configuration file {} could not be found, check the file name", settingsFilePath);
+            }
+
             var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
+                .SetBasePath(currentDir)
                 .AddJsonFile(settings.ConfigurationFile, optional: true, reloadOnChange: true);
 
             IConfigurationRoot configuration = builder.Build();
@@ -70,6 +78,21 @@ namespace Skeleton.Console
             }
 
             generator.Generate(provider);
+        }
+
+        private static void CopySettingsFiles()
+        {
+            // copy settings files from 'root' project dir into \bin\debug\ so you don't need to
+            var parentPath = _fileSystem.Path.Combine(_fileSystem.Directory.GetCurrentDirectory(), "../../../");
+            System.Console.WriteLine(parentPath);
+            var files = _fileSystem.Directory.GetFiles(parentPath, "*.codegen.json");
+            foreach (var file in files)
+            {
+                var fileInfo = _fileSystem.FileInfo.New(file);
+                var target = _fileSystem.Path.Combine(_fileSystem.Directory.GetCurrentDirectory(), fileInfo.Name);
+                _fileSystem.File.Copy(file, target, true);
+                Log.Information("Copied {ConfigFile} to {UpdatedLocation}", file, target);
+            }
         }
 
         private static ITypeProvider CreateTypeProvider(Settings settings)
@@ -113,7 +136,6 @@ namespace Skeleton.Console
         private static Settings ParseArguments(string[] args)
         {
             var s = new Settings(_fileSystem);
-            s.NewAppSettings = new NewAppSettings();
             s.WebUIType = WebUIType.React;
 
             var os = new OptionSet() {
@@ -121,7 +143,6 @@ namespace Skeleton.Console
                 "",
                 "Options:",
                 { "adm|admin-role=", "Name of Admin role. Defaults to 'admin'", r => s.AdminRoleName = r },
-                { "brand-color=", "Brand Color for new project. Only applicable when -n or --new option is specified", bc => s.NewAppSettings.BrandColour = bc },
                 { "c|config=", "JSON configuration file to use.", c => s.ConfigurationFile = c },
                 { "data-dir|database-code-directory=", "the root directory to generate database code into.", m => s.DataDirectory = m },
                 { "data-test-dir|database-test-directory=", "the root directory to generate database test helpers into.", m => s.TestDataDirectory = m },
@@ -130,16 +151,12 @@ namespace Skeleton.Console
                 { "del", "delete generated files before re-generating", d => s.DeleteGeneratedFiles = d != null},
                 { "flutter", "Generate a Flutter client for application", f => {if (f != null) s.ClientAppTypes.Add(ClientAppUIType.Flutter); } },
                 { "h|?|help",  "show this message and exit", h => s.ShowHelp = h != null },
-                { "logo=", "SVG logo for new project. Only applicable when -n or --new option is specified", logo => s.NewAppSettings.LogoFileName = logo },
                 { "name=", "Name of the application. Used for default C# namespace for generated items", n => s.ApplicationName = n },
-                { "n|new", "Generate a new project", n => s.NewAppSettings.CreateNew = n != null },
                 { "no-policy", "Globally disable generation of security policies", p => { if (p != null) s.GenerateSecurityPolicies = false; }  },
                 { "no-test-repo", "Disable generation of test repositories", t => { if (t != null) s.GenerateTestRepos = false; }},
                 { "r|root=", "the root folder to generate code into.", r => s.RootDirectory = r },
                 { "react", "Set the web UI generated to be React", r => {if (r != null) s.WebUIType = WebUIType.React; } },
                 { "test-data=", "Generate test data of the specified size for empty tables.", t => s.TestDataSize = int.Parse(t) },
-                { "tmplt=", "Template project directory", t => { if (t != null) { s.NewAppSettings.TemplateProjectDirectory = t; } }},
-                { "tmplt-brnch=", "Template branch name.", brnch => { if (brnch != null) { s.NewAppSettings.TemplateBranchName = brnch; } }},
                 { "t|type=", "Only generate for a single type (for debugging)", t => s.TypeName = t },
                 { "u|update-db-operations",  "Update database with generated operations", u => s.AddGeneratedOptionsToDatabase = u != null },
                 { "v", "increase debug message verbosity", v => { if (v != null) ++s.Verbosity; } },
@@ -228,9 +245,10 @@ namespace Skeleton.Console
                 settings.OpenApiUri = configuration.GetValue<string>("openapi-uri");
             }
 
-            if (string.IsNullOrEmpty(settings.NewAppSettings.TemplateProjectDirectory))
+            if (settings.ClientAppTypes.Contains(ClientAppUIType.Flutter))
             {
-                settings.NewAppSettings.TemplateProjectDirectory = configuration.GetValue<string>("template-dir");
+                settings.FlutterSettings = new FlutterSettings();
+                configuration.GetSection("FlutterSettings").Bind(settings.FlutterSettings);
             }
             
             return true;

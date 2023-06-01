@@ -70,5 +70,14 @@ namespace Skeleton.Templating
 
             return false;
         }
+
+        public static bool HasExecuteRight(dynamic securityRole)
+        {
+            var result = securityRole != null &&
+                         !Contains(securityRole, SecurityRights.None) &&
+                         Contains(securityRole, SecurityRights.Execute);
+
+            return result;
+        }
     }
 }

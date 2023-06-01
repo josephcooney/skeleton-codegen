@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Skeleton.Model;
 
 namespace Skeleton.Templating.TestData
@@ -20,6 +21,8 @@ namespace Skeleton.Templating.TestData
 
             return files;
         }
+
+        public override Assembly Assembly => Assembly.GetExecutingAssembly();
 
         private CodeFile GenerateTestData(ApplicationType applicationType)
         {

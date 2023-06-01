@@ -23,11 +23,11 @@ Skeleton attempts to generate a 'full stack' of an application once the database
 - In-memory repositories to make tests easier to set up
 
 ## Databases ##
-Relational databases provide a rich source of machine-readable information about the entities and their relationships in a domain. Skeleton uses this, with some augmentation via attributes, to generate the basics of an application. Skeleton is currently very postgres-centric, but could be enhanced to support other databases in the future.
+Relational databases provide a rich source of machine-readable information about the entities and their relationships in a domain. Skeleton uses this, with some augmentation via attributes, to generate the basics of an application. Skeleton is currently very postgres-centric, but also works with SQL Server (see table below for comparison).
 
 ## Pre-Requisites ##
 Skeleton and the apps it generates depend on the following:
-1. Postgres - if you don't have it installed a docker image is probably the easiest way to get started.
+1. Your database of choice (Postgres or SQL Server) - if you don't have it installed a docker image is probably the easiest way to get started.
 2. The .NET SDK
 3. Node (for building react front-ends)
 4. Git
@@ -156,6 +156,7 @@ Attributes are set as a JSON text string 'comment' on the respective database en
 - single_result: true|false - when set to true it causes the generated repository and API operations to return singular items instead of lists. Defaults to false.
 - fullName: string - used to get around the 63 byte length limit of postgres entities. The pattern of <entity>_<operation> often leads to names greater than 63 characters.
 - paged: true|false - indicates that the operation supports paging. Defaults to false.
+- security: an array of roles with the rights that they have. There are 3 built-in 'roles' - 'user' (authenticated users), 'admin' (administrators) and 'anon' (anonymous/unauthenticated users). If no security information is provided then whether a user group can execute a function is determined by the security attributes (if any) of the underlying type. The only right that can be assigned at the function level is 'execute'. Security is implemented as a combination of row-level security (RLS) policy and attributes on ASPNET controllers. An example security setting that would allow anonymous users to execute a custom function `{"security":{"anon":["execute"]}}`.
 
 ### Field Level ### 
 - largeContent : true|false - Signals to UI generators when set to true that a particular field should be displayed with more screen area. Defaults to false.
@@ -172,6 +173,16 @@ Attributes are set as a JSON text string 'comment' on the respective database en
 Postgres SQL Syntax for adding comments to fields is
 ```sql
 COMMENT ON COLUMN public.foo.bar IS '{"rank": 1}';
+```
+
+The equivalent syntax for SQL Server is a little more complicated
+```sql
+EXEC sp_addextendedproperty   
+    @name = N'codegen_meta',   
+    @value = '{""rank"": 1}',  
+    @level0type = N'Schema', @level0name = 'dbo',  
+    @level1type = N'Table',  @level1name = 'Foo',  
+    @level2type = N'Column', @level2name = 'Bar';
 ```
 
 ### Switching to AAD for Auth ###

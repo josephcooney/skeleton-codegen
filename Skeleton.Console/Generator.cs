@@ -60,18 +60,7 @@ namespace Skeleton.Console
         public void Generate(ITypeProvider typeProvider)
         {
             Log.Information("Starting Code Generation in {RootDirectory}", _settings.RootDirectory);
-
-            if (_settings.NewAppSettings?.CreateNew == true)
-            {
-                var newProjectGen = new NewProjectGenerator(_settings, _fs);
-                var newProjectResult = newProjectGen.Generate();
-                if (newProjectResult == false)
-                {
-                    Log.Error("Error generating new project - exiting");
-                    return;
-                }
-            }
-
+            
             if (_settings.AddGeneratedOptionsToDatabase)
             {
                 var sb = new StringBuilder();
@@ -135,8 +124,10 @@ namespace Skeleton.Console
 
             if (_settings.ClientAppTypes.Contains(ClientAppUIType.Flutter))
             {
-                var flutterGen = new Flutter.Generator(_fs, _settings, _fileWriter);
-                flutterGen.Generate(domain);
+                var flutterGen = new Flutter.Generator(_fs, _settings);
+                var flutterFiles = flutterGen.Generate(domain);
+                _fileWriter.ApplyCodeFiles(flutterFiles, flutterGen.FlutterRootFolder);
+                Log.Information("Finished generating flutter UI");
             }
 
             if (_settings.TestDataSize != null && _settings.TestDataSize > 0)

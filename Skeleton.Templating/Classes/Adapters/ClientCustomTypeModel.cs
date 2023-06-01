@@ -12,6 +12,7 @@ namespace Skeleton.Templating.Classes.Adapters
         public ClientCustomTypeModel(OperationAdapter operation, Domain domain)
         {
             Name = operation.Name + NamingConventions.ModelClassNameSuffix;
+            DartFileName = Util.SnakeCase(operation.Name + "_" + NamingConventions.ModelClassNameSuffix);
             Fields = operation.UserProvidedParameters.Select(p => p.RelatedTypeField).ToList();
             _domain = domain;
             _namespace = operation.Namespace;
@@ -20,12 +21,15 @@ namespace Skeleton.Templating.Classes.Adapters
         public ClientCustomTypeModel(ResultType resultType)
         {
             Name = resultType.Name;
+            DartFileName = Util.SnakeCase(resultType.Name);
             Fields = resultType.Fields.Where(f => f.IsUserEditable).ToList();
             _domain = resultType.Domain;
             _namespace = resultType.Namespace;
         }
         
         public string Name { get;  }
+
+        public string DartFileName { get; }
         
         public List<Field> Fields { get;  }
         

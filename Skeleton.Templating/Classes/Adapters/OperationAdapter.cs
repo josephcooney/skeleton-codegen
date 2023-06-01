@@ -158,6 +158,52 @@ namespace Skeleton.Templating.Classes.Adapters
             }
         }
 
+        public string DartReturn
+        {
+            get
+            {
+                if (_op.Returns?.ReturnType == ReturnType.None)
+                {
+                    return "void";
+                }
+
+                if (_op.Returns?.ReturnType == ReturnType.Primitive)
+                {
+                    return Util.GetDartTypeForClrType(_op.Returns.ClrReturnType);
+                }
+
+                if (_op.Returns?.ReturnType == ReturnType.ApplicationType || _op.Returns?.ReturnType == ReturnType.CustomType)
+                {
+                    if (_op.SingleResult)
+                    {
+                        return Util.CSharpNameFromName(_op.Returns.SimpleReturnType.Name);
+                    }
+
+                    return $"List<{Util.CSharpNameFromName(_op.Returns.SimpleReturnType.Name)}>";
+                }
+
+                return "TODO";
+            }
+        }
+
+        public string DartSimpleTypeReturnCast
+        {
+            get
+            {
+                if (_op.Returns?.ReturnType == ReturnType.Primitive)
+                {
+                    if (_op.Returns.ClrReturnType == typeof(string))
+                    {
+                        return "response.body";
+                    }
+
+                    return $"{Util.GetDartTypeForClrType(_op.Returns.ClrReturnType)}.parse(response.body)";
+                }
+
+                return "TODO";
+            }
+        }
+
         public bool SetUserContext => _op.Parameters.Any(p => p.IsSecurityUser) && _domain.Settings.GenerateSecurityPolicies;
 
         public ParameterAdapter SecurityUserParameter => Parameters.SingleOrDefault(p => p.IsSecurityUser);
@@ -325,6 +371,12 @@ namespace Skeleton.Templating.Classes.Adapters
         {
             get
             {
+                var opAnon = _op.Attributes?.security?.anon;
+                if (opAnon != null && SecurityUtil.HasExecuteRight(opAnon))
+                {
+                    return true;
+                }
+                
                 var anon = _type.Attributes?.security?.anon;
 
                 if (_op.CreatesNew)

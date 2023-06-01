@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Skeleton.Model;
-using Skeleton.Templating.Classes;
 using Skeleton.Templating.Classes.Adapters;
 
 namespace Skeleton.Templating.ReactClient.Adapters
@@ -31,7 +30,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
             }
         }
 
-        public string StatePath => UsesModel ? "this.state.data" : "this.state";
+        public string StatePath => UsesModel ? "state.data" : "state";
 
         public List<UserInputFieldModel> UserInputFields {
             get
@@ -124,5 +123,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
         public bool IsColor => Field?.IsColor ?? false;
 
         public Type ClrType => Field?.ClrType ?? Parameter.ClrType;
+
+        public bool IsHtml => Field?.IsHtml ?? Parameter.IsHtml;
     }
 }
