@@ -58,27 +58,21 @@ To test out Skeleton using the Survey sample application perform the following s
 
 ### Command-Line Arguments ###
 ```
-      --brand-color=VALUE    Brand Color for new project. Only applicable when -n or --new option is specified
+      --adm, --admin-role=VALUE Name of Admin role. Defaults to 'admin'
   -c, --config=VALUE         JSON configuration file to use.
-  	  --client-dir, --client-code-directory=VALUE
-  	  						 the directory to generate client code into.
-      --data-dir, --database-code-directory=VALUE
-                             the root directory to generate database code into.
-      --data-test-dir, --database-test-directory=VALUE
-                             the root directory to generate database test helpers into.
+      --data-dir, --database-code-directory=VALUE the root directory to generate database code into.
+      --data-test-dir, --database-test-directory=VALUE the root directory to generate database test helpers into.
+      --client-dir, --client-code-directory=VALUE the directory to generate client code into.
       --dbg, --debug         Attach Debugger on start
       --del                  delete generated files before re-generating
       --flutter              Generate a Flutter client for application
   -h, -?, --help             show this message and exit
-      --logo=VALUE           SVG logo for new project. Only applicable when -n or --new option is specified
       --name=VALUE           Name of the application. Used for default C# namespace for generated items
-  -n, --new                  Generate a new project
       --no-policy            Globally disable generation of security policies
       --no-test-repo         Disable generation of test repositories
   -r, --root=VALUE           the root folder to generate code into.
-      --react                Change the web UI generated to be React
+      --react                Set the web UI generated to be React
       --test-data=VALUE      Generate test data of the specified size for empty tables.
-      --tmplt=VALUE          Template project directory
   -t, --type=VALUE           Only generate for a single type (for debugging)
   -u, --update-db-operations Update database with generated operations
   -v                         increase debug message verbosity
