@@ -19,9 +19,9 @@ namespace {{cs_name Namespace}}.Data.Repository
     {
     {{#each Operations}}
     
-        {{{Returns}}} {{cs_name BareName}}({{#each Parameters}}{{{ResolvedClrType}}} {{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}});
+        {{{ReturnsWithNullability}}} {{cs_name BareName}}({{#each Parameters}}{{{ResolvedClrType}}} {{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}});
         
-        {{#if NoResult}}Task{{else}}Task<{{{Returns}}}>{{/if}} {{cs_name BareName}}Async({{#each Parameters}}{{{ResolvedClrType}}} {{cml_case Name}}, {{/each}} CancellationToken token);
+        {{#if NoResult}}Task{{else}}Task<{{{ReturnsWithNullability}}}>{{/if}} {{cs_name BareName}}Async({{#each Parameters}}{{{ResolvedClrType}}} {{cml_case Name}}, {{/each}} CancellationToken token);
 
     {{/each}}        
     }
@@ -37,7 +37,7 @@ namespace {{cs_name Namespace}}.Data.Repository
 
         {{#each Operations}}
 
-        public {{{Returns}}} {{cs_name BareName}}({{#each Parameters}}{{{ResolvedClrType}}} {{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}})
+        public {{{ReturnsWithNullability}}} {{cs_name BareName}}({{#each Parameters}}{{{ResolvedClrType}}} {{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}})
         {
             try 
             {
@@ -60,15 +60,20 @@ namespace {{cs_name Namespace}}.Data.Repository
                     {{else}}
                     using (var reader = cmd.ExecuteReader())
                     {
+                        {{#if SingleResult}}
+                        return reader.Read() ? Read{{cs_name BareName}}Result(reader) : null;
+                        {{else}}
                         var readResults = false;
                         var result = new {{{Returns}}}();
                         while (reader.Read())
                         {
-                            Read{{cs_name BareName}}Result(result, reader);
+                            var item = Read{{cs_name BareName}}Result(reader);
+                            result.Add(item);    
                             readResults = true;
                         }
-    
+
                         return readResults ? result : null;
+                        {{/if}}
                     }	
                     {{/if}}
                     {{/if}}
@@ -81,7 +86,7 @@ namespace {{cs_name Namespace}}.Data.Repository
             }
         }
 
-		public async {{#if NoResult}}Task{{else}}Task<{{{Returns}}}>{{/if}} {{cs_name BareName}}Async({{#each Parameters}}{{{ResolvedClrType}}} {{cml_case Name}}, {{/each}} CancellationToken token)
+		public async {{#if NoResult}}Task{{else}}Task<{{{ReturnsWithNullability}}}>{{/if}} {{cs_name BareName}}Async({{#each Parameters}}{{{ResolvedClrType}}} {{cml_case Name}}, {{/each}} CancellationToken token)
         {
             try 
             {
@@ -104,15 +109,20 @@ namespace {{cs_name Namespace}}.Data.Repository
                     {{else}}
                     using (var reader = await cmd.ExecuteReaderAsync(token))
                     {
+                    {{#if SingleResult}}
+                        return await reader.ReadAsync(token) ? Read{{cs_name BareName}}Result(reader) : null;
+                    {{else}}
                         var readResults = false;
                         var result = new {{{Returns}}}();
                         while (await reader.ReadAsync(token))
                         {
-                            Read{{cs_name BareName}}Result(result, reader);
+                            var item = Read{{cs_name BareName}}Result(reader);
+                            result.Add(item);
                             readResults = true;
                         }
-    
+
                         return readResults ? result : null;
+                    {{/if}}
                     }	
                     {{/if}}
                     {{/if}}
@@ -158,21 +168,15 @@ namespace {{cs_name Namespace}}.Data.Repository
 
         {{#unless NoResult}}
         {{#unless IsSingular}}
-        private void Read{{cs_name BareName}}Result({{{Returns}}} result, DbDataReader reader)
+        private {{{ReturnTypeName}}} Read{{cs_name BareName}}Result(DbDataReader reader)
         {
-            {{#if SingleResult}}
-            var item = result;
-            {{else}}
-            var item = new {{{ReturnTypeName}}}();
-            {{/if}}         
 			{{#each SimpleReturnType.Fields}}
 			{{#unless IsExcludedFromResults}}
-			item.{{cs_name Name}} = GetField<{{format_clr_type ClrType}}>(reader, "{{Name}}");
+			var {{cml_case Name}} = GetField<{{format_clr_type ClrType}}>(reader, "{{Name}}");
 			{{/unless}}
 			{{/each}}
-            {{#unless SingleResult}}
-            result.Add(item);
-            {{/unless}}
+            var item = new {{{ReturnTypeName}}}({{#each SimpleReturnType.Fields}}{{#unless IsExcludedFromResults}}{{cml_case Name}}{{#unless @last}}, {{/unless}}{{/unless}}{{/each}});
+            return item;
         }
         {{/unless}}
         {{/unless}}
