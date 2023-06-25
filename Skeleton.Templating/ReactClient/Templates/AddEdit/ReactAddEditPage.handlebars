@@ -58,6 +58,7 @@ export interface {{StateTypeName}} {
 	{{/if}}
     visible: boolean;
     error: boolean;
+    saving: boolean;
 	message?: string | null;
 	{{#if IsUpdate}}
 	loading: boolean;	
@@ -203,7 +204,8 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
         loading: providedData == null,
     {{/if}}
         error: false,
-        visible: true
+        saving: false,
+        visible: true,
     };
     
     const [state, setState] = useState<{{StateTypeName}}>(initialState);
@@ -305,6 +307,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
         {{#if CurrentOperation.HasCustomType}}
         console.log(fields);
         {{/if}}
+        setState((prevState) => { return {...prevState, saving: true }});
 		{{#if CurrentOperation.UsesModel}}
 		api.{{cml_case OperationName}}(fields).then(data => {
         {{else}}
@@ -315,6 +318,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                 createLinkedItemAssociation(data.parsedBody);
             }
 			{{/if}}
+            setState((prevState) => { return {...prevState, saving: false }});
             enqueueSnackbar('{{HumanizedName}} saved', {variant: 'success'});
 			if (props.onSaved && data.parsedBody) {
                 props.onSaved(data.parsedBody);
@@ -324,7 +328,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
         }).catch(err => {
             enqueueSnackbar('Error saving {{HumanizedName}}. ' + err, {variant: 'error'});
             err.text().then((value: string) => {
-                setState((prevState) => { return {...prevState, error: true, message: value }});
+                setState((prevState) => { return {...prevState, error: true, message: value, saving: false }});
             });
         });
     }
@@ -474,7 +478,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                                     <Button variant="outlined" sx={ {width:"100px"} } onClick={cancelSave}>Cancel</Button>
                                 </Grid>
                                 <Grid item>
-                                    <Button color="primary" sx={ {width:"100px"} } variant="contained" type="submit">Save</Button>
+                                    <Button disabled={state.saving} color="primary" sx={ {width:"100px"} } variant="contained" type="submit">Save</Button>
                                 </Grid>
                             </Grid>
                         </Grid>  
