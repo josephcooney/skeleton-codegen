@@ -6,9 +6,10 @@ import * as queryString from 'query-string';
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import { ErrorControl } from '../../controls/error-control';
 import {Button, FormControlLabel, FormHelperText, FormGroup, Grid, Rating, TextField, Typography} from "@mui/material";
+import SaveIcon from '@mui/icons-material/Save';
 import {TriStateCheckbox} from "../../controls/TriStateCheckbox";
 import Title from "../../controls/Title";
-import { DateTimePicker, DatePicker } from '@mui/lab';
+import { DateTimePicker, DatePicker, LoadingButton } from '@mui/lab';
 import {useSnackbar} from "notistack";
 import { motion, AnimatePresence } from "framer-motion";
 {{#if IsUpdate}}import { Loading } from '../../controls/loading';{{/if}}
@@ -478,7 +479,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                                     <Button variant="outlined" sx={ {width:"100px"} } onClick={cancelSave}>Cancel</Button>
                                 </Grid>
                                 <Grid item>
-                                    <Button disabled={state.saving} color="primary" sx={ {width:"100px"} } variant="contained" type="submit">Save</Button>
+                                    <LoadingButton loading={state.saving} loadingPosition="start" startIcon={<SaveIcon />} disabled={state.saving} color="primary" sx={ {width:"100px"} } variant="contained" type="submit">Save</LoadingButton>
                                 </Grid>
                             </Grid>
                         </Grid>  
