@@ -129,8 +129,6 @@ namespace Skeleton.Templating.Classes
             }
         }
 
-        public bool IsCustomType => ClrType == typeof(ResultType);
-
         public bool IsCustomArrayType => ClrType == typeof(List<ResultType>);
 
         public bool IsCustomTypeOrCustomArray => IsCustomType || IsCustomArrayType;

@@ -297,6 +297,7 @@ namespace Skeleton.Postgres
                             dynamic attribJson = ReadAttributes(attributes);
                             if (attribJson.generated == true)
                             {
+                                Log.Debug("Dropping Type {TypeName}", typeName);
                                 var cmdText = $"DROP TYPE IF EXISTS {ns}.{typeName} CASCADE;";
                                 sb.AppendLine(cmdText);
                                 using (var dropCn = new NpgsqlConnection(_connectionString))
@@ -1093,6 +1094,7 @@ namespace Skeleton.Postgres
         
         private void DropGeneratedOperation(Operation op, StringBuilder sb)
         {
+            Log.Debug("Dropping {OperationName}", op.Name);
             var cmdText = $"DROP FUNCTION IF EXISTS {op.Namespace}.{GetSqlName(op.Name)};";
             sb.AppendLine(cmdText);
             ExecuteCommandText(cmdText);

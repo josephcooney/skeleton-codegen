@@ -127,6 +127,19 @@ namespace Skeleton.Templating.Classes.Adapters
             }
         }
 
+        public string ReturnsWithNullability
+        {
+            get
+            {
+                var returnValue = Returns;
+                if (_op.Returns.ReturnType == ReturnType.None || _op.Returns.ReturnType == ReturnType.Primitive)
+                {
+                    return returnValue;
+                }
+
+                return returnValue + "?";
+            }
+        }
 
         public bool SingleResult => _op.SingleResult;
         
@@ -244,8 +257,12 @@ namespace Skeleton.Templating.Classes.Adapters
             }
         }
 
-        public bool IsDelete => _op.Name.EndsWith("delete") || _op.Attributes?.isDelete == true;
+        public bool IsDelete => _op.Name.EndsWith(DbFunctionGenerator.DeleteOperationName) || _op.Attributes?.isDelete == true;
 
+        public bool IsInsert => _op.Name.EndsWith(DbFunctionGenerator.InsertFunctionName) || _op.CreatesNew;
+
+        public bool IsUpdate => _op.Name.EndsWith(DbFunctionGenerator.UpdateFunctionName) || _op.ChangesData;
+        
         public string HttpMethod
         {
             get
@@ -263,7 +280,7 @@ namespace Skeleton.Templating.Classes.Adapters
                         return HttpDeleteOperation;
                     }
 
-                    if (_op.Name.EndsWith(DbFunctionGenerator.InsertFunctionName) || _op.Name.EndsWith(DbFunctionGenerator.UpdateFunctionName) || _op.ChangesData || _op.CreatesNew)
+                    if (IsInsert || IsUpdate)
                     {
                         return HttpPostOperation;
                     }

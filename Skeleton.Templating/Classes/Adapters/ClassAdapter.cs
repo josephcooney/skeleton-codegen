@@ -24,6 +24,15 @@ namespace Skeleton.Templating.Classes
 
         public List<ClassFieldAdapter> Fields => _type.Fields.Select(f => new ClassFieldAdapter(f)).ToList();
 
+        public virtual bool GenerateConstructor
+        {
+            get
+            {
+                return !Operations.Any(o =>
+                    o.ChangesOrCreatesData && o.Parameters.Any(p => p.ProviderTypeName == _type.Name));
+            }
+        }
+        
         public string Namespace
         {
             get
@@ -39,17 +48,17 @@ namespace Skeleton.Templating.Classes
 
         public OperationAdapter InsertOperation
         {
-            get { return this.Operations.FirstOrDefault(o => o.Name.EndsWith(DbFunctionGenerator.InsertFunctionName)); }
+            get { return Operations.FirstOrDefault(o => o.IsInsert); }
         }
 
         public OperationAdapter UpdateOperation
         {
-            get { return this.Operations.FirstOrDefault(o => o.Name.EndsWith(DbFunctionGenerator.UpdateFunctionName)); }
+            get { return Operations.FirstOrDefault(o => o.IsUpdate); }
         }
 
         public OperationAdapter DeleteOperation
         {
-            get { return this.CanDelete ? this.Operations.FirstOrDefault(o => o.Name.EndsWith(DbFunctionGenerator.DeleteOperationName)) : null; }
+            get { return CanDelete ? Operations.FirstOrDefault(o => o.IsDelete) : null; }
         }
 
         public Field IdentityField
@@ -92,7 +101,19 @@ namespace Skeleton.Templating.Classes
 
         public virtual List<OperationAdapter> Operations
         {
-            get { return _domain.Operations.Where(o => !o.Ignore && (o.Returns?.SimpleReturnType == _type || o.RelatedType == _type)).OrderBy(o => o.Name).Select(o => new OperationAdapter(o, _domain, (ApplicationType)_type)).ToList(); }
+            get
+            {
+                if (_type is ApplicationType)
+                {
+                    return _domain.Operations.Where(o => !o.Ignore && (o.Returns?.SimpleReturnType == _type || o.RelatedType == _type)).OrderBy(o => o.Name).Select(o => new OperationAdapter(o, _domain, (ApplicationType)_type)).ToList();
+                }
+                else
+                {
+                    var resultType = _type as ResultType;
+                    return resultType.Operations.Select(o => new OperationAdapter(o, _domain, resultType.RelatedType)) // getting the related type feels wierd and hacky here
+                        .ToList();
+                }
+            }
         }
 
         public Field DisplayField => _type.DisplayField;

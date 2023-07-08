@@ -82,7 +82,7 @@ namespace Skeleton.Templating.Classes.Adapters
 
         public override List<OperationAdapter> Operations => base.Operations.Where(o => o.GenerateApi).ToList();
         
-        public bool GenerateConstructor
+        public override bool GenerateConstructor
         {
             get { return _type.Attributes?.apiConstructor != "none"; }
         }
