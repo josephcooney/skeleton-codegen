@@ -23,7 +23,9 @@ namespace Skeleton.Templating.Classes
         public string Name => _type.Name;
 
         public List<ClassFieldAdapter> Fields => _type.Fields.Select(f => new ClassFieldAdapter(f)).ToList();
-
+        
+        public List<ClassFieldAdapter> NonExcludedFields => _type.NonExcludedFields.Select(f => new ClassFieldAdapter(f)).ToList();
+        
         public virtual bool GenerateConstructor
         {
             get

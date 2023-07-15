@@ -9,10 +9,10 @@ namespace {{cs_name Namespace}}.Data.Model
 	public class {{cs_name Name}} 
 	{
     {{#if GenerateConstructor}}
-        public {{cs_name Name}}({{#each Fields}}{{format_clr_type ClrType}} {{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}})
+        public {{cs_name Name}}({{#each NonExcludedFields}}{{format_clr_type ClrType}} {{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}})
         {
-        {{#each Fields}}
-            {{#unless IsExcludedFromResults}}{{cs_name Name}} = {{cml_case Name}};{{/unless}}
+        {{#each NonExcludedFields}}
+            {{cs_name Name}} = {{cml_case Name}};
         {{/each}}
         }
     {{/if}}

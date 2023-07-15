@@ -33,6 +33,7 @@ interface {{cs_name Name}}ListProps {
     linkedId? : number | string | null;
     api? : {{UnderlyingType.ClientApiInterfaceName}} | null;
     onHeaderClick? : (fieldName: string) => void;
+    noItemsMessage?: string;
 }
 
 export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps> = (props: {{cs_name Name}}ListProps) => {
@@ -147,10 +148,11 @@ export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps>
     }
 
     function renderDescription() {
-        var customDescription = rendering.renderCustomDescription(state);
+        const noItemsMessage = props.noItemsMessage ?? 'There are no {{UnderlyingType.HumanizedNamePlural}}';     
+        const customDescription = rendering.renderCustomDescription(state);
         return customDescription
             ? customDescription
-            : ((state.data && state.data.length > 0) || state.loading ? null : <Grid container><Grid item xs={12}>There are no {{UnderlyingType.HumanizedNamePlural}}</Grid></Grid>);
+            : ((state.data && state.data.length > 0) || state.loading ? null : <Grid container><Grid item xs={12}>{noItemsMessage}</Grid></Grid>);
     }
 
 	{{#each Operations}}
