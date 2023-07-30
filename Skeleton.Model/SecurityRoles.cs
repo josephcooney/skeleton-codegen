@@ -25,5 +25,6 @@
         public const string List = "list";
         public const string None = "none";
         public const string Execute = "execute";
+        public const string All = "all";
     }
 }

@@ -127,7 +127,7 @@ namespace Skeleton.Model
 
         public bool IsLargeTextContent => ClrType == typeof(string) && (Size > 500 || Attributes?.largeContent == true);
         
-        public bool IsHtml => ClrType == typeof(string) && Attributes?.html == true;
+        public bool IsHtml => ClrType == typeof(string) && Attributes?.type == "html";
         
         public bool IsColor => Attributes?.type == ColorFieldType;
 

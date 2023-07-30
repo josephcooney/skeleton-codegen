@@ -157,9 +157,10 @@ Attributes are set as a JSON text string 'comment' on the respective database en
 - rank: number - used to order fields in UI
 - isRating: true|false - if true (and applied to a numeric field) the UI changes to show a a 1-5 star input widget. Defaults to false.
 - isContentType: true|false - if true (on an entity that is an attachment/file) it stores the MIME/content-type the item will be served up as, and is set from the inbound content stream. Defaults to false.
-- type: 'color', 'thumbnail' - when set to color indicates that the field stores a color value. The UI changes to reflect this.
-							 - when set to 'thumbnail' (on an entity that is an attachment/file) it stores a thumbnail of the attachment/file.
-							 Defaults to empty.
+- type: 'color', 'thumbnail', 'html' Defaults to empty. 
+  - when set to color indicates that the field stores a color value. The UI changes to reflect this.
+  - when set to 'thumbnail' (on an entity that is an attachment/file) it stores a thumbnail of the attachment/file.
+  - when set to 'html' the edit/display of this field will allow/render as HTML.		 
 - add: true|false - When set to false excludes the field from add operations and from add UI. Default to true.
 - edit: true|false - When set to false excludes the field from edit operations and from edit UI. Default to true.
 - isDisplayForType: true|false - When set to true this field becomes the 'summary' that is shown in other places when referring to that type. For example a 'Name' field might be isDisplayType:true for a product or person. Defaults to false.

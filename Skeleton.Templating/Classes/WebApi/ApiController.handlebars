@@ -42,7 +42,7 @@ namespace {{cs_name Namespace}}.Controllers
         {{/if}}
 		public async Task<ActionResult> {{cs_name BareName}}([FromBody]{{cs_name Name}}Model model, CancellationToken token)
 		{
-			var requestUserId = _userService.GetUserId(HttpContext.User);
+			var requestUserId = _userService.GetUserId(HttpContext);
 			{{#if ApiHooks}}
 			var beforeResult = await Before{{cs_name BareName}}(requestUserId, model);
             if (beforeResult != null)
@@ -99,7 +99,7 @@ namespace {{cs_name Namespace}}.Controllers
         {{/if}}    
 		public async Task<ActionResult> {{cs_name BareName}}({{#each UserProvidedParameters}}{{#unless ../ProvideDataByUri}}[FromBody]{{/unless}}{{{ResolvedClrType}}} {{cml_case Name}}, {{/each}} CancellationToken token)
 		{
-			var requestUserId = _userService.GetUserId(HttpContext.User);
+			var requestUserId = _userService.GetUserId(HttpContext);
 			{{#if ApiHooks}}
 			var beforeResult = await Before{{cs_name BareName}}(requestUserId{{#each UserProvidedParameters}}, {{cml_case Name}}{{/each}});
             if (beforeResult != null)
