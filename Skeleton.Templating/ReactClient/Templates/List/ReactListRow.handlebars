@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 
 // material imports
-import {IconButton, Rating, TableCell, TableRow} from "@mui/material";
+import {IconButton, Rating, TableCell, TableRow, Tooltip} from "@mui/material";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -66,49 +66,55 @@ export class {{cs_name Name}}Row extends Component<{{cs_name Name}}RowProps, any
                             {{/if}}
                             <TableCell align="right" sx={ {whiteSpace:"nowrap"} }>
 							{{#if UnderlyingType.HasDetails}}
-                                <IconButton aria-label={'View'}>
-                                    <Link to={ {pathname: '/{{kb_case UnderlyingType.Name}}/detail/' + s.id} } state={ {data: s} }>
-                                        <VisibilityIcon />
-                                    </Link>
-                                </IconButton>
+                                <Tooltip title="View">
+                                    <IconButton aria-label={'View'}>
+                                        <Link to={ {pathname: '/{{kb_case UnderlyingType.Name}}/detail/' + s.id} } state={ {data: s} }>
+                                            <VisibilityIcon />
+                                        </Link>
+                                    </IconButton>
+                                </Tooltip>
 							{{/if}}
 							{{#if UnderlyingType.IsReferenceData}}
 							{/* reference data */}
 							<UserConsumer>
 							{props => {
-								return isAdmin(props) ? (<>
+								return isAdmin(props) ? (<Tooltip title="Edit">
                                 <IconButton aria-label={'Edit'}>
                                     <Link to={ {pathname: '/{{kb_case UnderlyingType.Name}}/edit/' + s.id} } state={ {data: s} }>
                                         <EditIcon />
                                     </Link>
                                 </IconButton>
-							</>) : null;} }
+                                </Tooltip>) : null;} }
 							</UserConsumer>
 							{{#if UnderlyingType.CanDelete}}
 							<UserConsumer>
 							{props => {
-								return isAdmin(props) ? (<>
+								return isAdmin(props) ? (<Tooltip title="Delete">
                                 <IconButton aria-label={'Delete'}>
                                     <Link to={ {pathname: '/{{kb_case UnderlyingType.Name}}/delete/' + s.id} } state={ { data: s } }>
                                         <DeleteIcon />
                                     </Link>
                                 </IconButton>
-							</>) : null; } }
+                            </Tooltip>) : null; } }
 							</UserConsumer>
 							{{/if}}
 							{{else}}
 							{/* non-reference data */}
-                                <IconButton aria-label={'Edit'}>
-                                <Link to={ {pathname: '/{{kb_case UnderlyingType.Name}}/edit/' + s.id} } state={ {data: s} }>
-                                    <EditIcon />
-                                </Link>
-                                </IconButton>
-							{{#if UnderlyingType.CanDelete}}
-                                <IconButton aria-label={'Delete'}>
-                                    <Link to={ {pathname: '/{{kb_case UnderlyingType.Name}}/delete/' + s.id} } state={ {data: s} }>
-                                        <DeleteIcon />    
+                                <Tooltip title="Edit">
+                                    <IconButton aria-label={'Edit'}>
+                                    <Link to={ {pathname: '/{{kb_case UnderlyingType.Name}}/edit/' + s.id} } state={ {data: s} }>
+                                        <EditIcon />
                                     </Link>
-                                </IconButton>
+                                    </IconButton>
+                                </Tooltip>
+                                {{#if UnderlyingType.CanDelete}}
+                                <Tooltip title="Delete">
+                                    <IconButton aria-label={'Delete'}>
+                                        <Link to={ {pathname: '/{{kb_case UnderlyingType.Name}}/delete/' + s.id} } state={ {data: s} }>
+                                            <DeleteIcon />    
+                                        </Link>
+                                    </IconButton>
+                                </Tooltip>
 							{{/if}}
 							{{/if}}
                             </TableCell>

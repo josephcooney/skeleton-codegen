@@ -28,6 +28,6 @@ namespace Skeleton.Templating.ReactClient.Adapters
 
         public string FormDataTypeName => _operation.UsesModel ? ModelTypeName : StateTypeName;
 
-        public bool HasAnyHtmlFields => _operation.Parameters.Any(p => p.IsHtml) || (_operation.HasCustomType && _operation.CustomType.Fields.Any(f => f.IsHtml));
+        public bool HasAnyHtmlFields => _operation.Parameters.Any(p => p.IsHtml) || (_operation.HasCustomType && _operation.CustomType.Fields.Any(f => f != null && f.IsHtml));
     }
 }
