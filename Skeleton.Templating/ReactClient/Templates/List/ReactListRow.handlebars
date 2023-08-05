@@ -69,7 +69,7 @@ export class {{cs_name Name}}Row extends Component<{{cs_name Name}}RowProps, any
                                 <Tooltip title="View">
                                     <IconButton aria-label={'View'}>
                                         <Link to={ {pathname: '/{{kb_case UnderlyingType.Name}}/detail/' + s.id} } state={ {data: s} }>
-                                            <VisibilityIcon />
+                                            <VisibilityIcon color={"secondary"} />
                                         </Link>
                                     </IconButton>
                                 </Tooltip>
@@ -81,7 +81,7 @@ export class {{cs_name Name}}Row extends Component<{{cs_name Name}}RowProps, any
 								return isAdmin(props) ? (<Tooltip title="Edit">
                                 <IconButton aria-label={'Edit'}>
                                     <Link to={ {pathname: '/{{kb_case UnderlyingType.Name}}/edit/' + s.id} } state={ {data: s} }>
-                                        <EditIcon />
+                                        <EditIcon color={"secondary"} />
                                     </Link>
                                 </IconButton>
                                 </Tooltip>) : null;} }
@@ -92,7 +92,7 @@ export class {{cs_name Name}}Row extends Component<{{cs_name Name}}RowProps, any
 								return isAdmin(props) ? (<Tooltip title="Delete">
                                 <IconButton aria-label={'Delete'}>
                                     <Link to={ {pathname: '/{{kb_case UnderlyingType.Name}}/delete/' + s.id} } state={ { data: s } }>
-                                        <DeleteIcon />
+                                        <DeleteIcon color={"error"} />
                                     </Link>
                                 </IconButton>
                             </Tooltip>) : null; } }
@@ -103,7 +103,7 @@ export class {{cs_name Name}}Row extends Component<{{cs_name Name}}RowProps, any
                                 <Tooltip title="Edit">
                                     <IconButton aria-label={'Edit'}>
                                     <Link to={ {pathname: '/{{kb_case UnderlyingType.Name}}/edit/' + s.id} } state={ {data: s} }>
-                                        <EditIcon />
+                                        <EditIcon color={"secondary"} />
                                     </Link>
                                     </IconButton>
                                 </Tooltip>
@@ -111,7 +111,7 @@ export class {{cs_name Name}}Row extends Component<{{cs_name Name}}RowProps, any
                                 <Tooltip title="Delete">
                                     <IconButton aria-label={'Delete'}>
                                         <Link to={ {pathname: '/{{kb_case UnderlyingType.Name}}/delete/' + s.id} } state={ {data: s} }>
-                                            <DeleteIcon />    
+                                            <DeleteIcon color={"error"} />    
                                         </Link>
                                     </IconButton>
                                 </Tooltip>

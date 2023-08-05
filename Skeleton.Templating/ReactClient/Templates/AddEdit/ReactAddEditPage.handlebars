@@ -15,6 +15,7 @@ import {useSnackbar} from "notistack";
 import { motion, AnimatePresence } from "framer-motion";
 {{#if IsUpdate}}import { Loading } from '../../controls/loading';{{/if}}
 {{#if HasAnyHtmlFields}}import RichContentEditor from "../../controls/RichTextEditor";{{/if}}
+{{#if HasHelp}}import { showHelp } from '../../help';{{/if}}
 
 // sub-components for {{cs_name Name}} 
 import { {{cs_name Name}} } from './{{cs_name Name}}';

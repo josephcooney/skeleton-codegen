@@ -37,7 +37,7 @@ $$
         {{else}}
             {{#if PrimaryKeyField.IsUserEditable}}
                 {{#if UsesCustomInsertType}}
-        new_id = {{NewRecordParamterName}}.{{PrimaryKeyField.Name}};
+        new_id = {{NewRecordParameterName}}.{{PrimaryKeyField.Name}};
                 {{else}}
         new_id = {{FunctionName}}.{{PrimaryKeyField.Name}};
                 {{/if}}

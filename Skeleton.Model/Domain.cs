@@ -50,6 +50,10 @@ namespace Skeleton.Model
         public List<string> ExcludedSchemas => Settings.ExcludedSchemas;
 
         public ApplicationType? UserType => Types.SingleOrDefault(t => t.IsSecurityPrincipal);
+
+        public ApplicationType? HelpType => Types.SingleOrDefault(t => t.IsHelp);
+
+        public bool HasHelpType => HelpType != null;
         
         public Field? UserIdentity
         {
