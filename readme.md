@@ -123,6 +123,7 @@ Attributes are set as a JSON text string 'comment' on the respective database en
 - ui: true|false - When set to false suppresses the generation of any UI for this entity. Default to true.
 - api: true|false - When set to false supresses the generation of any controller API for this entity. Default to true. If 'api' is set to false UI generation is also disabled, as if the 'ui' attribute (above) was set to false.
 - isSecurityPrincipal: true|false - flags a type as being the type the app will use for security tracking, and will get from the HttpContext.User. Defaults to false. 
+- isHelp: true|false - flags a type as being help content for the rest of the application. Defaults to false.
 - createPolicy: true|false - when set to false no security policy will be created. Default is true.
 - type - 'reference' causes ApplicationType IsReference to return true. Used in the creation of security policies.
 - noAddUI: true|false - suppress creation of add UI for that type. Defaults to false.
