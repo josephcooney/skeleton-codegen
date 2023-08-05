@@ -5,7 +5,7 @@ import { Formik, Field, Form, ErrorMessage, FormikErrors, getIn, FormikProps } f
 import * as queryString from 'query-string';
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import { ErrorControl } from '../../controls/error-control';
-import {Button, FormControlLabel, FormHelperText, FormGroup, Grid, Rating, TextField, Typography} from "@mui/material";
+import {Button, FormControlLabel, FormHelperText, FormGroup, Grid, Rating, TextField, Typography, IconButton} from "@mui/material";
 import SaveIcon from '@mui/icons-material/Save';
 import {TriStateCheckbox} from "../../controls/TriStateCheckbox";
 import Title from "../../controls/Title";
@@ -15,7 +15,10 @@ import {useSnackbar} from "notistack";
 import { motion, AnimatePresence } from "framer-motion";
 {{#if IsUpdate}}import { Loading } from '../../controls/loading';{{/if}}
 {{#if HasAnyHtmlFields}}import RichContentEditor from "../../controls/RichTextEditor";{{/if}}
-{{#if HasHelp}}import { showHelp } from '../../help';{{/if}}
+{{#if HasHelp}}
+import { useHelp } from '../../help';
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+{{/if}}
 
 // sub-components for {{cs_name Name}} 
 import { {{cs_name Name}} } from './{{cs_name Name}}';
@@ -99,7 +102,11 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
     const navigation = useNavigate();
     const {id} = useParams();
     const { enqueueSnackbar } = useSnackbar();
-
+{{#if HasHelp}}
+    const helptopic = "{{Name}}_{{cml_case OperationNameFriendly}}";
+    const help = useHelp();
+{{/if}}
+    
 {{#if IsUpdate}}
     const getProvidedData = () : {{ModelTypeName}} | null => {
         if (locationState && locationState.data){
@@ -353,16 +360,30 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
     }
 
     const renderTitle = () : JSX.Element | null => {
+    {{#if HasHelp}}
+        const helpButton = (<IconButton onClick={e => help.showHelp(helptopic)}><HelpOutlineIcon color="primary" /></IconButton>);
         if (props.title){
-            return <Title>{props.title}</Title>;
+            return <Title>{props.title}{helpButton}</Title>;
         }
-        
-        var customTitle = rendering.renderCustomTitle(state);
+
+        const customTitle = rendering.renderCustomTitle(state);
         if (customTitle){
             return customTitle;
         }
-        
+
+        return <Title>{{OperationNameFriendly}} {{hmn Name}}{helpButton}</Title>;            
+    {{else}}
+        if (props.title){
+            return <Title>{props.title}</Title>;
+        }
+
+        const customTitle = rendering.renderCustomTitle(state);
+        if (customTitle){
+            return customTitle;
+        }
+
         return <Title>{{OperationNameFriendly}} {{hmn Name}}</Title>;
+    {{/if}}
     }
 
         return (
