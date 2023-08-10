@@ -87,6 +87,26 @@ public class PostgresTypeProviderTests : DbTestBase
             DestroyTestDb(testDbInfo.dbName);
         }
     }
+
+    [Fact]
+    public void CanCreateOperationWhenParameterNameDoesNotMatchFieldOnDomainObject()
+    {
+        var testDbInfo = CreateTestDatabase(DbSchemaWithFunction);
+        try
+        {
+            var provider = new PostgresTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()));
+            provider.GetOperations(model);
+            model.Operations.Count.ShouldBe(1);
+            var op = model.Operations.First();
+            op.Parameters.Count.ShouldBe(2);
+
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
     
     private const string TestDbScript = @"
         create table simple_lookup_table (
@@ -172,4 +192,51 @@ AS $$
     $$
     ;
 ";
+
+    public const string DbSchemaWithFunction = @"
+
+create table task_type (
+   id serial primary key not null,
+   name text not null,
+   instructions_template text,
+   step_order int,
+   created timestamp with time zone not null,
+   modified timestamp with time zone
+);
+
+create table process (
+    id serial primary key not null,
+    created timestamp with time zone not null
+);
+
+create table process_task (
+  id serial primary key not null,
+  process_id int not null references process(id),
+  task_type_id int not null references task_type(id),
+  instructions text,
+  created timestamp with time zone not null,
+  modified timestamp with time zone
+);
+
+create function public.change_task_type(id integer, new_type_id integer)
+returns integer 
+LANGUAGE plpgsql
+as $$
+declare item_count integer;
+begin
+	update process_task set task_type_id = change_task_type.new_type_id
+	where id = change_task_type.id;
+	get diagnostics item_count = row_count;
+
+	return update_count;
+end
+$$;
+
+COMMENT ON FUNCTION change_task_type ( integer, integer)
+    IS '{""applicationtype"":""process_task"", ""changesData"":true }';
+
+";
+
+
+
 }
