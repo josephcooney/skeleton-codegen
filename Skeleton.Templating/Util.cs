@@ -477,6 +477,11 @@ namespace Skeleton.Templating
 
         public static string Pluralize(string name)
         {
+            if (name == "help" || name == "Help")
+            {
+                return name;
+            }
+            
             return _pluralize.Pluralize(name);
         }
         
