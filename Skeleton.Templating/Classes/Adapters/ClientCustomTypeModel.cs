@@ -13,7 +13,7 @@ namespace Skeleton.Templating.Classes.Adapters
         {
             Name = operation.Name + NamingConventions.ModelClassNameSuffix;
             DartFileName = Util.SnakeCase(operation.Name + "_" + NamingConventions.ModelClassNameSuffix);
-            Fields = operation.UserProvidedParameters.Select(p => p.RelatedTypeField).ToList();
+            Fields = operation.UserProvidedParameters.Select(p => p.RelatedTypeField).ToList(); // TODO causes problem if parameter doesn't relate directly to a related type field
             _domain = domain;
             _namespace = operation.Namespace;
         }
