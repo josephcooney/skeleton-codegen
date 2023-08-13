@@ -5,13 +5,13 @@ using System.Linq;
 namespace Skeleton.Model
 {
     [DebuggerDisplay("Name: {Name} {ClrType}")]
-    public class Field : IPseudoField
+    public class Field : TypedValue, IPseudoField
     {
         private const int RankOffset = 1000000;
 
         public SimpleType Type { get; }
 
-        public Field(SimpleType type)
+        public Field(SimpleType type) : base(type.Domain)
         {
             Type = type;
         }
@@ -26,14 +26,10 @@ namespace Skeleton.Model
 
         public const string ThumbnailFieldType = "thumbnail";
 
-        public string Name { get; set; }
         public string ParentAlias => null;
 
         public string DisplayName => Name;
-        public int Order { get; set; }
         public bool IsUuid => ClrType == typeof(Guid);
-
-        public dynamic Attributes { get; set; }
 
         public bool HasSize => Size != null;
         public int? Size { get; set; }
@@ -44,10 +40,7 @@ namespace Skeleton.Model
         public Field ReferencesTypeField { get; set; } // if this field is a foreign-key relationship to another type, this is the "column" for the foreign key.
 
         public bool IsKey { get; set; }
-
-        public Type ClrType { get; set; }
-
-        public string ProviderTypeName { get; set; }
+        
         public bool HasDisplayName => false;
 
         public bool IsGenerated { get; set; }
@@ -68,21 +61,17 @@ namespace Skeleton.Model
 
         public bool IsDelete => (ClrType == typeof(DateTime) || ClrType == typeof(DateTime?)) && Name == SoftDeleteFieldName;
 
-        public bool IsSearch => ProviderTypeName == "tsvector" && Name == SearchFieldName;
+        public bool IsSearch => ProviderTypeName == "tsvector" && Name == SearchFieldName; // TODO this is very postgres-specific
 
         public bool IsExcludedFromResults => IsDelete || IsSearch;
 
         public bool HasReferenceType => ReferencesType != null;
-
-        public bool IsDateTime => (ClrType == typeof(DateTime) || ClrType == typeof(DateTime?));
         
         public bool IsDateTimeOffset => (ClrType == typeof(DateTimeOffset) || ClrType == typeof(DateTimeOffset?));
 
-        public bool IsDate => Type.Domain.TypeProvider.IsDateOnly(ProviderTypeName);
         
-        public bool IsBoolean => ClrType == typeof(bool) || ClrType == typeof(bool?);
-
-        public bool IsFile => (this.ClrType == typeof(byte[]) || this.ClrType == typeof(byte?[]));
+        
+        public override bool IsFile => (this.ClrType == typeof(byte[]) || this.ClrType == typeof(byte?[]));
 
         public bool IsAutoAssignedIdentity
         {
@@ -125,15 +114,15 @@ namespace Skeleton.Model
             }
         }
 
-        public bool IsLargeTextContent => ClrType == typeof(string) && (Size > 500 || Attributes?.largeContent == true);
+        public override bool IsLargeTextContent => ClrType == typeof(string) && (Size > 500 || Attributes?.largeContent == true);
         
-        public bool IsHtml => ClrType == typeof(string) && Attributes?.type == "html";
+        public override bool IsHtml => ClrType == typeof(string) && Attributes?.type == "html";
         
-        public bool IsColor => Attributes?.type == ColorFieldType;
+        public override bool IsColor => Attributes?.type == ColorFieldType;
 
         public int Rank => Attributes?.rank != null ? (int)Attributes?.rank : RankOffset + Order;
 
-        public bool IsRating => (ClrType == typeof(int) || ClrType == typeof(short) || ClrType == typeof(int?) || ClrType == typeof(short?)) &&
+        public override bool IsRating => (ClrType == typeof(int) || ClrType == typeof(short) || ClrType == typeof(int?) || ClrType == typeof(short?)) &&
                                 Attributes?.isRating == true;
 
         public bool Add => Attributes?.add != null ? Attributes.add : true;

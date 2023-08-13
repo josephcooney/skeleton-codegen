@@ -1,36 +1,25 @@
 ﻿#nullable enable
 using System;
 using System.Diagnostics;
+using Newtonsoft.Json.Linq;
 using Serilog;
 
 namespace Skeleton.Model
 {
     [DebuggerDisplay("Name: {Name} {ClrType}")]
-    public class Parameter
+    public class Parameter : TypedValue
     {
-        protected readonly Domain _domain;
-
-        public Parameter(Domain domain, Operation operation, string name, Type clrType, string providerTypeName)
+        public Parameter(Domain domain, Operation operation, string name, Type clrType, string providerTypeName) : base(domain)
         {
-            _domain = domain;
             Operation = operation;
             Name = name;
             ClrType = clrType;
             ProviderTypeName = providerTypeName;
+            Attributes = new JObject();
         }
         
         public Operation Operation { get; }
         
-        public dynamic? Attributes { get; set; }
-        
-        public virtual string Name { get; }
-
-        public virtual int Order { get; set; }
-
-        public virtual Type ClrType { get; private set; }
-
-        public virtual string ProviderTypeName { get; }
-
         public virtual Field? RelatedTypeField { get; set; }
 
         public void UpdateFromField(Field field)
@@ -56,17 +45,15 @@ namespace Skeleton.Model
 
         public virtual int? Size => RelatedTypeField?.Size;
 
-        public bool IsDateTime => ClrType == typeof(DateTime) || ClrType == typeof(DateTime?);
+        public override bool IsLargeTextContent => RelatedTypeField?.IsLargeTextContent == true;
 
-        public bool IsBoolean => ClrType == typeof(bool) || ClrType == typeof(bool?);
-
-        public bool IsLargeTextContent => RelatedTypeField?.IsLargeTextContent == true;
-
-        public bool IsHtml => RelatedTypeField?.IsHtml == true;
+        public override bool IsHtml => RelatedTypeField?.IsHtml == true;
         
-        public bool IsFile => this.RelatedTypeField?.IsFile == true;
+        public override bool IsFile => RelatedTypeField?.IsFile == true;
 
-        public bool IsRating => this.RelatedTypeField?.IsRating == true;
+        public override bool IsColor => RelatedTypeField?.IsColor == true;
+
+        public override bool IsRating => this.RelatedTypeField?.IsRating == true;
 
         public bool IsSecurityUser
         {
@@ -93,7 +80,6 @@ namespace Skeleton.Model
         public bool IsCustomType => ClrType == typeof(ResultType);
 
         public bool IsJson => ProviderTypeName == "jsonb";
-        public bool IsDate => IsDateTime && _domain.TypeProvider.IsDateOnly(ProviderTypeName);
 
         public void MakeClrTypeNullable()
         {

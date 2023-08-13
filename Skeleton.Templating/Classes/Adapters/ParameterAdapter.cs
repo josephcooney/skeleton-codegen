@@ -26,8 +26,6 @@ namespace Skeleton.Templating.Classes
 
         public override Field RelatedTypeField => _parameter.RelatedTypeField;
 
-        public bool IsColor => _parameter.RelatedTypeField.IsColor;
-
         public bool HasSize => _parameter.Size != null;
 
         public override int? Size => _parameter.Size;
