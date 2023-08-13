@@ -43,8 +43,17 @@ namespace Skeleton.Templating.ReactClient.Adapters
                         foreach (var field in parameter.ClientCustomType.Fields)
                         {
                             // this only handles 1 level of nesting of fields
-                            fields.Add(new UserInputFieldModel()
-                                {Field = field, Name = field.Name, RelativeStatePath = parameter.Name + "."});
+                            if (field is Field)
+                            {
+                                fields.Add(new UserInputFieldModel()
+                                    {Field = field as Field, Name = field.Name, RelativeStatePath = parameter.Name + "."});
+                                
+                            }
+                            else
+                            {
+                                // handle parameters that don't match to underlying type fields
+                                fields.Add(new UserInputFieldModel(){Parameter = field as Parameter, Name = parameter.Name, RelativeStatePath = parameter.Name + "."});
+                            }
                         }
                     }
                     else

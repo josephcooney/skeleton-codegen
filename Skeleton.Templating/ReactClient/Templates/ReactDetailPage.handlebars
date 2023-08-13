@@ -77,12 +77,14 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : JSX
 	{{/each}}
 
     {{#each UpdateOperations}}
+        {{#if GenerateUI}}
     const on{{cs_name Name}}Click = () => {
         navigate('/{{kb_case ../Name}}/{{kb_case FriendlyName}}/' + {{cml_case ../Name}}DetailState.data?.id, {replace: false, state:{data: {{cml_case ../Name}}DetailState.data} });
     }
-    
-    {{/each}}
-    
+
+        {{/if}}
+    {{/each}} 
+
     useEffect(() => {
         let idToFetch = props.id;
         if (!idToFetch && id){
@@ -105,10 +107,12 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : JSX
             <{{cs_name Name}}DetailDisplay item={data} />
             <Grid container direction="column" alignItems="flex-end" style={ {paddingTop: theme.spacing(1), paddingBottom: theme.spacing(1)} }>
 			{{#each UpdateOperations}}
+                {{#if GenerateUI}}
                 <Fab size="medium" color="primary" aria-label="{{FriendlyName}} {{../HumanizedName}}" onClick={on{{cs_name Name}}Click}>
                     <EditIcon />
                 </Fab>
-			{{/each}}
+                {{/if}}
+            {{/each}}
             </Grid>
             </>
         );

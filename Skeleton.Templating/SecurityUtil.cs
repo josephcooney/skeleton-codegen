@@ -14,7 +14,7 @@ namespace Skeleton.Templating
         {
             var result = securityRole != null &&
                          !Contains(securityRole, SecurityRights.None) &&
-                          Contains(securityRole, SecurityRights.List);
+                          (Contains(securityRole, SecurityRights.List) || Contains(securityRole, SecurityRights.All));
 
             return result;
         }
@@ -24,7 +24,8 @@ namespace Skeleton.Templating
             var result = securityRole != null &&
                          !Contains(securityRole, SecurityRights.None) &&
                          (Contains(securityRole, SecurityRights.Read) ||
-                          Contains(securityRole, SecurityRights.ReadAll));
+                          Contains(securityRole, SecurityRights.ReadAll) ||
+                          Contains(securityRole, SecurityRights.All));
 
             return result;
         }
@@ -33,7 +34,8 @@ namespace Skeleton.Templating
         {
             var result = securityRole != null &&
                          !Contains(securityRole, SecurityRights.None) &&
-                         Contains(securityRole, SecurityRights.Add);
+                         (Contains(securityRole, SecurityRights.Add) || 
+                          Contains(securityRole, SecurityRights.All));
 
             return result;
         }
@@ -42,7 +44,8 @@ namespace Skeleton.Templating
         {
             var result = securityRole != null &&
                          !Contains(securityRole, SecurityRights.None) &&
-                         Contains(securityRole, SecurityRights.Edit);
+                         (Contains(securityRole, SecurityRights.Edit) || 
+                          Contains(securityRole, SecurityRights.All));
 
             return result;
         }
@@ -51,7 +54,8 @@ namespace Skeleton.Templating
         {
             var result = securityRole != null &&
                          !Contains(securityRole, SecurityRights.None) &&
-                         Contains(securityRole, SecurityRights.Delete);
+                         (Contains(securityRole, SecurityRights.Delete) || 
+                          Contains(securityRole, SecurityRights.All));
 
             return result;
         }
@@ -75,7 +79,7 @@ namespace Skeleton.Templating
         {
             var result = securityRole != null &&
                          !Contains(securityRole, SecurityRights.None) &&
-                         Contains(securityRole, SecurityRights.Execute);
+                         (Contains(securityRole, SecurityRights.Execute) || Contains(securityRole, SecurityRights.All));
 
             return result;
         }

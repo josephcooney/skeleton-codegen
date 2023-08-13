@@ -23,7 +23,9 @@ namespace Skeleton.Templating.Classes
         public string Name => _type.Name;
 
         public List<ClassFieldAdapter> Fields => _type.Fields.Select(f => new ClassFieldAdapter(f)).ToList();
-
+        
+        public List<ClassFieldAdapter> NonExcludedFields => _type.NonExcludedFields.Select(f => new ClassFieldAdapter(f)).ToList();
+        
         public virtual bool GenerateConstructor
         {
             get
@@ -137,5 +139,7 @@ namespace Skeleton.Templating.Classes
         public SecurityRoles SecurityRoles => _securityRoles;
 
         public bool Paged => (_type as ApplicationType).Paged;
+
+        public bool HasHelp => _domain.HasHelpType;
     }
 }

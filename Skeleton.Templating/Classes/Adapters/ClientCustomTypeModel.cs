@@ -13,7 +13,8 @@ namespace Skeleton.Templating.Classes.Adapters
         {
             Name = operation.Name + NamingConventions.ModelClassNameSuffix;
             DartFileName = Util.SnakeCase(operation.Name + "_" + NamingConventions.ModelClassNameSuffix);
-            Fields = operation.UserProvidedParameters.Select(p => p.RelatedTypeField).ToList();
+            Fields = operation.UserProvidedParameters.Where(p => p.RelatedTypeField != null).Select(p => p.RelatedTypeField).Cast<TypedValue>().ToList(); 
+            Fields.AddRange(operation.UserProvidedParameters.Where(p => p.RelatedTypeField == null)); // this is to handle parameters that don't match anything on the underlying type
             _domain = domain;
             _namespace = operation.Namespace;
         }
@@ -22,7 +23,7 @@ namespace Skeleton.Templating.Classes.Adapters
         {
             Name = resultType.Name;
             DartFileName = Util.SnakeCase(resultType.Name);
-            Fields = resultType.Fields.Where(f => f.IsUserEditable).ToList();
+            Fields = resultType.Fields.Where(f => f.IsUserEditable).Cast<TypedValue>().ToList();
             _domain = resultType.Domain;
             _namespace = resultType.Namespace;
         }
@@ -31,7 +32,7 @@ namespace Skeleton.Templating.Classes.Adapters
 
         public string DartFileName { get; }
         
-        public List<Field> Fields { get;  }
+        public List<TypedValue> Fields { get;  }
         
         public string Namespace
         {

@@ -20,6 +20,8 @@ namespace Skeleton.Model
         public Domain Domain { get; }
 
         public List<Field> Fields { get; }
+
+        public List<Field> NonExcludedFields => Fields.Where(f => !f.IsExcludedFromResults).ToList();
         
         public Field DisplayField
         {

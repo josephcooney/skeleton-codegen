@@ -294,7 +294,7 @@ namespace Skeleton.Postgres
                         var ns = GetField<string>(reader, "nspname");
                         if (!string.IsNullOrEmpty(attributes))
                         {
-                            dynamic attribJson = ReadAttributes(attributes);
+                            dynamic attribJson = ReadAttributes(attributes, typeName);
                             if (attribJson.generated == true)
                             {
                                 Log.Debug("Dropping Type {TypeName}", typeName);
@@ -1126,7 +1126,7 @@ namespace Skeleton.Postgres
         {
             if (!string.IsNullOrEmpty(description))
             {
-                op.Attributes = ReadAttributes(description);
+                op.Attributes = ReadAttributes(description, op.Name);
             }
         }
 
@@ -1142,7 +1142,7 @@ namespace Skeleton.Postgres
                     var attributes = result.ToString();
                     if (!string.IsNullOrEmpty(attributes))
                     {
-                        return ReadAttributes(attributes);
+                        return ReadAttributes(attributes, name);
                     }
                 }
             }
@@ -1187,14 +1187,14 @@ namespace Skeleton.Postgres
                     {
                         if (col == null)
                         {
-                            type.Attributes = ReadAttributes(attributes);
+                            type.Attributes = ReadAttributes(attributes, type.Name);
                         }
                         else
                         {
                             var field = type.Fields.FirstOrDefault(f => f.Name == col);
                             if (field != null)
                             {
-                                field.Attributes = ReadAttributes(attributes);
+                                field.Attributes = ReadAttributes(attributes, type.Name + "." + col);
                             }
                         }
                     }
@@ -1202,7 +1202,7 @@ namespace Skeleton.Postgres
             }
         }
 
-        private dynamic ReadAttributes(string attributes)
+        private dynamic ReadAttributes(string attributes, string objectName)
         {
             if (string.IsNullOrEmpty(attributes))
             {
@@ -1217,7 +1217,7 @@ namespace Skeleton.Postgres
             {
                 if (!string.IsNullOrEmpty(attributes) && attributes.StartsWith('{'))
                 {
-                    Log.Warning($"attribute string {attributes} was not valid JSON");
+                    Log.Warning("attribute string {Attributes} was not valid JSON for {ObjectName}", attributes, objectName);
                 }
                 return null; // description was not valid JSON
             }

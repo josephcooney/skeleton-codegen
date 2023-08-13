@@ -162,6 +162,8 @@ namespace Skeleton.Templating.ReactClient.Adapters
         public List<ClientApiOperationAdapter> ApiOperations => Operations.Select(o => new ClientApiOperationAdapter(o.UnderlyingOperation, _domain, _applicationType)).ToList();
         
         public List<ClientApiOperationAdapter> OperationsWithUI => ApiOperations.Where(o => o.GenerateUI).ToList();
+        
+        public List<ClientApiOperationAdapter> SearchOperations => OperationsWithUI.Where(o => o.IsSearch).ToList();
 
         public List<ClientApiOperationAdapter> OperationsWithUIThatChangeData => ApiOperations.Where(o => o.GenerateUI && o.ChangesData).ToList();
 

@@ -7,19 +7,17 @@ namespace {{cs_name Namespace}}.Data.Domain
 {
 	public class {{cs_name Name}} 
 	{
-        public {{cs_name Name}}({{#each Fields}}{{#unless IsExcludedFromResults}}{{format_clr_type ClrType}} {{cml_case Name}}{{#unless @last}}, {{/unless}}{{/unless}}{{/each}})
+        public {{cs_name Name}}({{#each NonExcludedFields}}{{format_clr_type ClrType}} {{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}})
         {
-            {{#each Fields}}
-            {{#unless IsExcludedFromResults}}{{cs_name Name}} = {{cml_case Name}};{{/unless}}
+            {{#each NonExcludedFields}}
+            {{cs_name Name}} = {{cml_case Name}};
             {{/each}}    
         }
 
-        {{#each Fields}}
-		{{#unless IsExcludedFromResults}}
+        {{#each NonExcludedFields}}
 		[DisplayName("{{hmn}}")]{{#if HasSize}}[MaxLength({{Size}})]{{/if}}{{#if IsRequired}}[Required]{{/if}}
 		public {{format_clr_type ClrType}} {{cs_name Name}} {get; set;}
 
-		{{/unless}}
 		{{/each}}
 	}
 

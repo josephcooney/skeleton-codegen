@@ -27,7 +27,6 @@ namespace Skeleton.Templating.Classes
     {
         private readonly string _displayName;
         private readonly Field _linkingIdField;
-        private readonly Domain _domain;
 
         public DisplayFieldAdapter(Field field, string displayName) : base(field)
         {
@@ -38,7 +37,6 @@ namespace Skeleton.Templating.Classes
         {
             _displayName = displayName;
             _linkingIdField = linkingIdField;
-            _domain = domain;
         }
 
         public new string DisplayName => _displayName;
