@@ -36,9 +36,9 @@ $$
             {{/each}}
             );
             
-            {{#unless PrimaryKeyField.IsUuid}}
+            {{#if PrimaryKeyField.IsInt}}
                 new_id = currval(pg_get_serial_sequence('{{Name}}', 'id'));
-            {{/unless}}
+            {{/if}}
             
             ids = ids || new_id;
             end loop;
