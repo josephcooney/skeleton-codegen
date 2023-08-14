@@ -178,5 +178,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
         public bool NoEditUI => _type is ApplicationType && ((ApplicationType)_type).Attributes?.noEditUI == true;
 
         public bool HasSelectAllType => this.SelectAllType != this._type;
+
+        public bool GenerateSelectComponent => _type.Fields.Count(f => f.IsKey) == 1;
     }
 }
