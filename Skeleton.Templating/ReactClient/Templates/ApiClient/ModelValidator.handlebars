@@ -46,7 +46,11 @@ export class {{cs_name Name}}Validate {
                         {{#if IsBoolean}}
             if (!state.{{cml_case ../Name}} || state.{{cml_case ../Name}}.{{cml_case Name}} == null) {
                         {{else}}
+                            {{#if IsInt}}
+            if (!state.{{cml_case ../Name}} || state.{{cml_case ../Name}}.{{cml_case Name}} == null) {
+                            {{else}}
             if (!state.{{cml_case ../Name}} || !state.{{cml_case ../Name}}.{{cml_case Name}}) {
+                            {{/if}}
                         {{/if}}
                 errors = setIn(errors, '{{cml_case ../Name}}.{{cml_case Name}}', '{{hmn Name}} is required');   
             }            

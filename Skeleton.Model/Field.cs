@@ -130,9 +130,7 @@ namespace Skeleton.Model
         public bool Edit => Attributes?.edit != null ? Attributes.edit : !IsKey;
 
         public bool IsDisplayField => Attributes?.isDisplayForType != null ? Attributes.isDisplayForType : false;
-
-        public bool IsInt => ClrType == typeof(int) || ClrType == typeof(int?);
-
+        
         public bool IsClrTypeNullable => Nullable.GetUnderlyingType(ClrType) != null;
 
         public Field RelatedTypeField
