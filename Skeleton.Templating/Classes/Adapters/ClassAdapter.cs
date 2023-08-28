@@ -84,7 +84,9 @@ namespace Skeleton.Templating.Classes
             }
         }
 
-        public int IdentityFieldCount => _type.Fields.Count(f => f.IsKey);
+        public List<Field> KeyFields => _type.Fields.Where(a => a.IsKey).ToList();
+
+        public bool HasMultipleKeys => KeyFields.Count > 1;
 
         public bool CanDelete => _type is ApplicationType && ((ApplicationType)_type).DeleteType != DeleteType.None;
 

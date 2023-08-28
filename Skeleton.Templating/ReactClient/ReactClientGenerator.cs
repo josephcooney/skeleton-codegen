@@ -136,24 +136,17 @@ namespace Skeleton.Templating.ReactClient
                 {
                     
                     var listAdapter = new ListViewAdapter(rt.SimpleReturnType, domain, rt.RelatedType);
-                    if (listAdapter.IdentityFieldCount == 1)
-                    {
-                        var listPath = GetRelativePathFromTypeName(rt.RelatedType.Name) + "list\\";
-                        var nameStart = Util.TypescriptFileName(rt.SimpleReturnType.Name);
+                    var listPath = GetRelativePathFromTypeName(rt.RelatedType.Name) + "list\\";
+                    var nameStart = Util.TypescriptFileName(rt.SimpleReturnType.Name);
 
-                        files.Add(new CodeFile { Name = nameStart + "List.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactListPage), RelativePath = listPath, Template = TemplateNames.ReactListPage});
-                        files.Add(new CodeFile { Name = nameStart + "Header.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactListHeader), RelativePath = listPath, Template = TemplateNames.ReactListHeader});
-                        files.Add(new CodeFile { Name = nameStart + "Row.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactListRow), RelativePath = listPath, Template = TemplateNames.ReactListRow});
-                        files.Add(new CodeFile { Name = nameStart + "ListRendering.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactListRendering), RelativePath = listPath, Template = TemplateNames.ReactListRendering});
+                    files.Add(new CodeFile { Name = nameStart + "List.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactListPage), RelativePath = listPath, Template = TemplateNames.ReactListPage});
+                    files.Add(new CodeFile { Name = nameStart + "Header.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactListHeader), RelativePath = listPath, Template = TemplateNames.ReactListHeader});
+                    files.Add(new CodeFile { Name = nameStart + "Row.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactListRow), RelativePath = listPath, Template = TemplateNames.ReactListRow});
+                    files.Add(new CodeFile { Name = nameStart + "ListRendering.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactListRendering), RelativePath = listPath, Template = TemplateNames.ReactListRendering});
 
-                        if (rt.RelatedType.Paged && listAdapter.PrimaryPagedOperation != null)
-                        {
-                            files.Add(new CodeFile { Name = nameStart + "ListPaged.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactPagedListPage), RelativePath = listPath, Template = TemplateNames.ReactPagedListPage});
-                        }
-                    }
-                    else
+                    if (rt.RelatedType.Paged && listAdapter.PrimaryPagedOperation != null)
                     {
-                        Log.Warning("Can't generate list files for type {TypeName} because it does not have a single Primary Key field", listAdapter.Name);
+                        files.Add(new CodeFile { Name = nameStart + "ListPaged.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactPagedListPage), RelativePath = listPath, Template = TemplateNames.ReactPagedListPage});
                     }
                 }
             }
