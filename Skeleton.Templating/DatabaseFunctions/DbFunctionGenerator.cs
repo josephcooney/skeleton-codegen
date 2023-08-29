@@ -38,7 +38,7 @@ namespace Skeleton.Templating.DatabaseFunctions
                 {
                     if (settings.GenerateSecurityPolicies && type.Attributes?.createPolicy != false && !skipPolicyGeneration)
                     {
-                        files.Add(GenerateSecurityPoicy(type, domain));
+                        files.Add(GenerateSecurityPolicy(type, domain));
                     }
 
                     var adapter = new DbTypeAdapter(type, new []{UpdateFunctionName}, OperationType.Update, domain);
@@ -68,7 +68,7 @@ namespace Skeleton.Templating.DatabaseFunctions
                         files.Add(GenerateSelectPagedForDisplayFunction(type, domain));
                     }
                     
-                    if (adapter.UpdateFields.Any())
+                    if (adapter.UpdateFields.Any() && !adapter.UnderlyingType.IsLink) // for linking types the insert operation is more of a logical "upsert"
                     {
                         files.Add(GenerateUpdateFunction(adapter));
                     }
@@ -217,7 +217,14 @@ namespace Skeleton.Templating.DatabaseFunctions
             }
             else
             {
-                return GenerateTemplateFromAdapter(adapter, DbTemplates.Insert);
+                if (adapter.UnderlyingType.IsLink)
+                {
+                    return GenerateTemplateFromAdapter(adapter, DbTemplates.UpsertLink);
+                }
+                else
+                {
+                    return GenerateTemplateFromAdapter(adapter, DbTemplates.Insert);
+                }
             }
         }
 
@@ -281,7 +288,7 @@ namespace Skeleton.Templating.DatabaseFunctions
             return GenerateTemplateFromAdapter(adapter, DbTemplates.DeleteSoft);
         }
 
-        private CodeFile GenerateSecurityPoicy(ApplicationType type, Domain domain)
+        private CodeFile GenerateSecurityPolicy(ApplicationType type, Domain domain)
         {
             var adapter = new SecureDbTypeAdapter(type, domain);
             return new CodeFile
@@ -299,6 +306,7 @@ namespace Skeleton.Templating.DatabaseFunctions
             public const string Update = "UpdateTemplate";
             public const string SecurityPolicy = "SecurityPolicyTemplate";
             public const string DeleteSoft = "DeleteSoftTemplate";
+            public const string UpsertLink = "UpsertLink";
         }
     }
 }

@@ -39,6 +39,8 @@
     <EmbeddedResource Include="Templates\Select\SelectAllTemplate.handlebars" />
     <EmbeddedResource Include="Templates\Select\SelectByForeignKeyTemplate.handlebars" />
     <EmbeddedResource Include="Templates\UpdateTemplate.handlebars" />
+    <None Remove="Templates\UpsertLink.handlebars" />
+    <EmbeddedResource Include="Templates\UpsertLink.handlebars" />
   </ItemGroup>
 
 </Project>
