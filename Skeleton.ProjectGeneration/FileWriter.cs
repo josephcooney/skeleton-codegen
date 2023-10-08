@@ -33,7 +33,7 @@ namespace Skeleton.ProjectGeneration
                 childDirectories = _fs.Directory.EnumerateDirectories(directoryName).OrderByDescending(n => n);
             }
             
-            foreach (var codeFile in files)
+            foreach (var dbFile in files)
             {
                 bool writeFile = false;
                 bool found = false;
@@ -41,14 +41,14 @@ namespace Skeleton.ProjectGeneration
                 // only write file if it has changed and the generated code wasn't manually modified, or didn't exist previously
                 foreach (var childDirName in childDirectories)
                 {
-                    var possibleOldVersionPath = _fs.Path.Combine(childDirName, codeFile.RelativePath, codeFile.Name);
+                    var possibleOldVersionPath = _fs.Path.Combine(childDirName, dbFile.RelativePath, dbFile.Name);
                     if (_fs.File.Exists(possibleOldVersionPath))
                     {
                         found = true;
                         var contents = _fs.File.ReadAllText(possibleOldVersionPath);
-                        if (contents != codeFile.Contents)
+                        if (contents != dbFile.Contents)
                         {
-                            if (!GeneratedFileHasBeenManuallyModified(possibleOldVersionPath, codeFile))
+                            if (!GeneratedFileHasBeenManuallyModified(possibleOldVersionPath, dbFile))
                             {
                                 writeFile = true;
                             }
@@ -64,11 +64,11 @@ namespace Skeleton.ProjectGeneration
                 
                 if (writeFile)
                 {
-                    ApplyCodeFiles(new List<CodeFile>(){codeFile}, childDirectories.First(), postUpdateAction);
+                    ApplyCodeFiles(new List<CodeFile>(){dbFile}, childDirectories.First(), postUpdateAction);
                 }
                 else
                 {
-                    postUpdateAction?.Invoke(codeFile);
+                    postUpdateAction?.Invoke(dbFile);
                 }
             }
         }

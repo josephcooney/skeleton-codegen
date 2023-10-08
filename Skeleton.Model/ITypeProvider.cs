@@ -14,9 +14,8 @@ namespace Skeleton.Model
 
         void AddGeneratedOperation(string text);
 
-        void DropGeneratedOperations(Settings settings, StringBuilder stringBuilder);
-        void DropGeneratedTypes(Settings settings, StringBuilder stringBuilder);
-
+        void DropGenerated(Domain domain);
+        
         string EscapeReservedWord(string name);
 
         public string GetCsDbTypeFromDbType(string dbTypeName);

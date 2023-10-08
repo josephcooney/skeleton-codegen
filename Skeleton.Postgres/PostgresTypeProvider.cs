@@ -4,7 +4,6 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using Skeleton.Model;
 using Skeleton.Model.Operations;
@@ -71,8 +70,6 @@ namespace Skeleton.Postgres
                 ["cid"] = NpgsqlDbType.Cid,
                 ["oidvector"] = NpgsqlDbType.Oidvector,
             };
-            
-            
         }
         
         public PostgresTypeProvider(string connectionString)
@@ -262,24 +259,11 @@ namespace Skeleton.Postgres
                     }
                 }
             }
+
+            GetAttributesForResultTypes(domain);
         }
 
-        public void AddGeneratedOperation(string text)
-        {
-            ExecuteCommandText(text);
-        }
-
-        public void DropGeneratedOperations(Settings settings, StringBuilder sb)
-        {
-            var dom = new Domain(settings, this, CreateNamingConvention(settings));
-            GetOperationsInternal(dom, false);
-            foreach (var operation in dom.Operations.Where(a => a.IsGenerated))
-            {
-                DropGeneratedOperation(operation, sb);
-            }
-        }
-
-        public void DropGeneratedTypes(Settings settings, StringBuilder sb)
+        private void GetAttributesForResultTypes(Domain domain)
         {
             using (var cn = new NpgsqlConnection(_connectionString))
             using (var cmd = new NpgsqlCommand(ListTypesQuery, cn))
@@ -289,27 +273,55 @@ namespace Skeleton.Postgres
                 {
                     while (reader.Read())
                     {
+                        var ns = GetField<string>(reader, "nspname");
                         var typeName = GetField<string>(reader, "obj_name");
                         var attributes = GetField<string>(reader, "description");
-                        var ns = GetField<string>(reader, "nspname");
-                        if (!string.IsNullOrEmpty(attributes))
+
+                        var resultType = domain.ResultTypes.SingleOrDefault(rt => rt.Namespace == ns && rt.Name == typeName);
+                        if (resultType == null)
                         {
-                            dynamic attribJson = ReadAttributes(attributes, typeName);
-                            if (attribJson.generated == true)
+                            Log.Warning("Custom type {TypeName} was found in the database but was not found in the domain", typeName);
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(attributes))
                             {
-                                Log.Debug("Dropping Type {TypeName}", typeName);
-                                var cmdText = $"DROP TYPE IF EXISTS {ns}.{typeName} CASCADE;";
-                                sb.AppendLine(cmdText);
-                                using (var dropCn = new NpgsqlConnection(_connectionString))
-                                using (var dropCmd = new NpgsqlCommand(cmdText, dropCn))
-                                {
-                                    dropCn.Open();
-                                    dropCmd.ExecuteNonQuery();
-                                }
+                                dynamic attribJson = ReadAttributes(attributes, typeName);
+                                resultType.Attributes = attribJson;
                             }
                         }
                     }
                 }
+            }
+        }
+
+        public void AddGeneratedOperation(string text)
+        {
+            ExecuteCommandText(text);
+        }
+
+        public void DropGenerated(Domain domain)
+        {
+            foreach (var operation in domain.Operations.Where(a => a.IsGenerated))
+            {
+                DropGeneratedOperation(operation);
+            }            
+            DropGeneratedTypes(domain);
+        }
+        
+        private void DropGeneratedTypes(Domain domain)
+        {
+            foreach (var resultType in domain.ResultTypes.Where(rt => rt.IsGenerated))
+            {
+                Log.Debug("Dropping Type {TypeName}", resultType.Name);
+                var cmdText = $"DROP TYPE IF EXISTS {resultType.Namespace}.{resultType.Name} CASCADE;";
+                using (var dropCn = new NpgsqlConnection(_connectionString))
+                using (var dropCmd = new NpgsqlCommand(cmdText, dropCn))
+                {
+                    dropCn.Open();
+                    dropCmd.ExecuteNonQuery();
+                }
+                
             }
         }
 
@@ -1092,11 +1104,10 @@ namespace Skeleton.Postgres
             "ZONE"
         };
         
-        private void DropGeneratedOperation(Operation op, StringBuilder sb)
+        private void DropGeneratedOperation(Operation op)
         {
             Log.Debug("Dropping {OperationName}", op.Name);
             var cmdText = $"DROP FUNCTION IF EXISTS {op.Namespace}.{GetSqlName(op.Name)};";
-            sb.AppendLine(cmdText);
             ExecuteCommandText(cmdText);
         }
 
@@ -1320,50 +1331,48 @@ namespace Skeleton.Postgres
 
         private ResultType ReadCustomOperationType(string typeName, Domain domain, Operation operation)
         {
-            using (var cn = new NpgsqlConnection(_connectionString))
-            using (var cmd = new NpgsqlCommand(TypeQuery, cn))
+            using var cn = new NpgsqlConnection(_connectionString);
+            using var cmd = new NpgsqlCommand(TypeQuery, cn);
+            // TODO - this code assumes the custom type is in the same namespace as the function that returns it, which may not be a valid assumption
+            cmd.Parameters.AddWithValue("schemaName", NpgsqlDbType.Text, operation.Namespace);
+            cmd.Parameters.AddWithValue("typeName", NpgsqlDbType.Text, typeName);
+
+            cn.Open();
+            using (var reader = cmd.ExecuteReader())
             {
-                // TODO - this code assumes the custom type is in the same namespace as the function that returns it, which may not be a valid assumption
-                cmd.Parameters.AddWithValue("schemaName", NpgsqlDbType.Text, operation.Namespace);
-                cmd.Parameters.AddWithValue("typeName", NpgsqlDbType.Text, typeName);
-
-                cn.Open();
-                using (var reader = cmd.ExecuteReader())
+                // possibly inaccurate since it just picks the related type of the operation
+                var result = new ResultType(typeName, operation.Namespace, operation.RelatedType, true, domain);
+                while (reader.Read())
                 {
-                    // possibly inaccurate since it just picks the related type of the operation
-                    var result = new ResultType(typeName, operation.Namespace, operation.RelatedType, true, domain);
-                    while (reader.Read())
+                    var fld = new Field(result);
+                    fld.Name = SanitizeFieldName(GetField<string>(reader, "column_name"));
+                    var providerTypeRaw = GetField<string>(reader, "data_type");
+                    if (providerTypeRaw.EndsWith(')'))
                     {
-                        var fld = new Field(result);
-                        fld.Name = SanitizeFieldName(GetField<string>(reader, "column_name"));
-                        var providerTypeRaw = GetField<string>(reader, "data_type");
-                        if (providerTypeRaw.EndsWith(')'))
-                        {
-                            var typeAndSize = ParseTypeAndSize(providerTypeRaw);
-                            fld.ProviderTypeName = typeAndSize.Item1;
-                            fld.Size = typeAndSize.Item2;
-                        }
-                        else
-                        {
-                            fld.ProviderTypeName = providerTypeRaw;
-                        }
+                        var typeAndSize = ParseTypeAndSize(providerTypeRaw);
+                        fld.ProviderTypeName = typeAndSize.Item1;
+                        fld.Size = typeAndSize.Item2;
+                    }
+                    else
+                    {
+                        fld.ProviderTypeName = providerTypeRaw;
+                    }
 
-                        fld.ClrType = new PostgresType(fld.ProviderTypeName).ClrType;
+                    fld.ClrType = new PostgresType(fld.ProviderTypeName).ClrType;
                         
-                        fld.Order = GetField<short>(reader, "ordinal_position");
-                        result.Fields.Add(fld);
-                    }
-
-                    if (operation.Attributes?.applicationtype != null)
-                    {
-                        domain.UpdateResultFieldPropertiesFromApplicationType(operation, result);
-                    }
-
-                    result.Operations.Add(operation);
-                    domain.ResultTypes.Add(result);
-
-                    return result;
+                    fld.Order = GetField<short>(reader, "ordinal_position");
+                    result.Fields.Add(fld);
                 }
+
+                if (operation.Attributes?.applicationtype != null)
+                {
+                    domain.UpdateResultFieldPropertiesFromApplicationType(operation, result);
+                }
+
+                result.Operations.Add(operation);
+                domain.ResultTypes.Add(result);
+
+                return result;
             }
         }
         

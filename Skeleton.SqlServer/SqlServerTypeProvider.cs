@@ -345,17 +345,17 @@ public class SqlServerTypeProvider : ITypeProvider
         ExecuteCommandText(text);
     }
 
-    public void DropGeneratedOperations(Settings settings, StringBuilder sb)
+    public void DropGenerated(Domain domain)
     {
-        var dom = new Domain(settings, this, CreateNamingConvention(settings));
-        GetOperationsInternal(dom, false);
-        foreach (var operation in dom.Operations.Where(a => a.IsGenerated).OrderBy(o => o.Namespace).ThenBy(o => o.Name))
+        foreach (var operation in domain.Operations.Where(a => a.IsGenerated).OrderBy(o => o.Namespace).ThenBy(o => o.Name))
         {
-            DropGeneratedOperation(operation, sb);
+            DropGeneratedOperation(operation);
         }
-    }
 
-    public void DropGeneratedTypes(Settings settings, StringBuilder sb)
+        DropGeneratedTypes(domain.Settings);
+    }
+    
+    private void DropGeneratedTypes(Settings settings)
     {
         using (var cn = new SqlConnection(_connectionString))
         using (var cmd = new SqlCommand(ListTypesQuery, cn))
@@ -374,7 +374,6 @@ public class SqlServerTypeProvider : ITypeProvider
                         if (attribJson.generated == true)
                         {
                             var cmdText = $"DROP TYPE IF EXISTS {ns}.{typeName};";
-                            sb.AppendLine(cmdText);
                             using (var dropCn = new SqlConnection(_connectionString))
                             using (var dropCmd = new SqlCommand(cmdText, dropCn))
                             {
@@ -486,10 +485,9 @@ public class SqlServerTypeProvider : ITypeProvider
         return new SqlSortParameter(namingConvention);
     }
 
-    private void DropGeneratedOperation(Operation op, StringBuilder sb)
+    private void DropGeneratedOperation(Operation op)
     {
         var cmdText = $"DROP {op.ProviderType} IF EXISTS {op.Namespace}.{GetSqlName(op.Name)};";
-        sb.AppendLine(cmdText);
         ExecuteCommandText(cmdText);
     }
     
