@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using Skeleton.Model;
 using Skeleton.Model.Operations;
@@ -308,13 +309,42 @@ namespace Skeleton.Postgres
             }            
             DropGeneratedTypes(domain);
         }
-        
+
+        public CodeFile GenerateDropStatements(Domain oldDomain, Domain newDomain)
+        {
+            var codeFile = new CodeFile() { Name = "drop_generated.sql" };
+            var sb = new StringBuilder();
+            foreach (var resultType in oldDomain.ResultTypes)
+            {
+                if (resultType.IsGenerated && !newDomain.ResultTypes.Any(rt => rt.Namespace == resultType.Namespace && rt.Name == resultType.Name))
+                {
+                    sb.AppendLine($"-- dropping {resultType.Name}");
+                    sb.AppendLine(GetDropTypeCommandText(resultType));
+                    sb.AppendLine("");
+                }
+            }
+
+            foreach (var operation in oldDomain.Operations)
+            {
+                if (operation.IsGenerated &&
+                    !newDomain.Operations.Any(o => o.Namespace == operation.Namespace && o.Name == operation.Name))
+                {
+                    sb.AppendLine($"-- dropping {operation.Name}");
+                    sb.AppendLine(GetDropOperationCommandText(operation));
+                    sb.AppendLine("");
+                }
+            }
+            
+            codeFile.Contents = sb.ToString();
+            return codeFile;
+        }
+
         private void DropGeneratedTypes(Domain domain)
         {
             foreach (var resultType in domain.ResultTypes.Where(rt => rt.IsGenerated))
             {
                 Log.Debug("Dropping Type {TypeName}", resultType.Name);
-                var cmdText = $"DROP TYPE IF EXISTS {resultType.Namespace}.{resultType.Name} CASCADE;";
+                var cmdText = GetDropTypeCommandText(resultType);
                 using (var dropCn = new NpgsqlConnection(_connectionString))
                 using (var dropCmd = new NpgsqlCommand(cmdText, dropCn))
                 {
@@ -323,6 +353,11 @@ namespace Skeleton.Postgres
                 }
                 
             }
+        }
+
+        private string GetDropTypeCommandText(ResultType type)
+        {
+            return $"DROP TYPE IF EXISTS {type.Namespace}.{type.Name} CASCADE;";
         }
 
         public string EscapeReservedWord(string name)
@@ -1107,10 +1142,15 @@ namespace Skeleton.Postgres
         private void DropGeneratedOperation(Operation op)
         {
             Log.Debug("Dropping {OperationName}", op.Name);
-            var cmdText = $"DROP FUNCTION IF EXISTS {op.Namespace}.{GetSqlName(op.Name)};";
+            var cmdText = GetDropOperationCommandText(op);
             ExecuteCommandText(cmdText);
         }
 
+        private string GetDropOperationCommandText(Operation op)
+        {
+            return $"DROP FUNCTION IF EXISTS {op.Namespace}.{GetSqlName(op.Name)};";
+        }
+        
         private void ExecuteCommandText(string text, bool log = true)
         {
             try

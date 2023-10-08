@@ -41,7 +41,16 @@ namespace Skeleton.ProjectGeneration
                 // only write file if it has changed and the generated code wasn't manually modified, or didn't exist previously
                 foreach (var childDirName in childDirectories)
                 {
-                    var possibleOldVersionPath = _fs.Path.Combine(childDirName, dbFile.RelativePath, dbFile.Name);
+                    string possibleOldVersionPath = null;
+                    if (string.IsNullOrEmpty(dbFile.RelativePath))
+                    {
+                        possibleOldVersionPath = _fs.Path.Combine(childDirName, dbFile.Name);
+                    }
+                    else
+                    {
+                        possibleOldVersionPath = _fs.Path.Combine(childDirName, dbFile.RelativePath, dbFile.Name);
+                    }
+                    
                     if (_fs.File.Exists(possibleOldVersionPath))
                     {
                         found = true;

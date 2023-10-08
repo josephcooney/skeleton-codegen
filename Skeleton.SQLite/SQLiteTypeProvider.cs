@@ -27,7 +27,12 @@ public class SQLiteTypeProvider : ITypeProvider
     {
         throw new NotImplementedException();
     }
-    
+
+    public CodeFile GenerateDropStatements(Domain oldDomain, Domain newDomain)
+    {
+        throw new NotImplementedException();
+    }
+
     public string EscapeReservedWord(string name)
     {
         throw new NotImplementedException();

@@ -354,7 +354,12 @@ public class SqlServerTypeProvider : ITypeProvider
 
         DropGeneratedTypes(domain.Settings);
     }
-    
+
+    public CodeFile GenerateDropStatements(Domain oldDomain, Domain newDomain)
+    {
+        throw new NotImplementedException();
+    }
+
     private void DropGeneratedTypes(Settings settings)
     {
         using (var cn = new SqlConnection(_connectionString))

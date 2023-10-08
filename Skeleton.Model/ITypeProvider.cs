@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using Skeleton.Model.NamingConventions;
 using Skeleton.Model.Operations;
 
@@ -15,6 +14,8 @@ namespace Skeleton.Model
         void AddGeneratedOperation(string text);
 
         void DropGenerated(Domain domain);
+
+        CodeFile GenerateDropStatements(Domain oldDomain, Domain newDomain);
         
         string EscapeReservedWord(string name);
 

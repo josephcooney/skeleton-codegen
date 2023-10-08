@@ -82,6 +82,8 @@ namespace Skeleton.Console
 
             SanityCheckDomain(domain);
 
+            GenerateDbDropStatements(oldDomain, domain, typeProvider);
+
             GenerateClasses(domain);
             Log.Information("Finished generating classes");
 
@@ -138,6 +140,15 @@ namespace Skeleton.Console
             }
             
             Log.Information("Finished Code Generation");
+        }
+
+        private void GenerateDbDropStatements(Domain oldDomain, Domain domain, ITypeProvider typeProvider)
+        {
+            var dropFile = typeProvider.GenerateDropStatements(oldDomain, domain);
+            if (!string.IsNullOrEmpty(dropFile.Contents))
+            {
+                _fileWriter.ApplyDatabaseFiles(new List<CodeFile>(){dropFile}, DatabaseScriptsFolder, null);   
+            }
         }
 
         private void FilterDomainToSingleType(Domain domain)
