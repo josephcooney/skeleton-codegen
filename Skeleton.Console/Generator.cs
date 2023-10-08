@@ -20,7 +20,7 @@ namespace Skeleton.Console
         private readonly Settings _settings;
         private readonly FileWriter _fileWriter;
 
-        private const string DbScriptsRelativePath = ".\\Database\\Domain\\";
+        private const string DbScriptsRelativePath = ".\\Database\\";
 
         public Generator(IFileSystem fileSystem, Settings settings, FileWriter fileWriter)
         {
@@ -191,7 +191,7 @@ namespace Skeleton.Console
             var generator = new DbFunctionGenerator();
             var files = generator.Generate(domain, _settings);
 
-            _fileWriter.ApplyCodeFiles(files, DatabaseScriptsFolder, file =>
+            _fileWriter.ApplyDatabaseFiles(files, DatabaseScriptsFolder, file =>
             {
                 if (addGeneratedOperationsToDatabase)
                 {
