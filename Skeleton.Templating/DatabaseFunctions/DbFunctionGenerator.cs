@@ -150,13 +150,13 @@ namespace Skeleton.Templating.DatabaseFunctions
             return files;
         }
 
-        private CodeFile GenerateTemplateFromAdapter(DbTypeAdapter adapter, string templateName)
+        private CodeFile GenerateTemplateFromAdapter(DbTypeAdapter adapter, string templateName, string namePrefix = null)
         {
             try
             {
                 return new CodeFile
                 {
-                    Name = adapter.FunctionName + SqlExtension,
+                    Name = namePrefix + adapter.FunctionName + SqlExtension,
                     Contents = Util.GetCompiledTemplateFromTypeProvider(templateName, adapter.Domain.TypeProvider)(adapter),
                     RelativePath = ".\\" + adapter.Name + "\\"
                 };
@@ -243,19 +243,19 @@ namespace Skeleton.Templating.DatabaseFunctions
         private CodeFile GenerateDisplayType(ApplicationType type, Domain domain)
         {
             var adapter = new SelectForDisplayDbTypeAdapter(type, new []{"display"} , domain);
-            return GenerateTemplateFromAdapter(adapter, "DisplayType");
+            return GenerateTemplateFromAdapter(adapter, "DisplayType", "_"); // underscore prefix allows fine-tuning of order that scripts are executed by dbup
         }
 
         private CodeFile GenerateResultType(ApplicationType applicationType, Domain domain)
         {
             var adapter = new DbTypeAdapter(applicationType, new []{"result"} , OperationType.None, domain);
-            return GenerateTemplateFromAdapter(adapter, "ResultType");
+            return GenerateTemplateFromAdapter(adapter, "ResultType", "_");
         }
         
         private CodeFile GenerateInsertType(ApplicationType applicationType, Domain domain)
         {
             var adapter = new DbTypeAdapter(applicationType, new []{"new"}, OperationType.Insert, domain);
-            return GenerateTemplateFromAdapter(adapter, "InsertType");
+            return GenerateTemplateFromAdapter(adapter, "InsertType", "_");
         }
 
         private CodeFile GenerateSelectAllForDisplayFunction(ApplicationType applicationType, Domain domain)

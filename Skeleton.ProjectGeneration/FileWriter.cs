@@ -118,7 +118,7 @@ namespace Skeleton.ProjectGeneration
                         {
                             if (GeneratedFileHasBeenManuallyModified(fileName, codeFile))
                             {
-                                Log.Debug("File {FileName} was not updated because it has been manually modified", fileName);
+                                Log.Information("File {FileName} was not updated because it has been manually modified", fileName);
                                 continue;
                             }
                         }
