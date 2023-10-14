@@ -84,8 +84,8 @@ export class {{cs_name Name}}Select extends Component<{{cs_name Name}}SelectProp
         return ( <div>{contents}</div> );
     }
 
-    async getSelectData() {
-        await this.api.selectAllForDisplay().then(data => {
+    getSelectData() {
+        this.api.selectAllForDisplay().then(data => {
             var responseBody = data.parsedBody;
             if (responseBody) {
                 this.setState({ data: responseBody, loading: false });

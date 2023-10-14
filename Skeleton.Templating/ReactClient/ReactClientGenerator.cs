@@ -103,7 +103,7 @@ namespace Skeleton.Templating.ReactClient
                         files.Add(new CodeFile { Name = namestart + "Detail.tsx", Contents = GenerateFromTemplate(detailAdapter, TemplateNames.ReactDetailPage), RelativePath = path, Template = TemplateNames.ReactDetailPage});
                     }
 
-                    if (!type.IsLink)
+                    if (!type.IsLink || type.IdentityFields.Count == 1) // link type that also has a PK is probably OK
                     {
                         foreach (var operation in adapter.ApiOperations.Where(op => op.ChangesData && op.GenerateUI))
                         {
@@ -112,7 +112,6 @@ namespace Skeleton.Templating.ReactClient
                             files.Add(new CodeFile { Name = namestart + operation.FriendlyName + "Rendering.tsx", Contents = GenerateFromTemplate(changeDataAdapter, TemplateNames.ReactAddEditPageRendering), RelativePath = path, Template = TemplateNames.ReactAddEditPageRendering });
                         }
                     }
-                    
 
                     if (adapter.Operations.Any(op => op.ChangesData && op.GenerateUI))
                     {

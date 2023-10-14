@@ -42,7 +42,9 @@ namespace Skeleton.Model
             {
                 return Fields.First(f => f.IsKey);
             }
-        } 
+        }
+
+        public List<Field> IdentityFields => Fields.Where(f => f.IsKey).ToList();
         
         public dynamic Attributes { get; set; }
 
