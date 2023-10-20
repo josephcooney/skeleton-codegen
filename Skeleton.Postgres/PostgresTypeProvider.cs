@@ -1446,7 +1446,7 @@ namespace Skeleton.Postgres
                 foreach (var s in split)
                 {
                     var n = GetFieldNameAndType(s);
-                    fields.Add(new Field(null)
+                    fields.Add(new Field(domain)
                     {
                         Name = n.Name, ProviderTypeName = n.Type.Name, ClrType = n.Type.ClrType,
                         Order = index

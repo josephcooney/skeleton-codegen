@@ -876,7 +876,7 @@ public class SqlServerTypeProvider : ITypeProvider
                 maxLength = SanitizeSize(maxLength, providerDataType);
                 var clrType = GetClrTypeForSqlType(providerDataType);
 
-                fields.Add(new Field(null)
+                fields.Add(new Field(op.RelatedType.Domain)
                 {
                     Name = name, ProviderTypeName = providerDataType, Order = order, IsRequired = !isNullable,
                     Size = maxLength, ClrType = clrType
@@ -1034,7 +1034,7 @@ ORDER BY r.ROUTINE_NAME, rc.ORDINAL_POSITION;";
                     : (int)reader["CHARACTER_MAXIMUM_LENGTH"];
                 var clrType = GetClrTypeForSqlType(providerDataType);
 
-                fields.Add(new Field(null)
+                fields.Add(new Field(op.RelatedType.Domain)
                 {
                     Name = name, ProviderTypeName = providerDataType, Order = order, IsRequired = isNullable == "NO",
                     Size = maxLength, ClrType = clrType
