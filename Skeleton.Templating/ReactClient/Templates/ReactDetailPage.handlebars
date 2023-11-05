@@ -88,8 +88,13 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : JSX
     useEffect(() => {
         let idToFetch = props.id;
         if (!idToFetch && id){
-            {{! TODO - need to consier non-integer identities like guids}}
+            {{#unless HasMultipleKeys}}
+                {{#if IdentityField.IsNumber}}
             idToFetch = parseInt(id);
+                {{else}}
+            idToFetch = id;
+                {{/if}}                
+            {{/unless}}
         }
         if (idToFetch){
             getItemDetails(idToFetch);
