@@ -4,31 +4,33 @@ import ListItemLink from "./ListItemLink";
 import React from "react";
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
+import {useTheme} from "@mui/material/styles";
 
 export default function LeftNavItems() {
 
-const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = React.useState(false);
+    const theme = useTheme();
 
-const handleClick = () => {
-setOpen(!open);
-};
+    const handleClick = () => {
+        setOpen(!open);
+    };
 
-return <><List>
-    {{#each NonReferenceTypesThatHaveUI}}
-        <ListItemLink to="/{{kb_case Name}}" primary="{{hmn Name}}" />
-    {{/each}}
-    <Divider/>
-    <ListItemButton onClick={handleClick}>
-        <ListItemText primary="Reference Data" />
-        {open ? <ExpandLess /> : <ExpandMore />}
-    </ListItemButton>
-    <Collapse in={open} timeout="auto" unmountOnExit>
-        <List component="div" disablePadding>
-            {{#each ReferenceTypesThatHaveUI}}
-                <ListItemLink to="/{{kb_case Name}}" primary="{{hmn Name}}" />
-            {{/each}}
-        </List>
-    </Collapse>
-</List>
-</>;
+    return <><List sx={{color: theme.palette.primary.contrastText}}>
+        {{#each NonReferenceTypesThatHaveUI}}
+            <ListItemLink to="/{{kb_case Name}}" primary="{{hmn Name}}" />
+        {{/each}}
+        <Divider/>
+        <ListItemButton onClick={handleClick}>
+            <ListItemText primary="Reference Data" />
+            {open ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+        <Collapse in={open} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+                {{#each ReferenceTypesThatHaveUI}}
+                    <ListItemLink to="/{{kb_case Name}}" primary="{{hmn Name}}" />
+                {{/each}}
+            </List>
+        </Collapse>
+    </List>
+    </>;
 }
