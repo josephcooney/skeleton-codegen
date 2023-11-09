@@ -15,7 +15,7 @@ export default function LeftNavItems() {
         setOpen(!open);
     };
 
-    return <><List sx={{color: theme.palette.primary.contrastText}}>
+    return <><List sx={ {color: theme.palette.primary.contrastText} }>
         {{#each NonReferenceTypesThatHaveUI}}
             <ListItemLink to="/{{kb_case Name}}" primary="{{hmn Name}}" />
         {{/each}}
