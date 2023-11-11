@@ -9,7 +9,8 @@ import {Button, FormControlLabel, FormHelperText, FormGroup, Grid, Rating, TextF
 import SaveIcon from '@mui/icons-material/Save';
 import {TriStateCheckbox} from "../../controls/TriStateCheckbox";
 import Title from "../../controls/Title";
-import { DatePicker, LoadingButton } from '@mui/lab';
+import { LoadingButton } from '@mui/lab';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import {useSnackbar} from "notistack";
 import { motion, AnimatePresence } from "framer-motion";
@@ -87,9 +88,11 @@ export interface {{cs_name Name}}{{OperationNameFriendly}}Props {
     {{cml_case Name}}? : {{get_ts_type ClrType}} | null;
     {{/each}}
     api? : {{ClientApiInterfaceName}} | null;
+    {{#if AssociateViaLink}}
     {{#each LinkedDetails}}
     {{cml_case LinkingType.Name}}Client? : {{LinkingType.ClientApiInterfaceName}} | null;
     {{/each}}
+    {{/if}}
 }
 
 export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}}{{OperationNameFriendly}}Props) : JSX.Element => {
@@ -272,7 +275,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
         if (linked) {
             {{#each LinkedDetails}}
             if (linked[0] == "{{Name}}") {
-                var {{cml_case LinkingType.Name}}Client = props.{{cs_name LinkingType.Name}}Client ? props.{{cs_name LinkingType.Name}}Client : new {{LinkingType.ClientApiTypeName}}();
+                var {{cml_case LinkingType.Name}}Client = props.{{cml_case LinkingType.Name}}Client ?? new {{LinkingType.ClientApiTypeName}}();
                 var {{cml_case LinkingType.Name}}ToAdd: {{cs_name LinkingType.Name}}New = { {{cml_case LinkingTypeIdField.Name}}: linked[1] as {{get_ts_type LinkingTypeIdField.ClrType}}, {{cml_case CurrentTypeIdField.Name}}: id as {{get_ts_type CurrentTypeIdField.ClrType}} };
                 {{cml_case LinkingType.Name}}Client.insert({{cml_case LinkingType.Name}}ToAdd);
             }
@@ -313,7 +316,11 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
         });
     }
 	{{else}}
-    const handleSubmit = (fields : any) => {
+        {{#if CurrentOperation.UsesModel}}    
+    const handleSubmit = (fields : {{ModelTypeName}}) => {
+        {{else}}
+    const handleSubmit = (fields : {{StateTypeName}}) => {
+        {{/if}}    
         {{#if CurrentOperation.HasCustomType}}
         console.log(fields);
         {{/if}}
@@ -420,21 +427,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                             </FormHelperText>
                             {{else}}
 								{{#if IsDateTime}}
-                                    {{#if IsDate}}
-                            <DatePicker 
-                                renderInput={(props) => <TextField id="{{NameWithPathCamelCase}}" name="{{NameWithPathCamelCase}}" onBlur={formik.handleBlur} {{#if Field.IsRequired}}required={true}{{/if}} error={ hasError('{{NameWithPathCamelCase}}', formik)} {...props} />}
-                                label="{{hmn Field}}"
-                            {{#unless Field.IsRequired}}
-                                clearable={true}
-                                clearText="clear"
-                            {{/unless}}
-                                value={ formik.values.{{NameWithPathSafeCamelCase}} }
-                                onChange={(newValue) => {
-                                    formik.setFieldValue("{{NameWithPathCamelCase}}", newValue);
-                                }}
-                            />
-                                    {{else}}
-                            <DateTimePicker
+                                {{#if IsDate}}<DatePicker {{else}}<DateTimePicker {{/if}}
                                 slotProps={ {
                                     textField: {
                                     variant: "outlined",
@@ -452,8 +445,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                                 onChange={(newValue) => {
                                     formik.setFieldValue("{{NameWithPathCamelCase}}", newValue);
                                 }}
-                            />                                        
-                                    {{/if}}
+                            />                                                                         
                             <FormHelperText error={true}>
                                 <ErrorMessage name="{{NameWithPathCamelCase}}" />
                             </FormHelperText>

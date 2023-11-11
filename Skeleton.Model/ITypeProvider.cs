@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using Skeleton.Model.NamingConventions;
 using Skeleton.Model.Operations;
 
@@ -14,9 +13,10 @@ namespace Skeleton.Model
 
         void AddGeneratedOperation(string text);
 
-        void DropGeneratedOperations(Settings settings, StringBuilder stringBuilder);
-        void DropGeneratedTypes(Settings settings, StringBuilder stringBuilder);
+        void DropGenerated(Domain domain);
 
+        CodeFile GenerateDropStatements(Domain oldDomain, Domain newDomain);
+        
         string EscapeReservedWord(string name);
 
         public string GetCsDbTypeFromDbType(string dbTypeName);

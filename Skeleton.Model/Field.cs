@@ -16,6 +16,10 @@ namespace Skeleton.Model
             Type = type;
         }
 
+        public Field(Domain domain) : base(domain)
+        {
+        }
+
         public const string DeletedFieldName = "deleted";
         
         public const string SoftDeleteFieldName = "deleted_date";
@@ -53,11 +57,11 @@ namespace Skeleton.Model
 
         public bool IsTrackingDate => IsCreatedDate || IsModifiedDate || (Type is ApplicationType && ((ApplicationType)Type).DeleteType == DeleteType.Soft && Name.StartsWith(DeletedFieldName));
 
-        public bool IsCreatedDate => (IsDateTime || IsDateTimeOffset) && Type.Domain.NamingConvention.IsCreatedTimestampFieldName(Name);
+        public bool IsCreatedDate => (IsDateTime || IsDateTimeOffset) && _domain.NamingConvention.IsCreatedTimestampFieldName(Name);
 
-        public bool IsModifiedDate => (IsDateTime || IsDateTimeOffset) && Type.Domain.NamingConvention.IsModifiedTimestampFieldName(Name);
+        public bool IsModifiedDate => (IsDateTime || IsDateTimeOffset) && _domain.NamingConvention.IsModifiedTimestampFieldName(Name);
         
-        public bool IsTrackingUser => (ReferencesType != null && ReferencesType.IsSecurityPrincipal) && (Type.Domain.NamingConvention.IsTrackingUserFieldName(Name));
+        public bool IsTrackingUser => (ReferencesType != null && ReferencesType.IsSecurityPrincipal) && (_domain.NamingConvention.IsTrackingUserFieldName(Name));
 
         public bool IsDelete => (ClrType == typeof(DateTime) || ClrType == typeof(DateTime?)) && Name == SoftDeleteFieldName;
 
@@ -130,10 +134,11 @@ namespace Skeleton.Model
         public bool Edit => Attributes?.edit != null ? Attributes.edit : !IsKey;
 
         public bool IsDisplayField => Attributes?.isDisplayForType != null ? Attributes.isDisplayForType : false;
-
-        public bool IsInt => ClrType == typeof(int) || ClrType == typeof(int?);
-
+        
         public bool IsClrTypeNullable => Nullable.GetUnderlyingType(ClrType) != null;
+
+        public bool IsNumber => (ClrType == typeof(int) || ClrType == typeof(short) || ClrType == typeof(int?) ||
+                                 ClrType == typeof(short?) || ClrType == typeof(long) || ClrType == typeof(long?));
 
         public Field RelatedTypeField
         {

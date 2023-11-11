@@ -70,7 +70,14 @@ namespace Skeleton.Console
         {
             if (_fileSystem.Directory.Exists(DbFolder))
             {
-                var sqlFiles = _fileSystem.Directory.GetFiles(DbFolder, "*.sql", SearchOption.AllDirectories);
+                // we only want to do this in the 'latest' version of the DB folder e.g. MyProject\Data\Database\0003 but 0002 and 0001 should not be touched
+                var childDirectories = _fileSystem.Directory.EnumerateDirectories(DbFolder).OrderByDescending(n => n).ToList();
+                if (!childDirectories.Any())
+                {
+                    return;
+                }
+                
+                var sqlFiles = _fileSystem.Directory.GetFiles(childDirectories.First(), "*.sql", SearchOption.AllDirectories);
                 foreach (var file in sqlFiles)
                 {
                     var contents = _fileSystem.File.ReadAllLines(file);

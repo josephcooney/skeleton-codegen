@@ -60,6 +60,12 @@ export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps>
         }
     }, [props.data]);
 
+    {{#if HasMultipleKeys}}
+    function makeKey(item: {{cs_name Name}}) : string {
+        return "" {{#each KeyFields}}+ item.{{cml_case Name}} + "_" {{/each}};
+    }      
+
+    {{/if}}
     return render();
 
     function render{{cs_name Name}}Table(data: {{cs_name Name}}[]) {
@@ -71,7 +77,11 @@ export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps>
                         </TableHead>
                         <TableBody>
                             {data.map(s =>
+                            {{#if HasMultipleKeys}}
+                                <{{cs_name Name}}Row data={s} key={ makeKey(s) } />
+                            {{else}}
                                 <{{cs_name Name}}Row data={s} key={ s.{{cml_case IdentityField.Name}} } />
+                            {{/if}}    
                             )}
                         </TableBody>
                     </StyledTable>

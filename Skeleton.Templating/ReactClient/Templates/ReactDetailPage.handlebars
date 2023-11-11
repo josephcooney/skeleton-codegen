@@ -62,7 +62,7 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : JSX
 
 	{{#each LinkedDetails}}
 	const get{{cs_name Name}}Details = (id: {{get_ts_type CurrentTypeIdField.ClrType}}) => {
-        apiCall({{cml_case Name}}Api.selectVia{{cs_name ../Name}}(id), set{{cs_name Name}}DetailState, {errorText: 'Error fetching {{HumanizedName}}.'}, enqueueSnackbar);
+        apiCall({{cml_case Name}}Api.selectVia{{cs_name ../Name}}Id(id), set{{cs_name Name}}DetailState, {errorText: 'Error fetching {{HumanizedName}}.'}, enqueueSnackbar);
 	}
 
 	{{/each}}
@@ -88,8 +88,13 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : JSX
     useEffect(() => {
         let idToFetch = props.id;
         if (!idToFetch && id){
-            {{! TODO - need to consier non-integer identities like guids}}
+            {{#unless HasMultipleKeys}}
+                {{#if IdentityField.IsNumber}}
             idToFetch = parseInt(id);
+                {{else}}
+            idToFetch = id;
+                {{/if}}                
+            {{/unless}}
         }
         if (idToFetch){
             getItemDetails(idToFetch);

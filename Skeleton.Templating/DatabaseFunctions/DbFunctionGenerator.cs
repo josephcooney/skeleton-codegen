@@ -38,7 +38,7 @@ namespace Skeleton.Templating.DatabaseFunctions
                 {
                     if (settings.GenerateSecurityPolicies && type.Attributes?.createPolicy != false && !skipPolicyGeneration)
                     {
-                        files.Add(GenerateSecurityPoicy(type, domain));
+                        files.Add(GenerateSecurityPolicy(type, domain));
                     }
 
                     var adapter = new DbTypeAdapter(type, new []{UpdateFunctionName}, OperationType.Update, domain);
@@ -68,7 +68,7 @@ namespace Skeleton.Templating.DatabaseFunctions
                         files.Add(GenerateSelectPagedForDisplayFunction(type, domain));
                     }
                     
-                    if (adapter.UpdateFields.Any())
+                    if (adapter.UpdateFields.Any() && !adapter.UnderlyingType.IsLink) // for linking types the insert operation is more of a logical "upsert"
                     {
                         files.Add(GenerateUpdateFunction(adapter));
                     }
@@ -150,13 +150,13 @@ namespace Skeleton.Templating.DatabaseFunctions
             return files;
         }
 
-        private CodeFile GenerateTemplateFromAdapter(DbTypeAdapter adapter, string templateName)
+        private CodeFile GenerateTemplateFromAdapter(DbTypeAdapter adapter, string templateName, string namePrefix = null)
         {
             try
             {
                 return new CodeFile
                 {
-                    Name = adapter.FunctionName + SqlExtension,
+                    Name = namePrefix + adapter.FunctionName + SqlExtension,
                     Contents = Util.GetCompiledTemplateFromTypeProvider(templateName, adapter.Domain.TypeProvider)(adapter),
                     RelativePath = ".\\" + adapter.Name + "\\"
                 };
@@ -217,7 +217,14 @@ namespace Skeleton.Templating.DatabaseFunctions
             }
             else
             {
-                return GenerateTemplateFromAdapter(adapter, DbTemplates.Insert);
+                if (adapter.UnderlyingType.IsLink)
+                {
+                    return GenerateTemplateFromAdapter(adapter, DbTemplates.UpsertLink);
+                }
+                else
+                {
+                    return GenerateTemplateFromAdapter(adapter, DbTemplates.Insert);
+                }
             }
         }
 
@@ -236,19 +243,19 @@ namespace Skeleton.Templating.DatabaseFunctions
         private CodeFile GenerateDisplayType(ApplicationType type, Domain domain)
         {
             var adapter = new SelectForDisplayDbTypeAdapter(type, new []{"display"} , domain);
-            return GenerateTemplateFromAdapter(adapter, "DisplayType");
+            return GenerateTemplateFromAdapter(adapter, "DisplayType", "_"); // underscore prefix allows fine-tuning of order that scripts are executed by dbup
         }
 
         private CodeFile GenerateResultType(ApplicationType applicationType, Domain domain)
         {
             var adapter = new DbTypeAdapter(applicationType, new []{"result"} , OperationType.None, domain);
-            return GenerateTemplateFromAdapter(adapter, "ResultType");
+            return GenerateTemplateFromAdapter(adapter, "ResultType", "_");
         }
         
         private CodeFile GenerateInsertType(ApplicationType applicationType, Domain domain)
         {
             var adapter = new DbTypeAdapter(applicationType, new []{"new"}, OperationType.Insert, domain);
-            return GenerateTemplateFromAdapter(adapter, "InsertType");
+            return GenerateTemplateFromAdapter(adapter, "InsertType", "_");
         }
 
         private CodeFile GenerateSelectAllForDisplayFunction(ApplicationType applicationType, Domain domain)
@@ -281,7 +288,7 @@ namespace Skeleton.Templating.DatabaseFunctions
             return GenerateTemplateFromAdapter(adapter, DbTemplates.DeleteSoft);
         }
 
-        private CodeFile GenerateSecurityPoicy(ApplicationType type, Domain domain)
+        private CodeFile GenerateSecurityPolicy(ApplicationType type, Domain domain)
         {
             var adapter = new SecureDbTypeAdapter(type, domain);
             return new CodeFile
@@ -299,6 +306,7 @@ namespace Skeleton.Templating.DatabaseFunctions
             public const string Update = "UpdateTemplate";
             public const string SecurityPolicy = "SecurityPolicyTemplate";
             public const string DeleteSoft = "DeleteSoftTemplate";
+            public const string UpsertLink = "UpsertLink";
         }
     }
 }

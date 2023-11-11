@@ -19,5 +19,7 @@ namespace Skeleton.Model
         public bool Ignore => Operations.All(op => op.Ignore);
         
         public bool IsCustomType { get; }
+
+        public bool IsGenerated => Attributes?.generated == true;
     }
 }

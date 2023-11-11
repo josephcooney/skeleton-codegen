@@ -18,6 +18,10 @@ $$
 		    perform set_config('app.user_id', security_user_id_param::text, true);
         END IF;
 
+        -- TODO - delete the values that aren't in the list
+
+        -- TODO - filter out so only new values are inserted
+
         foreach item in array {{NewRecordParameterName}}
             loop
             {{#if PrimaryKeyField.IsUuid}}

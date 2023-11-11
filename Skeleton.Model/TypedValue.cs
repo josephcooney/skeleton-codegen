@@ -23,6 +23,8 @@ public abstract class TypedValue
     
     public bool IsBoolean => ClrType == typeof(bool) || ClrType == typeof(bool?);
     
+    public virtual bool IsInt => ClrType == typeof(int) || ClrType == typeof(int?);
+    
     public bool IsDateTime => (ClrType == typeof(DateTime) || ClrType == typeof(DateTime?));
     
     public bool IsDate => _domain.TypeProvider.IsDateOnly(ProviderTypeName);

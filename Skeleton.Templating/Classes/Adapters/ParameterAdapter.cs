@@ -34,7 +34,7 @@ namespace Skeleton.Templating.Classes
 
         public bool RelatedFieldHasReferenceType => _parameter.RelatedTypeField != null && _parameter.RelatedTypeField.HasReferenceType;
 
-        public bool IsInt => _parameter.ClrType == typeof(int) || _parameter.ClrType == typeof(int?); // needed in react template to determine if we need to parseInt or not
+        public override bool IsInt => _parameter.ClrType == typeof(int) || _parameter.ClrType == typeof(int?); // needed in react template to determine if we need to parseInt or not
 
         public bool UserEditable
         {

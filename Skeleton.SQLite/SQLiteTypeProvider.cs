@@ -23,12 +23,12 @@ public class SQLiteTypeProvider : ITypeProvider
         // this is a no-op in SQLite
     }
 
-    public void DropGeneratedOperations(Settings settings, StringBuilder stringBuilder)
+    public void DropGenerated(Domain domain)
     {
         throw new NotImplementedException();
     }
 
-    public void DropGeneratedTypes(Settings settings, StringBuilder stringBuilder)
+    public CodeFile GenerateDropStatements(Domain oldDomain, Domain newDomain)
     {
         throw new NotImplementedException();
     }

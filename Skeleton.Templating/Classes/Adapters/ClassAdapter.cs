@@ -84,6 +84,10 @@ namespace Skeleton.Templating.Classes
             }
         }
 
+        public List<Field> KeyFields => _type.Fields.Where(a => a.IsKey).ToList();
+
+        public bool HasMultipleKeys => KeyFields.Count > 1;
+
         public bool CanDelete => _type is ApplicationType && ((ApplicationType)_type).DeleteType != DeleteType.None;
 
         public List<ClassFieldAdapter> UserEditableFields => Fields.Where(f => f.IsCallerProvided).ToList();

@@ -89,7 +89,11 @@ namespace Skeleton.Templating.ReactClient
                     var path = GetRelativePathFromTypeName(type.Name);
                     var adapter = new ClientApiAdapter(type, domain);
 
-                    files.Add(new CodeFile { Name = namestart + "Select.tsx", Contents = GenerateFromTemplate(adapter, TemplateNames.ReactSelectControl), RelativePath = path, Template = TemplateNames.ReactSelectControl});
+                    if (adapter.GenerateSelectComponent)
+                    {
+                        files.Add(new CodeFile { Name = namestart + "Select.tsx", Contents = GenerateFromTemplate(adapter, TemplateNames.ReactSelectControl), RelativePath = path, Template = TemplateNames.ReactSelectControl});
+                    }
+                    
                     files.Add(new CodeFile { Name = namestart + "Component.tsx", Contents = GenerateFromTemplate(adapter, TemplateNames.ReactComponent), RelativePath = path, Template = TemplateNames.ReactComponent});
                     files.Add(new CodeFile { Name = namestart + "DetailDisplay.tsx", Contents = GenerateFromTemplate(adapter, TemplateNames.ReactDetailDisplay), RelativePath = path, Template = TemplateNames.ReactDetailDisplay});
                     
@@ -99,11 +103,14 @@ namespace Skeleton.Templating.ReactClient
                         files.Add(new CodeFile { Name = namestart + "Detail.tsx", Contents = GenerateFromTemplate(detailAdapter, TemplateNames.ReactDetailPage), RelativePath = path, Template = TemplateNames.ReactDetailPage});
                     }
 
-                    foreach (var operation in adapter.ApiOperations.Where(op => op.ChangesData && op.GenerateUI))
+                    if (!type.IsLink || type.IdentityFields.Count == 1) // link type that also has a PK is probably OK
                     {
-                        var changeDataAdapter = new ClientApiInsertUpdateAdapter(type, domain, operation);
-                        files.Add(new CodeFile { Name = namestart + operation.FriendlyName + ".tsx", Contents = GenerateFromTemplate(changeDataAdapter, TemplateNames.ReactAddEditPage), RelativePath = path, Template = TemplateNames.ReactAddEditPage });
-                        files.Add(new CodeFile { Name = namestart + operation.FriendlyName + "Rendering.tsx", Contents = GenerateFromTemplate(changeDataAdapter, TemplateNames.ReactAddEditPageRendering), RelativePath = path, Template = TemplateNames.ReactAddEditPageRendering });
+                        foreach (var operation in adapter.ApiOperations.Where(op => op.ChangesData && op.GenerateUI))
+                        {
+                            var changeDataAdapter = new ClientApiInsertUpdateAdapter(type, domain, operation);
+                            files.Add(new CodeFile { Name = namestart + operation.FriendlyName + ".tsx", Contents = GenerateFromTemplate(changeDataAdapter, TemplateNames.ReactAddEditPage), RelativePath = path, Template = TemplateNames.ReactAddEditPage });
+                            files.Add(new CodeFile { Name = namestart + operation.FriendlyName + "Rendering.tsx", Contents = GenerateFromTemplate(changeDataAdapter, TemplateNames.ReactAddEditPageRendering), RelativePath = path, Template = TemplateNames.ReactAddEditPageRendering });
+                        }
                     }
 
                     if (adapter.Operations.Any(op => op.ChangesData && op.GenerateUI))
@@ -126,6 +133,7 @@ namespace Skeleton.Templating.ReactClient
             {
                 if (rt.RelatedType == null || domain.FilteredTypes.Contains(rt.RelatedType))
                 {
+                    
                     var listAdapter = new ListViewAdapter(rt.SimpleReturnType, domain, rt.RelatedType);
                     var listPath = GetRelativePathFromTypeName(rt.RelatedType.Name) + "list\\";
                     var nameStart = Util.TypescriptFileName(rt.SimpleReturnType.Name);

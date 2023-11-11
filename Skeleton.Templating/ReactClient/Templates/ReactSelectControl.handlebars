@@ -14,7 +14,7 @@ interface {{cs_name Name}}SelectState {
 interface {{cs_name Name}}SelectProps {
     value : {{get_ts_type IdentityField.ClrType}} | null;
     readonly: boolean;
-    onChange(value: {{get_ts_type IdentityField.ClrType}} | null) : void;
+    onChange(value: {{get_ts_type IdentityField.ClrType}} | null, item: {{cs_name SelectAllType.Name}} | null) : void;
     field?: any;
     error?: boolean;
     api?: {{ClientApiInterfaceName}} | null;
@@ -44,7 +44,7 @@ export class {{cs_name Name}}Select extends Component<{{cs_name Name}}SelectProp
     handleChange(event : React.SyntheticEvent, item: any) {
         this.setState({error: this.state.error, data: this.state.data, value: item?.value, loading: this.state.loading });
 		if (this.props.onChange) {
-			this.props.onChange(item?.value);		
+			this.props.onChange(item?.value, item?.data);		
         }
         this.props.field?.onChange({target: { value: item?.value, name: this.props.field.name }});
     }
@@ -60,9 +60,9 @@ export class {{cs_name Name}}Select extends Component<{{cs_name Name}}SelectProp
     render{{cs_name Name}}Select(data: {{cs_name SelectAllType.Name}}[]) {
 
         {{#if HasDisplayField}}
-		const options = data.map(d => ({ value: d.id, label: d.{{cml_case DisplayField.Name}} }));
+		const options = data.map(d => ({ value: d.id, label: d.{{cml_case DisplayField.Name}}, data: d }));
 		{{else}}
-		const options = data.map(d => ({ value: d.id, label: {{#each LinkingFields}}d.{{cml_case Name}}{{#unless @last}} + " - " + {{/unless}}{{/each}} }));
+		const options = data.map(d => ({ value: d.id, label: {{#each LinkingFields}}d.{{cml_case Name}}{{#unless @last}} + " - " + {{/unless}}{{/each}}, data: d }));
 		{{/if}}
         const selected = options.find(o => o.value === this.state.value) ?? null;
 		
@@ -84,8 +84,8 @@ export class {{cs_name Name}}Select extends Component<{{cs_name Name}}SelectProp
         return ( <div>{contents}</div> );
     }
 
-    async getSelectData() {
-        await this.api.selectAllForDisplay().then(data => {
+    getSelectData() {
+        this.api.selectAllForDisplay().then(data => {
             var responseBody = data.parsedBody;
             if (responseBody) {
                 this.setState({ data: responseBody, loading: false });
