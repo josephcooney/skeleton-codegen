@@ -164,8 +164,18 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
                 {
                     fields.Add(CreatedByField);
                 }
+
+                if (Domain.LogOperation != null)
+                {
+                    AddLogFields(fields, Domain.LogOperation);
+                }
                 return fields.OrderBy(f => f.Order).ToList();
             }
+        }
+
+        private void AddLogFields(List<IPseudoField> fields, Operation domainLogOperation)
+        {
+            Console.WriteLine("here");
         }
 
         public bool HasInsertInputFields => InsertInputFields.Any();
