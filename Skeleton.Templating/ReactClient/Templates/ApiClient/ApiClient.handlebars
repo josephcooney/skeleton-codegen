@@ -31,9 +31,9 @@ export const {{ClientApiTypeName}}QueryKeys = {
 {{#each ApiOperations}}
     {{#unless ChangesData}}
         {{#if HasCustomType}}
-    {{cml_case Name}}: (model : {{#if ../IsAttachment}}FormData{{else}}{{cs_name CustomType.Name}} | null{{/if}}) => ["{{cml_case Name}}", model] as const,
+    {{cml_case BareName}}: (model : {{#if ../IsAttachment}}FormData{{else}}{{cs_name CustomType.Name}} | null{{/if}}) => ["{{cml_case Name}}", model] as const,
         {{else}}
-    {{cml_case Name}}: ({{#each UserProvidedParameters}}{{cml_case Name}} : {{ResolvedTypescriptType}} | null {{#unless @last}}, {{/unless}}{{/each}}) => ["{{cml_case Name}}"{{#each UserProvidedParameters}}, {{cml_case Name}}{{/each}}] as const,
+    {{cml_case BareName}}: ({{#each UserProvidedParameters}}{{cml_case Name}} : {{ResolvedTypescriptType}} | null {{#unless @last}}, {{/unless}}{{/each}}) => ["{{cml_case Name}}"{{#each UserProvidedParameters}}, {{cml_case Name}}{{/each}}] as const,
         {{/if}}
     {{/unless}}
 {{/each}}    
