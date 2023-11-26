@@ -2,14 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import {Autocomplete, TextField} from '@mui/material';
 import { {{cs_name SelectAllType.Name}} } from './{{cs_name SelectAllType.Name}}';
-import { {{ClientApiTypeName}}, {{ClientApiInterfaceName}} } from './{{cml_case Name}}ApiClient';
-
-interface {{cs_name Name}}SelectState {
-    data: {{cs_name SelectAllType.Name}}[];
-	value: {{get_ts_type IdentityField.ClrType}} | null; 
-	loading: boolean;
-	error: boolean;
-}
+import { {{ClientApiTypeName}}, {{ClientApiInterfaceName}}, {{cs_name Name}}ApiClientQueryKeys } from './{{cml_case Name}}ApiClient';
+import {useQuery} from "@tanstack/react-query";
+import {defaultCacheDuration, queryCall} from "../../api";
 
 interface {{cs_name Name}}SelectProps {
     value : {{get_ts_type IdentityField.ClrType}} | null;
@@ -23,18 +18,18 @@ interface {{cs_name Name}}SelectProps {
 
 export const {{cs_name Name}}Select = (props: {{cs_name Name}}SelectProps) => {
     const api : {{ClientApiInterfaceName}} = props.api ?? new {{ClientApiTypeName}}();
-    const [selectState, setSelectState] = useState<{{cs_name Name}}SelectState>({ data: [], value: props.value, loading: true, error: false});
-
-    useEffect(() => {
-        getSelectData(); // replace with react query
-    }, []);
+    const [selectedValue, setSelectedValue] = useState<{{get_ts_type IdentityField.ClrType}} | null>(props.value);
+    const selectQuery = useQuery<{{cs_name SelectAllType.Name}}[]>({queryKey: {{cs_name Name}}ApiClientQueryKeys.selectAllForDisplay(),
+        staleTime: defaultCacheDuration,
+        queryFn: async () => await api.selectAllForDisplay(),
+    });
     
     useEffect(() => {
-        setSelectState((prevState: {{cs_name Name}}SelectState) => ({ ...prevState, value: props.value }));
+        setSelectedValue(props.value);
     }, [props.value]);
     
     const handleChange = (event : React.SyntheticEvent, item: any) => {
-        setSelectState((prevState: {{cs_name Name}}SelectState) => ({ ...prevState, value: item?.value }));
+        setSelectedValue(item?.value);
 		if (props.onChange) {
 			props.onChange(item?.value, item?.data);		
         }
@@ -46,7 +41,7 @@ export const {{cs_name Name}}Select = (props: {{cs_name Name}}SelectProps) => {
     }
 
     const onBlur = () => {
-        props.field?.onBlur({target: { value: selectState.value, name: props.field.name }});
+        props.field?.onBlur({target: { value: selectedValue, name: props.field.name }});
     }
     
     const render{{cs_name Name}}Select = (data: {{cs_name SelectAllType.Name}}[]) => {
@@ -56,7 +51,7 @@ export const {{cs_name Name}}Select = (props: {{cs_name Name}}SelectProps) => {
 		{{else}}
 		const options = data.map(d => ({ value: d.id, label: {{#each LinkingFields}}d.{{cml_case Name}}{{#unless @last}} + " - " + {{/unless}}{{/each}}, data: d }));
 		{{/if}}
-        const selected = options.find(o => o.value === selectState.value) ?? null;
+        const selected = options.find(o => o.value === selectedValue) ?? null;
 		
 		return (
             <Autocomplete options={options} value={selected} onChange={handleChange} renderInput={(params) => <TextField {...params} label={props.label} onBlur={onBlur} error={props.error} />} disabled={props.readonly} />
@@ -65,27 +60,15 @@ export const {{cs_name Name}}Select = (props: {{cs_name Name}}SelectProps) => {
 
     const render = () => {
 		var contents = null;
-        if (selectState.error) {
+        if (selectQuery.error) {
             contents = <span>Error</span>
         } else {
-            contents = selectState.loading
+            contents = selectQuery.isFetching
             ? <span><em>Loading...</em></span>
-            : render{{cs_name Name}}Select(selectState.data);
+            : render{{cs_name Name}}Select(selectQuery.data);
         }
 
         return ( <div>{contents}</div> );
-    }
-
-    function getSelectData() {
-        api.selectAllForDisplay().then(data => {
-            if (data) {
-                setSelectState((prevState: {{cs_name Name}}SelectState) => ({ ...prevState, data: data, loading: false }));
-            } else {
-                setSelectState((prevState: {{cs_name Name}}SelectState) => ({ ...prevState, loading: false }));
-            }
-        }).catch(err => {
-            setSelectState((prevState: {{cs_name Name}}SelectState) => ({ ...prevState, data: [], loading: false, error: true }));                
-        });
     }
     
     return render();
