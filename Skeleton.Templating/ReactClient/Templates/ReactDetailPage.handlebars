@@ -5,7 +5,7 @@ import {useTheme} from "@mui/material/styles";
 import EditIcon from '@mui/icons-material/Edit';
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { {{cs_name DetailType.Name}} } from './{{cs_name DetailType.Name}}';
-import { {{ClientApiTypeName}}, {{ClientApiInterfaceName}} } from './{{cml_case Name}}ApiClient';
+import { {{ClientApiTypeName}}, {{ClientApiInterfaceName}}, {{cs_name Name}}ApiClientQueryKeys } from './{{cml_case Name}}ApiClient';
 import { {{cs_name Name}}DetailDisplay } from './{{ts_file_name Name}}DetailDisplay';
 import { Loading } from '../../controls/loading';
 import { ErrorControl } from '../../controls/error-control';
@@ -13,10 +13,10 @@ import DateTimeDisplay from '../../controls/DateTimeDisplay';
 import Thumbnail from '../../controls/thumbnail';
 import Title from "../../controls/Title";
 import {useSnackbar} from "notistack";
-import {ResultData} from "../../http";
-import {apiCall} from "../../api";
+import {defaultCacheDuration, queryCall} from "../../api";
+import {useQuery} from "@tanstack/react-query";
 {{#each RelatedDetails}}
-import { {{ClientApiTypeName}}, {{ClientApiInterfaceName}} } from '../{{kb_case Name}}/{{cml_case Name}}ApiClient';
+import { {{ClientApiTypeName}}, {{ClientApiInterfaceName}}, {{cs_name Name}}ApiClientQueryKeys } from '../{{kb_case Name}}/{{cml_case Name}}ApiClient';
 import { {{cs_name SelectAllType.Name}} } from '../{{kb_case Name}}/{{cs_name SelectAllType.Name}}';
 {{#if Paged}}
 import { {{cs_name SelectAllType.Name}}ListPaged } from '../{{kb_case Name}}/list/{{cml_case SelectAllType.Name}}ListPaged';
@@ -33,80 +33,58 @@ interface {{cs_name Name}}DetailProps {
 {{/each}}
 }
 
-export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : JSX.Element =>  {
-
+export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : React.ReactElement =>  {
+    const {id} = useParams();
+    
+    function getId() : {{#if IdentityField.IsNumber}}number{{else}}string{{/if}} {
+        let idToFetch = props.id;
+        if (!idToFetch && id){
+        {{#unless HasMultipleKeys}}
+            {{#if IdentityField.IsNumber}}
+                idToFetch = parseInt(id);
+            {{else}}
+                idToFetch = id;
+            {{/if}}
+        {{/unless}}
+        }
+        return idToFetch ?? {{#if IdentityField.IsNumber}}0{{else}}""{{/if}};
+    }
+    const [itemId, setItemId] = useState<{{#if IdentityField.IsNumber}}number{{else}}string{{/if}}>(getId());
     const api : {{ClientApiInterfaceName}} = props.api ?? new {{ClientApiTypeName}}();
 	{{#each RelatedDetails}}
     const {{cml_case Name}}Api : {{ClientApiInterfaceName}} = props.{{cml_case Name}}Api ?? new {{ClientApiTypeName}}();
 	{{/each}}
-    const [{{cml_case Name}}DetailState, set{{cs_name Name}}DetailState] = useState<ResultData<{{cs_name DetailType.Name}}>>({
-        data: null,
-        loading: true,
-        error: false
-    });
-    {{#each RelatedDetails}}
-    const [{{cml_case Name}}DetailState, set{{cs_name Name}}DetailState] = useState<ResultData<{{cs_name SelectAllType.Name}}[]>>({        
-        data: null,
-        loading: true,
-        error: false,
-    });
-    {{/each}}
-    const {id} = useParams();
-    const navigate = useNavigate();
+    
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+    const {{cml_case Name}}Query = useQuery<{{cs_name DetailType.Name}}>({queryKey: {{cs_name Name}}ApiClientQueryKeys.selectForDisplayById(itemId), 
+                                             staleTime: defaultCacheDuration, 
+                                             queryFn: async () => queryCall(api.selectForDisplayById(itemId), {errorText: 'Error fetching {{HumanizedName}}'}, enqueueSnackbar),
+                                    });
+    {{#each DirectlyRelatedDetails}}
+    const {{cml_case Name}}Query = useQuery<{{cs_name SelectAllType.Name}}[]>({queryKey: {{cs_name Name}}ApiClientQueryKeys.selectForDisplayBy{{cs_name LinkingFieldBareName}}(itemId), staleTime: defaultCacheDuration, queryFn: async () => queryCall({{cml_case Name}}Api.selectForDisplayBy{{cs_name LinkingFieldBareName}}(itemId), {errorText: 'Error fetching {{HumanizedName}}'}, enqueueSnackbar ) });
+    {{/each}}
+    {{#each LinkedDetails}}
+    const {{cml_case Name}}Query = useQuery<{{cs_name SelectAllType.Name}}[]>({queryKey: {{cs_name Name}}ApiClientQueryKeys.selectVia{{cs_name ../Name}}Id(itemId), staleTime: defaultCacheDuration, queryFn: async () => queryCall({{cml_case Name}}Api.selectVia{{cs_name ../Name}}Id(itemId), {errorText: 'Error fetching {{HumanizedName}}'}, enqueueSnackbar) });
+    {{/each}}
+
+    const navigate = useNavigate();
+    
     const theme = useTheme();
-    
-    const getItemDetails = (id: {{get_ts_type IdentityField.ClrType}}) => {
-        apiCall(api.selectForDisplayById(id), set{{cs_name Name}}DetailState, {errorText: 'Error fetching {{HumanizedName}}.', noDataText: '{{HumanizedName}} not found.'}, enqueueSnackbar);
-    }
-
-	{{#each LinkedDetails}}
-	const get{{cs_name Name}}Details = (id: {{get_ts_type CurrentTypeIdField.ClrType}}) => {
-        apiCall({{cml_case Name}}Api.selectVia{{cs_name ../Name}}Id(id), set{{cs_name Name}}DetailState, {errorText: 'Error fetching {{HumanizedName}}.'}, enqueueSnackbar);
-	}
-
-	{{/each}}
-
-	{{#each DirectlyRelatedDetails}}
-        {{#unless Paged}}
-	const get{{cs_name Name}}Details = (id: {{LinkingFieldTsType}}) => {
-        apiCall({{cml_case Name}}Api.selectForDisplayBy{{cs_name LinkingFieldBareName}}(id), set{{cs_name Name}}DetailState, {errorText: 'Error fetching {{HumanizedName}}.'}, enqueueSnackbar);
-	}
-    
-        {{/unless}}
-	{{/each}}
 
     {{#each UpdateOperations}}
         {{#if GenerateUI}}
     const on{{cs_name Name}}Click = () => {
-        navigate('/{{kb_case ../Name}}/{{kb_case FriendlyName}}/' + {{cml_case ../Name}}DetailState.data?.id, {replace: false, state:{data: {{cml_case ../Name}}DetailState.data} });
+        navigate('/{{kb_case ../Name}}/{{kb_case FriendlyName}}/' + {{cml_case ../Name}}Query.data?.id, {replace: false, state:{data: {{cml_case ../Name}}Query.data} });
     }
 
         {{/if}}
     {{/each}} 
 
     useEffect(() => {
-        let idToFetch = props.id;
-        if (!idToFetch && id){
-            {{#unless HasMultipleKeys}}
-                {{#if IdentityField.IsNumber}}
-            idToFetch = parseInt(id);
-                {{else}}
-            idToFetch = id;
-                {{/if}}                
-            {{/unless}}
-        }
-        if (idToFetch){
-            getItemDetails(idToFetch);
-            {{#each RelatedDetails}}
-                {{#unless Paged}}
-            get{{cs_name Name}}Details(idToFetch);
-                {{/unless}}
-            {{/each}}
-        }
+        setItemId(getId());
     }, [props.id, id])
     
-    const render{{cs_name Name}}Detail = (data: {{cs_name DetailType.Name}}):JSX.Element => {
+    const render{{cs_name Name}}Detail = (data: {{cs_name DetailType.Name}}):React.ReactElement => {
         return (
             <>
             <{{cs_name Name}}DetailDisplay item={data} />
@@ -124,11 +102,11 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : JSX
     }
 
 	let contents = null;
-    if ({{cml_case Name}}DetailState.error) {
-        contents = <ErrorControl message={ {{cml_case Name}}DetailState.message ? {{cml_case Name}}DetailState.message : "unable to load {{hmn Name}}"}></ErrorControl>;
+    if ({{cml_case Name}}Query.error) {
+        contents = <ErrorControl message={ {{cml_case Name}}Query.error.message ? {{cml_case Name}}Query.error.message : "unable to load {{hmn Name}}"}></ErrorControl>;
     } else {
-        if ({{cml_case Name}}DetailState.data) {
-            contents = render{{cs_name Name}}Detail({{cml_case Name}}DetailState.data);
+        if ({{cml_case Name}}Query.data) {
+            contents = render{{cs_name Name}}Detail({{cml_case Name}}Query.data);
         }
         else {
             contents = <Loading />;
@@ -137,29 +115,29 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : JSX
 
     {{#each RelatedDetails}}
         {{#if Paged}}
-    const {{cml_case Name}}Contents = {{cml_case ../Name}}DetailState.data ? <{{cs_name SelectAllType.Name}}ListPaged filterBy='{{LinkingFieldName}}' {{cml_case LinkingFieldName}}={ {{cml_case ../Name}}DetailState.data.id } /> : null ;
+    const {{cml_case Name}}Contents = {{cml_case ../Name}}Query.data ? <{{cs_name SelectAllType.Name}}ListPaged filterBy='{{LinkingFieldName}}' {{cml_case LinkingFieldName}}={ {{cml_case ../Name}}Query.data.id } /> : null ;
         {{else}}
     let {{cml_case Name}}Contents = null;
-    if ({{cml_case Name}}DetailState.error) {
+    if ({{cml_case Name}}Query.error) {
         {{cml_case Name}}Contents = <ErrorControl message={"unable to load {{hmn Name}}."}></ErrorControl>;
     } else {
-        if ({{cml_case Name}}DetailState.loading){
+        if ({{cml_case Name}}Query.isFetching){
             {{cml_case Name}}Contents = <Loading />;			
         }
         else {
-            {{cml_case Name}}Contents = <{{cs_name SelectAllType.Name}}List data={ {{cml_case Name}}DetailState.data } dataProvided={true} linkedType='{{../Name}}' linkedId={ {{cml_case ../Name}}DetailState.data ? {{cml_case ../Name}}DetailState.data.id : null} />;		
+            {{cml_case Name}}Contents = <{{cs_name SelectAllType.Name}}List data={ {{cml_case Name}}Query.data } dataProvided={true} linkedType='{{../Name}}' linkedId={ {{cml_case ../Name}}Query.data ? {{cml_case ../Name}}Query.data.id : null} />;		
         }
     }
         {{/if}}
     {{/each}}
 
-    if ({{cml_case Name}}DetailState.data) {
+    if ({{cml_case Name}}Query.data) {
         return (
         <div style={ {width: '100%'} }>
             {{#if DisplayField}}
-            <Title>{ {{cml_case Name}}DetailState.data.{{cml_case DisplayField.Name}} }</Title>
+            <Title>{ {{cml_case Name}}Query.data.{{cml_case DisplayField.Name}} }</Title>
             {{else}}
-            <Title>{{HumanizedName}} { {{cml_case Name}}DetailState.data.{{cml_case IdentityField.Name}} }</Title>
+            <Title>{{HumanizedName}} { {{cml_case Name}}Query.data.{{cml_case IdentityField.Name}} }</Title>
             {{/if}}
             <p>{{HumanizedName}} Details</p>
             {contents}

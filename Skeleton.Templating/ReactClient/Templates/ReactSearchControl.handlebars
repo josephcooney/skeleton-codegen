@@ -17,7 +17,7 @@ interface {{cs_name Name}}ComponentProps extends SearchProps {
     api?: {{ClientApi.ClientApiInterfaceName}} | null;
 }
 
-export const {{cs_name Name}} = (props: {{cs_name Name}}Props) : JSX.Element => {
+export const {{cs_name Name}} = (props: {{cs_name Name}}Props) : React.ReactElement => {
     const location = useLocation();
     const nav = useNavigate();
     return <{{cs_name Name}}Component location={location} navigation={nav} api={props.api}  />

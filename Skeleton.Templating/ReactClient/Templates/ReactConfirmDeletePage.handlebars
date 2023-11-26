@@ -15,7 +15,7 @@ interface I{{cs_name Name}}DeleteState {
     data : {{cs_name SelectAllType.Name}};
 }
 
-export const {{cs_name Name}}ConfirmDelete = (props: I{{cs_name Name}}DeleteProps):JSX.Element => {
+export const {{cs_name Name}}ConfirmDelete = (props: I{{cs_name Name}}DeleteProps):React.ReactElement => {
 
     const api: {{ClientApiInterfaceName}} = props.api ? props.api : new {{ClientApiTypeName}}();
     const state = useLocation().state as unknown as I{{cs_name Name}}DeleteState;

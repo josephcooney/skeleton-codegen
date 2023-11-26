@@ -95,7 +95,7 @@ export interface {{cs_name Name}}{{OperationNameFriendly}}Props {
     {{/if}}
 }
 
-export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}}{{OperationNameFriendly}}Props) : JSX.Element => {
+export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}}{{OperationNameFriendly}}Props) : React.ReactElement => {
 
     const api: {{ClientApiInterfaceName}} = props.api ?? new {{ClientApiTypeName}}();
 	const validation: {{cs_name Name}}Validate = new {{cs_name Name}}Validate();
@@ -366,7 +366,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
         return null;
     }
 
-    const renderTitle = () : JSX.Element | null => {
+    const renderTitle = () : React.ReactElement | null => {
     {{#if HasHelp}}
         const helpButton = (<IconButton onClick={e => help.showHelp(helptopic)}><HelpOutlineIcon color="primary" /></IconButton>);
         if (props.title){
