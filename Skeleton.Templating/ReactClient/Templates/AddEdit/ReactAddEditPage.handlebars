@@ -235,17 +235,17 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
 	{{#if IsUpdate}}
 	function getItemDetails(id: {{get_ts_type IdentityField.ClrType}}) {
         api.selectForDisplayById(id).then(data => {
-            if (data.parsedBody) {
+            if (data) {
 				const newData = {
 					{{#each CurrentOperation.UserProvidedParameters}}
 					{{#if IsFile}}
 					{{cml_case Name}}: null,
 					{{else}}
-					{{cml_case Name}}: data.parsedBody.{{cml_case Name}},
+					{{cml_case Name}}: data.{{cml_case Name}},
 					{{/if}}
 					{{/each}}				
 				}
-				setState((prevState) => { return {...prevState, data: newData, loading: false, fetched: data.parsedBody! }});								
+				setState((prevState) => { return {...prevState, data: newData, loading: false, fetched: data! }});								
 			} else {
 				setState((prevState) => { return {...prevState, loading: false, error: true, message: "Item Not Found" }});				
 			}            
@@ -298,13 +298,13 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
 		{{/each}}
 		api.{{cml_case OperationName}}(formData).then(data => {
 			{{#unless IsUpdate}}
-			if (data.parsedBody) {
-                createLinkedItemAssociation(data.parsedBody);
+			if (data) {
+                createLinkedItemAssociation(data);
             }
 			{{/unless}}
             enqueueSnackbar('{{HumanizedName}} saved', {variant: 'success'});
-			if (props.onSaved && data.parsedBody) {
-                props.onSaved(data.parsedBody);
+			if (props.onSaved && data) {
+                props.onSaved(data);
             } else {
                 goBack();
             }
@@ -331,14 +331,14 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
             api.{{cml_case OperationName}}({{#each CurrentOperation.UserProvidedParameters}}{{#if IsCustomArrayType}}[fields.{{cml_case Name}}]{{else}}fields.{{cml_case Name}}{{/if}}{{#unless @last}}, {{/unless}}{{/each}}).then(data => { 
 		{{/if}}
 			{{#if AssociateViaLink}}
-			if (data.parsedBody) {
-                createLinkedItemAssociation(data.parsedBody);
+			if (data) {
+                createLinkedItemAssociation(data);
             }
 			{{/if}}
             setState((prevState) => { return {...prevState, saving: false }});
             enqueueSnackbar('{{HumanizedName}} saved', {variant: 'success'});
-			if (props.onSaved && data.parsedBody) {
-                props.onSaved(data.parsedBody);
+			if (props.onSaved && data) {
+                props.onSaved(data);
             } else {
                 goBack();
             }
