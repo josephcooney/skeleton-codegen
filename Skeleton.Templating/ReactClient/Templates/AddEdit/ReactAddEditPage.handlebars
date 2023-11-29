@@ -14,6 +14,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import {useSnackbar} from "notistack";
 import { motion, AnimatePresence } from "framer-motion";
+import {useMutation} from "@tanstack/react-query";
 {{#if IsUpdate}}import { Loading } from '../../controls/loading';{{/if}}
 {{#if HasAnyHtmlFields}}import RichContentEditor from "../../controls/RichTextEditor";{{/if}}
 {{#if HasHelp}}
@@ -65,7 +66,6 @@ export interface {{StateTypeName}} {
 	{{/if}}
     visible: boolean;
     error: boolean;
-    saving: boolean;
 	message?: string | null;
 	{{#if IsUpdate}}
 	loading: boolean;	
@@ -105,6 +105,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
     const navigation = useNavigate();
     const {id} = useParams();
     const { enqueueSnackbar } = useSnackbar();
+    const save = useMutation({mutationFn: (fields : {{FormDataTypeName}}) => handleSubmit(fields) })
 {{#if HasHelp}}
     const helptopic = "{{Name}}_{{cml_case OperationNameFriendly}}";
     const help = useHelp();
@@ -217,7 +218,6 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
         loading: providedData == null,
     {{/if}}
         error: false,
-        saving: false,
         visible: true,
     };
     
@@ -285,7 +285,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
 	{{/if}}
 
 	{{#if IsAttachment}}
-    const handleSubmit = (fields : any) => {
+    const handleSubmit = async (fields : {{FormDataTypeName}}) : Promise<void> => {
 		var formData = new FormData();
 		{{#each CurrentOperation.ClientSuppliedFields}}
 		if (fields.{{NameWithPathCamelCase}}){
@@ -296,7 +296,8 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
 			{{/if}}
 		}
 		{{/each}}
-		api.{{cml_case OperationName}}(formData).then(data => {
+        try {
+		    const data = await api.{{cml_case OperationName}}(formData);
 			{{#unless IsUpdate}}
 			if (data) {
                 createLinkedItemAssociation(data);
@@ -308,46 +309,39 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
             } else {
                 goBack();
             }
-        }).catch(err => {
+        }
+        catch (err) {
             enqueueSnackbar('Error saving {{HumanizedName}}. ' + err, {variant: 'error'});
-            err.text().then((value: string) => {     
-                setState((prevState) => { return {...prevState, error: true, message: value }});
-            });
-        });
+            throw err;
+        }
     }
 	{{else}}
-        {{#if CurrentOperation.UsesModel}}    
-    const handleSubmit = (fields : {{ModelTypeName}}) => {
-        {{else}}
-    const handleSubmit = (fields : {{StateTypeName}}) => {
-        {{/if}}    
+        const handleSubmit = async (fields : {{FormDataTypeName}}) : Promise<void> => {
         {{#if CurrentOperation.HasCustomType}}
         console.log(fields);
         {{/if}}
-        setState((prevState) => { return {...prevState, saving: true }});
+        try {
 		{{#if CurrentOperation.UsesModel}}
-		api.{{cml_case OperationName}}(fields).then(data => {
+		    const data = await api.{{cml_case OperationName}}(fields);
         {{else}}
-            api.{{cml_case OperationName}}({{#each CurrentOperation.UserProvidedParameters}}{{#if IsCustomArrayType}}[fields.{{cml_case Name}}]{{else}}fields.{{cml_case Name}}{{/if}}{{#unless @last}}, {{/unless}}{{/each}}).then(data => { 
+            const data = await api.{{cml_case OperationName}}({{#each CurrentOperation.UserProvidedParameters}}{{#if IsCustomArrayType}}[fields.{{cml_case Name}}]{{else}}fields.{{cml_case Name}}{{/if}}{{#unless @last}}, {{/unless}}{{/each}}); 
 		{{/if}}
 			{{#if AssociateViaLink}}
 			if (data) {
                 createLinkedItemAssociation(data);
             }
 			{{/if}}
-            setState((prevState) => { return {...prevState, saving: false }});
             enqueueSnackbar('{{HumanizedName}} saved', {variant: 'success'});
 			if (props.onSaved && data) {
                 props.onSaved(data);
             } else {
                 goBack();
             }
-        }).catch(err => {
+        }
+        catch (err) {
             enqueueSnackbar('Error saving {{HumanizedName}}. ' + err, {variant: 'error'});
-            err.text().then((value: string) => {
-                setState((prevState) => { return {...prevState, error: true, message: value, saving: false }});
-            });
-        });
+            throw err;
+        }
     }
 	{{/if}}
 
@@ -398,7 +392,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
         <motion.div initial={ { opacity: 0, x: -1000 } }
                     animate={ { opacity: 1, x: 0 } }
                     exit={ { opacity: 0, x: -1000 } }>            
-		<Formik {{#if IsUpdate}}enableReinitialize{{/if}} initialValues={ {{CurrentOperation.StatePath}} } onSubmit={handleSubmit} validate={validate}>
+		<Formik {{#if IsUpdate}}enableReinitialize{{/if}} initialValues={ {{CurrentOperation.StatePath}} } onSubmit={save.mutate} validate={validate}>
             {formik => (
 			<div>
                 {renderTitle()}
@@ -501,7 +495,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                                     <Button variant="outlined" sx={ {width:"100px"} } onClick={cancelSave}>Cancel</Button>
                                 </Grid>
                                 <Grid item>
-                                    <LoadingButton loading={state.saving} loadingPosition="start" startIcon={<SaveIcon />} disabled={state.saving} color="primary" sx={ {width:"100px"} } variant="contained" type="submit">Save</LoadingButton>
+                                    <LoadingButton loading={save.isPending} loadingPosition="start" startIcon={<SaveIcon />} disabled={save.isPending} color="primary" sx={ {width:"100px"} } variant="contained" type="submit">Save</LoadingButton>
                                 </Grid>
                             </Grid>
                         </Grid>  
