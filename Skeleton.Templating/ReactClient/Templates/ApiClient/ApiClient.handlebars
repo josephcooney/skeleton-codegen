@@ -77,8 +77,11 @@ export class {{ClientApiTypeName}} implements {{ClientApiInterfaceName}} {
         if (result.parsedBody != undefined){
             return result.parsedBody;
         } else {
-            // throw
-            throw new Error('Network response was not ok'); // TODO - better error?
+            if (result.status == 204){
+                return null;
+            } else {
+                throw new Error('Network response was not ok'); // TODO - better error?
+            }
         }
 	{{else}}
 	public async {{cml_case BareName}}({{#each UserProvidedParameters}}{{cml_case Name}} : {{ResolvedTypescriptType}} | null {{#unless @last}}, {{/unless}}{{/each}}) : Promise<{{TypeScriptReturn}}>  { 
@@ -119,8 +122,11 @@ export class {{ClientApiTypeName}} implements {{ClientApiInterfaceName}} {
         if (result.parsedBody != undefined){
             return result.parsedBody;
         } else {
-            // throw
-            throw new Error('Network response was not ok'); // TODO - better error?
+            if (result.status == 204){
+                return null;
+            } else {
+                throw new Error('Network response was not ok'); // TODO - better error?
+            }
         }
 	{{/if}}
 	}

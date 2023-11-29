@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using Skeleton.Postgres;
@@ -148,6 +147,7 @@ namespace Skeleton.Console
                 { "data-test-dir|database-test-directory=", "the root directory to generate database test helpers into.", m => s.TestDataDirectory = m },
                 { "client-dir|client-code-directory=", "the directory to generate client code into.", m => s.ClientAppDirectory = m },
                 { "dbg|debug", "Attach Debugger on start", d => s.Debug = d != null },
+                { "db-squash", "Consolidate db files into current folder - useful if template changes have resulted in inadvertent drops", d => s.DbSquash = d != null },
                 { "del", "delete generated files before re-generating", d => s.DeleteGeneratedFiles = d != null},
                 { "flutter", "Generate a Flutter client for application", f => {if (f != null) s.ClientAppTypes.Add(ClientAppUIType.Flutter); } },
                 { "h|?|help",  "show this message and exit", h => s.ShowHelp = h != null },

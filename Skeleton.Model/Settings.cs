@@ -68,6 +68,8 @@ namespace Skeleton.Model
         
         public string AdminRoleName { get; set; }
         
+        public bool DbSquash { get; set; }
+        
         public NamingConventionSettings NamingConventionSettings { get; set; }
 
         public string ResolveClientAppDirectory() => !string.IsNullOrEmpty(ClientAppDirectory)
