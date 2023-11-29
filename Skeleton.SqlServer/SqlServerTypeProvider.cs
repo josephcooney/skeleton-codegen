@@ -777,7 +777,7 @@ public class SqlServerTypeProvider : ITypeProvider
         
         if (routineType == OperationTypes.Procedure)
         {
-            var fields = GetReturnFieldsForProcedure(op);
+            var fields = GetReturnFieldsForProcedure(op, domain);
             if (fields.Count == 1)
             {
                 if (op.Attributes?.single_result == true)
@@ -808,7 +808,7 @@ public class SqlServerTypeProvider : ITypeProvider
         {
             if (resultType == "TABLE")
             {
-                var fields = GetReturnFieldsForFunction(op);
+                var fields = GetReturnFieldsForFunction(op, domain);
                 if (fields.Count == 1)
                 {
                     if (op.Attributes?.single_result == true)
@@ -852,7 +852,7 @@ public class SqlServerTypeProvider : ITypeProvider
         return null;
     }
 
-    private List<Field> GetReturnFieldsForProcedure(Operation op)
+    private List<Field> GetReturnFieldsForProcedure(Operation op, Domain domain)
     {
         var fields = new List<Field>();
 
@@ -876,7 +876,7 @@ public class SqlServerTypeProvider : ITypeProvider
                 maxLength = SanitizeSize(maxLength, providerDataType);
                 var clrType = GetClrTypeForSqlType(providerDataType);
 
-                fields.Add(new Field(op.RelatedType.Domain)
+                fields.Add(new Field(domain)
                 {
                     Name = name, ProviderTypeName = providerDataType, Order = order, IsRequired = !isNullable,
                     Size = maxLength, ClrType = clrType
@@ -996,7 +996,7 @@ public class SqlServerTypeProvider : ITypeProvider
         }
     }
 
-    private List<Field> GetReturnFieldsForFunction(Operation op)
+    private List<Field> GetReturnFieldsForFunction(Operation op, Domain domain)
     {
         var fields = new List<Field>();
         
@@ -1034,7 +1034,7 @@ ORDER BY r.ROUTINE_NAME, rc.ORDINAL_POSITION;";
                     : (int)reader["CHARACTER_MAXIMUM_LENGTH"];
                 var clrType = GetClrTypeForSqlType(providerDataType);
 
-                fields.Add(new Field(op.RelatedType.Domain)
+                fields.Add(new Field(domain)
                 {
                     Name = name, ProviderTypeName = providerDataType, Order = order, IsRequired = isNullable == "NO",
                     Size = maxLength, ClrType = clrType
