@@ -65,7 +65,7 @@ export const {{cs_name Name}}Select = (props: {{cs_name Name}}SelectProps) => {
         } else {
             contents = selectQuery.isFetching
             ? <span><em>Loading...</em></span>
-            : render{{cs_name Name}}Select(selectQuery.data);
+            : render{{cs_name Name}}Select(selectQuery.data ?? []);
         }
 
         return ( <div>{contents}</div> );

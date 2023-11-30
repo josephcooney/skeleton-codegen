@@ -74,15 +74,21 @@ export class {{ClientApiTypeName}} implements {{ClientApiInterfaceName}} {
         }
 		{{/if}}
 		{{/if}}
+        {{#unless NoResult}}
         if (result.parsedBody != undefined){
             return result.parsedBody;
         } else {
+        {{#if SingleResult}}
+            throw new Error('No result');
+        {{else}}
             if (result.status == 204){
-                return null;
+                return {{TypeScriptDefaultReturnValue}};
             } else {
-                throw new Error('Network response was not ok'); // TODO - better error?
+                throw new Error('Network response was not ok');
             }
+        {{/if}}
         }
+        {{/unless}}
 	{{else}}
 	public async {{cml_case BareName}}({{#each UserProvidedParameters}}{{cml_case Name}} : {{ResolvedTypescriptType}} | null {{#unless @last}}, {{/unless}}{{/each}}) : Promise<{{TypeScriptReturn}}>  { 
     {{#if ProvideDataByUri}}
@@ -119,15 +125,21 @@ export class {{ClientApiTypeName}} implements {{ClientApiInterfaceName}} {
         }
 		{{/if}}
 		{{/if}}
+        {{#unless NoResult}}
         if (result.parsedBody != undefined){
             return result.parsedBody;
         } else {
-            if (result.status == 204){
-                return null;
-            } else {
-                throw new Error('Network response was not ok'); // TODO - better error?
-            }
+        {{#if SingleResult}}
+            throw new Error('No result');
+        {{else}}
+        if (result.status == 204){
+            return {{TypeScriptDefaultReturnValue}};
+        } else {
+            throw new Error('Network response was not ok');
         }
+        {{/if}}
+        }
+        {{/unless}}
 	{{/if}}
 	}
 

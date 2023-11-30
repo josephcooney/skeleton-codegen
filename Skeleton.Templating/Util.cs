@@ -522,13 +522,41 @@ namespace Skeleton.Templating
                 return GetTypeScriptTypeForClrType(clrType.GetElementType()) + "[]";
             }
             
-            var type = System.Nullable.GetUnderlyingType(clrType) ?? clrType;
+            var type = Nullable.GetUnderlyingType(clrType) ?? clrType;
             if (_typeScriptTypes.ContainsKey(type))
             {
                 return _typeScriptTypes[type];
             }
 
             return "any";
+        }
+        
+        public static string GetTypeScriptDefaultValueForClrType(System.Type clrType)
+        {
+            if (clrType.IsArray && clrType != typeof(byte[]))
+            {
+                return "[]";
+            }
+            
+            var type = Nullable.GetUnderlyingType(clrType) ?? clrType;
+            if (_typeScriptTypes.ContainsKey(type))
+            {
+                switch (_typeScriptTypes[type])
+                {
+                    case "string":
+                        return "''";
+                    case "number":
+                        return "0";
+                    case "boolean":
+                        return "false";
+                    case "any":
+                        return null;
+                    case "void":
+                        return "void";
+                }
+            }
+
+            return "null";
         }
 
         public static string GetDartTypeForClrType(System.Type clrType)

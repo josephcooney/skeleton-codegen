@@ -171,6 +171,34 @@ namespace Skeleton.Templating.Classes.Adapters
             }
         }
 
+        public string TypeScriptDefaultReturnValue
+        {
+            get
+            {
+                if (_op.Returns?.ReturnType == ReturnType.None)
+                {
+                    return "void";
+                }
+                
+                if (_op.Returns?.ReturnType == ReturnType.Primitive)
+                {
+                    return Util.GetTypeScriptDefaultValueForClrType(_op.Returns.ClrReturnType);
+                }
+
+                if (_op.Returns?.ReturnType == ReturnType.ApplicationType || _op.Returns?.ReturnType == ReturnType.CustomType)
+                {
+                    if (_op.SingleResult)
+                    {
+                        return "null";
+                    }
+                    
+                    return "[]";
+                }
+
+                return "TODO";
+            }
+        }
+
         public string DartReturn
         {
             get
