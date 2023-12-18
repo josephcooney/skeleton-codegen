@@ -20,8 +20,6 @@ import Title from "../../../controls/Title";
 import {useSnackbar} from "notistack";
 import {StyledTable} from "../../../controls/styled-table";
 import {useQuery} from "@tanstack/react-query";
-import {UseQueryResult} from "@tanstack/react-query/src/types";
-import {DefaultError} from "@tanstack/query-core/build/modern/index";
 {{#if UnderlyingType.IsReferenceData}}
 import { UserConsumer, isAdmin } from '../../../api-authorization/UserContext';
 {{/if}}
@@ -46,11 +44,7 @@ export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps>
 
     const api : {{UnderlyingType.ClientApiInterfaceName}} = props.api ?? new {{UnderlyingType.ClientApiTypeName}}();
     const rendering: {{cs_name Name}}ListRendering = new {{cs_name Name}}ListRendering();
-{{#if HasOperations}}
-    const query : UseQueryResult<{{{ListStateTypeName}}}, DefaultError> = props.dataProvided ? {isFetching: false, isError: false, data: props.data} : useQuery({queryKey: {{cs_name UnderlyingType.Name}}ApiClientQueryKeys.{{cml_case PrimaryOperation.BareName}}(), staleTime: defaultCacheDuration, queryFn: api.{{cml_case PrimaryOperation.BareName}} });
-{{else}}
-    const query : UseQueryResult<{{{ListStateTypeName}}}, DefaultError> = {isFetching: false, isError: false, data: props.data};
-{{/if}}
+    const query = useQuery({queryKey: {{cs_name UnderlyingType.Name}}ApiClientQueryKeys.{{cml_case PrimaryOperation.BareName}}(), staleTime: defaultCacheDuration, queryFn: selectData });
 
     const navigate = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
@@ -144,7 +138,7 @@ export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps>
     }
 
     function renderError() {
-        const customError = rendering.renderCustomError(query);
+        const customError = rendering.renderCustomError(query.error);
         return customError ? customError : <p><em>Error</em> : {query?.error?.message}</p>;
     }
 
@@ -158,6 +152,18 @@ export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps>
         const customDescription = rendering.renderCustomDescription(query);
         return customDescription
             ? customDescription
-            : ((query.data && query.data.length > 0) || query.loading ? null : <Grid container><Grid item xs={12}>{noItemsMessage}</Grid></Grid>);
+            : ((query.data && query.data.length > 0) || query.isFetching ? null : <Grid container><Grid item xs={12}>{noItemsMessage}</Grid></Grid>);
+    }
+            
+    async function selectData() : Promise<{{{ListStateTypeName}}}> {
+        if (props.dataProvided){
+            return props.data ?? [];
+        } else {
+            {{#if HasOperations}}
+            return await api.{{cml_case PrimaryOperation.BareName}}();
+            {{else}}
+            return [];    
+            {{/if}}    
+        }    
     }
 }
