@@ -13,7 +13,9 @@ import { {{cs_name Name}}ConfirmDelete } from './{{cml_case Name}}ConfirmDelete'
 import { {{cs_name Name}}Detail } from './{{cml_case Name}}Detail';
 {{/if}}
 {{#each OperationsWithUIThatChangeData}}
+    {{#unless IsDelete}}
 import { {{cs_name RelatedType.Name}}{{FriendlyName}} } from './{{cml_case RelatedType.Name}}{{FriendlyName}}';
+    {{/unless}}
 {{/each}}
 {{#each SearchOperations}}
 import { {{cs_name Name}} } from './{{cml_case Name}}';
@@ -35,7 +37,9 @@ export const {{cs_name Name}}Component = ():React.ReactElement => {
             <Route path='/detail/:id' element={<{{cs_name Name}}Detail />} />
             {{/if}}
             {{#each OperationsWithUIThatChangeData}}
+                {{#unless IsDelete}}
             <Route path='/{{kb_case FriendlyName}}{{#each NavigationParameters}}/:{{cml_case Name}}{{/each}}' element={<{{cs_name RelatedType.Name}}{{FriendlyName}} />} />
+                {{/unless}}
             {{/each}}
             {{#each SearchOperations}}
             <Route path='/{{kb_case FriendlyName}}' element={<{{cs_name Name}} />} />

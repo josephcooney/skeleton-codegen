@@ -3,11 +3,13 @@ import { FormikErrors, setIn } from 'formik';
 
 {{#each OperationsWithUI}}
 {{#if ChangesData}}
+    {{#unless IsDelete}}
 {{#if UsesModel}}
 import { {{cs_name Name}}{{OperationName}}Model } from "./{{cs_name Name}}{{OperationName}}Model";
 {{else}}
 import { {{cs_name RelatedType.Name}}{{FriendlyName}}State } from './{{cml_case RelatedType.Name}}{{FriendlyName}}';
 {{/if}}
+    {{/unless}}        
 {{/if}}
 {{/each}}
 
@@ -15,6 +17,7 @@ export class {{cs_name Name}}Validate {
 
 	{{#each OperationsWithUI}}
 	{{#if ChangesData}}
+        {{#unless IsDelete}}
 	{{#if UsesModel}}
 	public validate{{cs_name BareName}}(state: {{cs_name Name}}{{OperationName}}Model) : FormikErrors<{{cs_name Name}}{{OperationName}}Model> {
 		let errors: FormikErrors<{{cs_name Name}}{{OperationName}}Model> = {};
@@ -73,6 +76,7 @@ export class {{cs_name Name}}Validate {
     }
 
 	{{/if}}
-	{{/if}}
+        {{/unless}}
+    {{/if}}
 	{{/each}}
 }
