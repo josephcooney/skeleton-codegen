@@ -42,9 +42,15 @@ interface {{cs_name Name}}ListProps {
 
 export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps> = (props: {{cs_name Name}}ListProps) => {
 
+    function getKey() {
+        let key : any[] = [];
+        key = key.concat({{cs_name UnderlyingType.Name}}ApiClientQueryKeys.{{cml_case PrimaryOperation.BareName}}());
+        return key.concat([props.dataProvided, props.data]);
+    }
+
     const api : {{UnderlyingType.ClientApiInterfaceName}} = props.api ?? new {{UnderlyingType.ClientApiTypeName}}();
     const rendering: {{cs_name Name}}ListRendering = new {{cs_name Name}}ListRendering();
-    const query = useQuery({queryKey: {{cs_name UnderlyingType.Name}}ApiClientQueryKeys.{{cml_case PrimaryOperation.BareName}}(), staleTime: defaultCacheDuration, queryFn: selectData });
+    const query = useQuery({queryKey: getKey(), staleTime: defaultCacheDuration, queryFn: selectData });
 
     const navigate = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
