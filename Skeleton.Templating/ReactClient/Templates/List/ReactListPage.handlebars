@@ -13,7 +13,7 @@ import { {{cs_name Name}} } from '../{{cs_name Name}}';
 import { {{cs_name Name}}Row } from './{{cml_case Name}}Row';
 import { {{cs_name Name}}Header } from './{{cml_case Name}}Header';
 import { {{UnderlyingType.ClientApiInterfaceName}}, {{UnderlyingType.ClientApiTypeName}}, {{cs_name UnderlyingType.Name}}ApiClientQueryKeys } from '../{{cml_case UnderlyingType.Name}}ApiClient';
-import {defaultCacheDuration} from "../../../api";
+import {defaultCacheDuration, queryCall} from "../../../api";
 import { Loading } from '../../../controls/loading';
 import {{cs_name Name}}ListRendering from './{{cml_case Name}}ListRendering';
 import Title from "../../../controls/Title";
@@ -160,7 +160,7 @@ export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps>
             return props.data ?? [];
         } else {
             {{#if HasOperations}}
-            return await api.{{cml_case PrimaryOperation.BareName}}();
+            return await queryCall(api.{{cml_case PrimaryOperation.BareName}}(), {errorText: 'Error fetching {{UnderlyingType.HumanizedNamePlural}}'}, enqueueSnackbar);
             {{else}}
             return [];    
             {{/if}}    
