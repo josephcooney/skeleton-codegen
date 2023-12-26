@@ -24,7 +24,7 @@ import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 
 // sub-components for {{cs_name Name}} 
 import { {{cs_name Name}} } from './{{cs_name Name}}';
-import { {{ClientApiInterfaceName}}, {{ClientApiTypeName}} } from './{{cml_case Name}}ApiClient';
+import { {{ClientApiInterfaceName}}, {{ClientApiTypeName}}, {{ClientApiTypeName}}QueryKeys } from './{{cml_case Name}}ApiClient';
 import { {{cs_name Name}}Validate } from './{{cml_case Name}}Validate';
 import {{cs_name Name}}{{OperationNameFriendly}}Rendering from './{{cml_case Name}}{{OperationNameFriendly}}Rendering';
 {{#if CurrentOperation.UsesModel}}
@@ -286,7 +286,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
 	{{/if}}
 
     const invalidateCaches = () => {
-        queryClient.invalidateQueries();
+        {{ClientApiTypeName}}QueryKeys.invalidateAll(queryClient);
     }
 
 	{{#if IsAttachment}}
