@@ -156,6 +156,7 @@ namespace Skeleton.Console
                 { "no-test-repo", "Disable generation of test repositories", t => { if (t != null) s.GenerateTestRepos = false; }},
                 { "r|root=", "the root folder to generate code into.", r => s.RootDirectory = r },
                 { "react", "Set the web UI generated to be React", r => {if (r != null) s.WebUIType = WebUIType.React; } },
+                { "react-native", "Generate a React Native client for application", r => {if (r != null) s.ClientAppTypes.Add(ClientAppUIType.ReactNative); } },
                 { "test-data=", "Generate test data of the specified size for empty tables.", t => s.TestDataSize = int.Parse(t) },
                 { "t|type=", "Only generate for a single type (for debugging)", t => s.TypeName = t },
                 { "u|update-db-operations",  "Update database with generated operations", u => s.AddGeneratedOptionsToDatabase = u != null },
@@ -249,6 +250,12 @@ namespace Skeleton.Console
             {
                 settings.FlutterSettings = new FlutterSettings();
                 configuration.GetSection("FlutterSettings").Bind(settings.FlutterSettings);
+            }
+
+            if (settings.ClientAppTypes.Contains(ClientAppUIType.ReactNative))
+            {
+                settings.ReactNativeSettings = new ReactNativeSettings();
+                configuration.GetSection("ReactNativeSettings").Bind(settings.ReactNativeSettings);
             }
             
             return true;

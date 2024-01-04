@@ -34,6 +34,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Skeleton.Postgres.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Skeleton.SQLite", "Skeleton.SQLite\Skeleton.SQLite.csproj", "{24D7B84A-70C4-430F-93BD-55F31AE7562E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Skeleton.ReactNative", "Skeleton.ReactNative\Skeleton.ReactNative.csproj", "{9626E141-C89F-42CF-BDFA-71108CB0CE50}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -92,6 +94,10 @@ Global
 		{24D7B84A-70C4-430F-93BD-55F31AE7562E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24D7B84A-70C4-430F-93BD-55F31AE7562E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{24D7B84A-70C4-430F-93BD-55F31AE7562E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9626E141-C89F-42CF-BDFA-71108CB0CE50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9626E141-C89F-42CF-BDFA-71108CB0CE50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9626E141-C89F-42CF-BDFA-71108CB0CE50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9626E141-C89F-42CF-BDFA-71108CB0CE50}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

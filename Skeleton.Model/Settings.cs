@@ -77,11 +77,18 @@ namespace Skeleton.Model
             : @"ClientApp\src\components\";
 
         public FlutterSettings FlutterSettings { get; set; }
+        
+        public ReactNativeSettings ReactNativeSettings { get; set; }
     }
 
     public class FlutterSettings
     {
         public string FlutterRootDirectory { get; set; }
+    }
+
+    public class ReactNativeSettings
+    {
+        public string RootDirectory { get; set; }
     }
     
     public enum WebUIType
@@ -93,7 +100,8 @@ namespace Skeleton.Model
 
     public enum ClientAppUIType
     {
-        Flutter
+        Flutter,
+        ReactNative
     }
 
     public enum DatabaseType

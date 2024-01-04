@@ -64,6 +64,19 @@ namespace Skeleton.Console
                     }
                 }
             }
+
+            if (_settings.ClientAppTypes.Contains(ClientAppUIType.ReactNative))
+            {
+                var rnGenerator = new Skeleton.ReactNative.Generator(_fileSystem, _settings);
+                if (_fileSystem.Directory.Exists(rnGenerator.RootDirectory))
+                {
+                    var tsxFiles = _fileSystem.Directory.GetFiles(rnGenerator.RootDirectory, "*.tsx", SearchOption.AllDirectories);
+                    ClearClientFileList(tsxFiles);
+                
+                    var tsFiles = _fileSystem.Directory.GetFiles(rnGenerator.RootDirectory, "*.ts", SearchOption.AllDirectories);
+                    ClearClientFileList(tsFiles);
+                }
+            }
         }
 
         private void ClearSqlFiles()

@@ -130,6 +130,14 @@ namespace Skeleton.Console
                 Log.Information("Finished generating flutter UI");
             }
 
+            if (_settings.ClientAppTypes.Contains(ClientAppUIType.ReactNative))
+            {
+                var rnGenerator = new ReactNative.Generator(_fs, _settings);
+                var files = rnGenerator.Generate(domain);
+                _fileWriter.ApplyCodeFiles(files, rnGenerator.RootDirectory);
+                Log.Information("Finished generating React Native UI");
+            }
+
             if (_settings.TestDataSize != null && _settings.TestDataSize > 0)
             {
                 var testDataGen = new TestDataGenerator();

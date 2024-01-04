@@ -29,7 +29,7 @@ namespace Skeleton.Flutter
             }
         }
 
-        public string FlutterRootFolder { get; private set; }
+        public string FlutterRootFolder { get; }
         
         public override List<CodeFile> Generate(Domain domain)
         {
