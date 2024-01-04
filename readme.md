@@ -1,5 +1,5 @@
 ﻿# 💀 Skeleton #
-Skeleton is a database-centric command-line code generation tool written in .net core. 
+Skeleton is a database-centric command-line code generation tool written in .net 
 
 > When woodworkers are faced with the task of producing the same thing over and over, they cheat. They build themselves a jig or template. If they get the jig right once, they can reproduce a piece of work time after time. The jig takes away complexity and reduces the chances of making mistakes, leaving the craftsman free to concentrate on quality.
 

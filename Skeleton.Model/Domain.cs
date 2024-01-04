@@ -54,6 +54,8 @@ namespace Skeleton.Model
         public ApplicationType? HelpType => Types.SingleOrDefault(t => t.IsHelp);
 
         public bool HasHelpType => HelpType != null;
+
+        public Operation? LogOperation => Operations.SingleOrDefault(o => o.IsLog);
         
         public Field? UserIdentity
         {

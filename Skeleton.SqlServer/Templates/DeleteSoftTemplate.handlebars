@@ -29,4 +29,4 @@ REVOKE ALL ON FUNCTION {{FunctionName}} ({{#each DeleteInputFields}} {{ProviderT
 GRANT EXECUTE ON FUNCTION {{FunctionName}} ({{#each DeleteInputFields}} {{ProviderTypeName}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}} {{/each}}) TO web_app_role;
 
 COMMENT ON FUNCTION {{FunctionName}} ({{#each DeleteInputFields}} {{ProviderTypeName}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}} {{/each}})
-    IS '{"applicationtype":"{{Name}}", "generated":true, "fullName":"{{FunctionName}}" }';
+    IS '{"applicationtype":"{{Name}}", "generated":true, "changesData":true, "fullName":"{{FunctionName}}" }';

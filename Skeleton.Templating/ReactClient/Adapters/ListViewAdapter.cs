@@ -141,7 +141,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
 
         public bool HasSecondaryPagingOperations => SecondaryPagingOperations.Any();
 
-        public string ListStateTypeName => $"ResultData<{Util.CSharpNameFromName(Name)}[]>";
+        public string ListStateTypeName => $"{Util.CSharpNameFromName(Name)}[]";
 
         public bool HasAnyHtmlFields => ListFields.Any(f => f.IsHtml);
     }

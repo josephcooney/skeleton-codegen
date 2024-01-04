@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
 using Skeleton.Model;
-using Skeleton.Templating;
 using Serilog;
 
 namespace Skeleton.ProjectGeneration

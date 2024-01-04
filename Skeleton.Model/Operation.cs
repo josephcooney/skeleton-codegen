@@ -73,6 +73,8 @@ namespace Skeleton.Model
 
         public bool IsPaged => Attributes?.paged == true;
 
+        public bool IsLog => Attributes?.islog == true;
+
         public ApplicationType RelatedType { get; set; } // this is set from the Attributes.applicationType - looked up by name
 
         public string BareName
@@ -130,8 +132,6 @@ namespace Skeleton.Model
         }
 
         public bool SingleResult => Attributes?.single_result == true || Returns.Multiple == false || Returns.ReturnType == ReturnType.Primitive;
-        
-        
     }
 
     public class OperationReturn

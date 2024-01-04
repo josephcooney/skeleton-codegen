@@ -105,7 +105,7 @@ namespace Skeleton.Templating.ReactClient
 
                     if (!type.IsLink || type.IdentityFields.Count == 1) // link type that also has a PK is probably OK
                     {
-                        foreach (var operation in adapter.ApiOperations.Where(op => op.ChangesData && op.GenerateUI))
+                        foreach (var operation in adapter.ApiOperations.Where(op => op.ChangesData && op.GenerateUI && !op.IsDelete))
                         {
                             var changeDataAdapter = new ClientApiInsertUpdateAdapter(type, domain, operation);
                             files.Add(new CodeFile { Name = namestart + operation.FriendlyName + ".tsx", Contents = GenerateFromTemplate(changeDataAdapter, TemplateNames.ReactAddEditPage), RelativePath = path, Template = TemplateNames.ReactAddEditPage });

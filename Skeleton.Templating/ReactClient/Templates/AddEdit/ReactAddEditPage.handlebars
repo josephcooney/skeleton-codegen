@@ -14,6 +14,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import {useSnackbar} from "notistack";
 import { motion, AnimatePresence } from "framer-motion";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 {{#if IsUpdate}}import { Loading } from '../../controls/loading';{{/if}}
 {{#if HasAnyHtmlFields}}import RichContentEditor from "../../controls/RichTextEditor";{{/if}}
 {{#if HasHelp}}
@@ -23,7 +24,7 @@ import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 
 // sub-components for {{cs_name Name}} 
 import { {{cs_name Name}} } from './{{cs_name Name}}';
-import { {{ClientApiInterfaceName}}, {{ClientApiTypeName}} } from './{{cml_case Name}}ApiClient';
+import { {{ClientApiInterfaceName}}, {{ClientApiTypeName}}, {{ClientApiTypeName}}QueryKeys } from './{{cml_case Name}}ApiClient';
 import { {{cs_name Name}}Validate } from './{{cml_case Name}}Validate';
 import {{cs_name Name}}{{OperationNameFriendly}}Rendering from './{{cml_case Name}}{{OperationNameFriendly}}Rendering';
 {{#if CurrentOperation.UsesModel}}
@@ -65,7 +66,6 @@ export interface {{StateTypeName}} {
 	{{/if}}
     visible: boolean;
     error: boolean;
-    saving: boolean;
 	message?: string | null;
 	{{#if IsUpdate}}
 	loading: boolean;	
@@ -95,7 +95,7 @@ export interface {{cs_name Name}}{{OperationNameFriendly}}Props {
     {{/if}}
 }
 
-export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}}{{OperationNameFriendly}}Props) : JSX.Element => {
+export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}}{{OperationNameFriendly}}Props) : React.ReactElement => {
 
     const api: {{ClientApiInterfaceName}} = props.api ?? new {{ClientApiTypeName}}();
 	const validation: {{cs_name Name}}Validate = new {{cs_name Name}}Validate();
@@ -105,6 +105,8 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
     const navigation = useNavigate();
     const {id} = useParams();
     const { enqueueSnackbar } = useSnackbar();
+    const queryClient = useQueryClient();
+    const save = useMutation({mutationFn: (fields : {{FormDataTypeName}}) => handleSubmit(fields) })
 {{#if HasHelp}}
     const helptopic = "{{Name}}_{{cml_case OperationNameFriendly}}";
     const help = useHelp();
@@ -217,7 +219,6 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
         loading: providedData == null,
     {{/if}}
         error: false,
-        saving: false,
         visible: true,
     };
     
@@ -235,17 +236,17 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
 	{{#if IsUpdate}}
 	function getItemDetails(id: {{get_ts_type IdentityField.ClrType}}) {
         api.selectForDisplayById(id).then(data => {
-            if (data.parsedBody) {
+            if (data) {
 				const newData = {
 					{{#each CurrentOperation.UserProvidedParameters}}
 					{{#if IsFile}}
 					{{cml_case Name}}: null,
 					{{else}}
-					{{cml_case Name}}: data.parsedBody.{{cml_case Name}},
+					{{cml_case Name}}: data.{{cml_case Name}},
 					{{/if}}
 					{{/each}}				
 				}
-				setState((prevState) => { return {...prevState, data: newData, loading: false, fetched: data.parsedBody! }});								
+				setState((prevState) => { return {...prevState, data: newData, loading: false, fetched: data! }});								
 			} else {
 				setState((prevState) => { return {...prevState, loading: false, error: true, message: "Item Not Found" }});				
 			}            
@@ -284,11 +285,15 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
     }
 	{{/if}}
 
+    const invalidateCaches = () => {
+        {{ClientApiTypeName}}QueryKeys.invalidateAll(queryClient);
+    }
+
 	{{#if IsAttachment}}
-    const handleSubmit = (fields : any) => {
-		var formData = new FormData();
+    const handleSubmit = async (fields : {{FormDataTypeName}}) : Promise<void> => {
+		const formData = new FormData();
 		{{#each CurrentOperation.ClientSuppliedFields}}
-		if (fields.{{NameWithPathCamelCase}}){
+		if (fields.{{NameWithPathSafeCamelCase}}){
 			{{#if Field.RelatedTypeField.IsFile}}
 			formData.append('{{cml_case Name}}',fields.{{NameWithPathCamelCase}});		
 			{{else}}
@@ -296,58 +301,54 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
 			{{/if}}
 		}
 		{{/each}}
-		api.{{cml_case OperationName}}(formData).then(data => {
+        try {
+		    const data = await api.{{cml_case OperationName}}(formData);
 			{{#unless IsUpdate}}
-			if (data.parsedBody) {
-                createLinkedItemAssociation(data.parsedBody);
+			if (data) {
+                createLinkedItemAssociation(data);
             }
 			{{/unless}}
             enqueueSnackbar('{{HumanizedName}} saved', {variant: 'success'});
-			if (props.onSaved && data.parsedBody) {
-                props.onSaved(data.parsedBody);
+            invalidateCaches();
+			if (props.onSaved && data) {
+                props.onSaved(data);
             } else {
                 goBack();
             }
-        }).catch(err => {
+        }
+        catch (err) {
             enqueueSnackbar('Error saving {{HumanizedName}}. ' + err, {variant: 'error'});
-            err.text().then((value: string) => {     
-                setState((prevState) => { return {...prevState, error: true, message: value }});
-            });
-        });
+            throw err;
+        }
     }
 	{{else}}
-        {{#if CurrentOperation.UsesModel}}    
-    const handleSubmit = (fields : {{ModelTypeName}}) => {
-        {{else}}
-    const handleSubmit = (fields : {{StateTypeName}}) => {
-        {{/if}}    
+        const handleSubmit = async (fields : {{FormDataTypeName}}) : Promise<void> => {
         {{#if CurrentOperation.HasCustomType}}
         console.log(fields);
         {{/if}}
-        setState((prevState) => { return {...prevState, saving: true }});
+        try {
 		{{#if CurrentOperation.UsesModel}}
-		api.{{cml_case OperationName}}(fields).then(data => {
+		    const data = await api.{{cml_case OperationName}}(fields);
         {{else}}
-            api.{{cml_case OperationName}}({{#each CurrentOperation.UserProvidedParameters}}{{#if IsCustomArrayType}}[fields.{{cml_case Name}}]{{else}}fields.{{cml_case Name}}{{/if}}{{#unless @last}}, {{/unless}}{{/each}}).then(data => { 
+            const data = await api.{{cml_case OperationName}}({{#each CurrentOperation.UserProvidedParameters}}{{#if IsCustomArrayType}}[fields.{{cml_case Name}}]{{else}}fields.{{cml_case Name}}{{/if}}{{#unless @last}}, {{/unless}}{{/each}}); 
 		{{/if}}
 			{{#if AssociateViaLink}}
-			if (data.parsedBody) {
-                createLinkedItemAssociation(data.parsedBody);
+			if (data) {
+                createLinkedItemAssociation(data);
             }
 			{{/if}}
-            setState((prevState) => { return {...prevState, saving: false }});
             enqueueSnackbar('{{HumanizedName}} saved', {variant: 'success'});
-			if (props.onSaved && data.parsedBody) {
-                props.onSaved(data.parsedBody);
+            invalidateCaches();
+			if (props.onSaved && data) {
+                props.onSaved(data);
             } else {
                 goBack();
             }
-        }).catch(err => {
+        }
+        catch (err) {
             enqueueSnackbar('Error saving {{HumanizedName}}. ' + err, {variant: 'error'});
-            err.text().then((value: string) => {
-                setState((prevState) => { return {...prevState, error: true, message: value, saving: false }});
-            });
-        });
+            throw err;
+        }
     }
 	{{/if}}
 
@@ -366,7 +367,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
         return null;
     }
 
-    const renderTitle = () : JSX.Element | null => {
+    const renderTitle = () : React.ReactElement | null => {
     {{#if HasHelp}}
         const helpButton = (<IconButton onClick={e => help.showHelp(helptopic)}><HelpOutlineIcon color="primary" /></IconButton>);
         if (props.title){
@@ -398,7 +399,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
         <motion.div initial={ { opacity: 0, x: -1000 } }
                     animate={ { opacity: 1, x: 0 } }
                     exit={ { opacity: 0, x: -1000 } }>            
-		<Formik {{#if IsUpdate}}enableReinitialize{{/if}} initialValues={ {{CurrentOperation.StatePath}} } onSubmit={handleSubmit} validate={validate}>
+		<Formik {{#if IsUpdate}}enableReinitialize{{/if}} initialValues={ {{CurrentOperation.StatePath}} } onSubmit={save.mutate} validate={validate}>
             {formik => (
 			<div>
                 {renderTitle()}
@@ -501,7 +502,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                                     <Button variant="outlined" sx={ {width:"100px"} } onClick={cancelSave}>Cancel</Button>
                                 </Grid>
                                 <Grid item>
-                                    <LoadingButton loading={state.saving} loadingPosition="start" startIcon={<SaveIcon />} disabled={state.saving} color="primary" sx={ {width:"100px"} } variant="contained" type="submit">Save</LoadingButton>
+                                    <LoadingButton loading={save.isPending} loadingPosition="start" startIcon={<SaveIcon />} disabled={save.isPending} color="primary" sx={ {width:"100px"} } variant="contained" type="submit">Save</LoadingButton>
                                 </Grid>
                             </Grid>
                         </Grid>  

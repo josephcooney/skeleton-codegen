@@ -33,6 +33,6 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         public int? Size => _domain.UserIdentity.Size;
         public Type ClrType => _domain.UserIdentity.ClrType;
         public bool IsGenerated => false;
-        public bool IsRequired => false; // TODO - not sure if this is right
+        public bool IsRequired => false; // sometimes the user is anon?
     }
 }

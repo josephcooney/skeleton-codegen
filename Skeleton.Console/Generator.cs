@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Text;
+using System.Text.RegularExpressions;
 using Skeleton.OpenApi;
 using Skeleton.ProjectGeneration;
 using Skeleton.Model;
@@ -138,8 +139,53 @@ namespace Skeleton.Console
                     typeProvider.AddTestData(testData);
                 }
             }
+
+            if (_settings.DbSquash)
+            {
+                SquashDbFilesIntoCurrentDbDirectory();
+            }
             
             Log.Information("Finished Code Generation");
+        }
+
+        public List<string> GetRelativeSqlFileNamesForDirectory(string directoryName)
+        {
+            return _fs.Directory.GetFiles(directoryName, "*.sql", SearchOption.AllDirectories).Select(fn => String.Join(_fs.Path.DirectorySeparatorChar, fn.Split(_fs.Path.DirectorySeparatorChar).Reverse().Take(2).Reverse())).Distinct().ToList();
+        }
+        
+        private void SquashDbFilesIntoCurrentDbDirectory()
+        {
+            var filterEx = new Regex("^[0-9]");
+            // get distinct file names
+            var fileNames = GetRelativeSqlFileNamesForDirectory(DatabaseScriptsFolder);
+            fileNames = fileNames.Where(fn => !(filterEx.IsMatch(fn))).ToList();
+            
+            var childDirectories = _fs.Directory.EnumerateDirectories(DatabaseScriptsFolder).OrderByDescending(n => n);
+            var currentHeadDirectory = childDirectories.First();
+            var headFiles = GetRelativeSqlFileNamesForDirectory(currentHeadDirectory);
+            fileNames.RemoveAll(f => headFiles.Contains(f));    
+            
+            // start looking backward from current directory to find files
+            foreach (var directory in childDirectories.Skip(1))
+            {
+                var dirFiles = GetRelativeSqlFileNamesForDirectory(directory);
+                var filesFound = new List<string>();
+                
+                foreach (var fileName in fileNames)
+                {
+                    // when found copy them in
+                    if (dirFiles.Contains(fileName))
+                    {
+                        var source = _fs.Path.Combine(directory, fileName);
+                        var target = _fs.Path.Combine(currentHeadDirectory, fileName);
+                        Log.Information("Squashing file {Source} into {Target}", source, target);
+                        _fs.File.Copy(source, target);
+                        filesFound.Add(fileName);
+                    }
+                }
+
+                fileNames.RemoveAll(fn => filesFound.Contains(fn));
+            }
         }
 
         private void GenerateDbDropStatements(Domain oldDomain, Domain domain, ITypeProvider typeProvider)
