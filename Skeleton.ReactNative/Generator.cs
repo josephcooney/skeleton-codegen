@@ -25,14 +25,11 @@ public class Generator : ReactClientGenerator
         Util.RegisterHelpers(domain);
         var files = new List<CodeFile>();
 
-        foreach (var type in domain.FilteredTypes)
-        {
-            if (type.GenerateUI)
-            {
-                var edit = new CodeFile { Name = Util.TypescriptFileName(type.Name) + "ApiClient.ts", Contents = GenerateApiClient(type, domain), RelativePath = GetRelativePathFromTypeName(type.Name), Template = TemplateNames.ApiClient };
-                files.Add(edit);
-            }
-        }
+        var apiClients = base.Generate(domain);
+        files.AddRange(apiClients);
+
+        var models = base.GenerateClientModels(domain);
+        files.AddRange(models);
 
         return files;
     }
