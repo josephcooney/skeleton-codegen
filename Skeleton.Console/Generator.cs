@@ -30,9 +30,9 @@ namespace Skeleton.Console
             _fileWriter = fileWriter;
         }
 
-        private string DatabaseScriptsFolder => _fs.Path.Combine(CSharpDataAccessFolder, DbScriptsRelativePath);
+        private string DatabaseScriptsDirectory => _fs.Path.Combine(CSharpDataAccessDirectory, DbScriptsRelativePath);
 
-        private string CSharpDataAccessFolder
+        private string CSharpDataAccessDirectory
         {
             get
             {
@@ -45,7 +45,7 @@ namespace Skeleton.Console
             }
         }
         
-        private string CSharpDataAccessTestFolder
+        private string CSharpDataAccessTestDirectory
         {
             get
             {
@@ -72,7 +72,7 @@ namespace Skeleton.Console
             var domain = typeProvider.GetDomain(_settings);
             Log.Information("Finished building domain");
 
-            SetupRootFolder();
+            SetupRootDirectory();
 
             GenerateDbFunctions(domain, _settings.AddGeneratedOptionsToDatabase, typeProvider);
             Log.Information("Finished generating db functions");
@@ -126,7 +126,7 @@ namespace Skeleton.Console
             {
                 var flutterGen = new Flutter.Generator(_fs, _settings);
                 var flutterFiles = flutterGen.Generate(domain);
-                _fileWriter.ApplyCodeFiles(flutterFiles, flutterGen.FlutterRootFolder);
+                _fileWriter.ApplyCodeFiles(flutterFiles, flutterGen.RootDirectory);
                 Log.Information("Finished generating flutter UI");
             }
 
@@ -165,10 +165,10 @@ namespace Skeleton.Console
         {
             var filterEx = new Regex("^[0-9]");
             // get distinct file names
-            var fileNames = GetRelativeSqlFileNamesForDirectory(DatabaseScriptsFolder);
+            var fileNames = GetRelativeSqlFileNamesForDirectory(DatabaseScriptsDirectory);
             fileNames = fileNames.Where(fn => !(filterEx.IsMatch(fn))).ToList();
             
-            var childDirectories = _fs.Directory.EnumerateDirectories(DatabaseScriptsFolder).OrderByDescending(n => n);
+            var childDirectories = _fs.Directory.EnumerateDirectories(DatabaseScriptsDirectory).OrderByDescending(n => n);
             var currentHeadDirectory = childDirectories.First();
             var headFiles = GetRelativeSqlFileNamesForDirectory(currentHeadDirectory);
             fileNames.RemoveAll(f => headFiles.Contains(f));    
@@ -201,7 +201,7 @@ namespace Skeleton.Console
             var dropFile = typeProvider.GenerateDropStatements(oldDomain, domain);
             if (!string.IsNullOrEmpty(dropFile.Contents))
             {
-                _fileWriter.ApplyDatabaseFiles(new List<CodeFile>(){dropFile}, DatabaseScriptsFolder, null);   
+                _fileWriter.ApplyDatabaseFiles(new List<CodeFile>(){dropFile}, DatabaseScriptsDirectory, null);   
             }
         }
 
@@ -222,7 +222,7 @@ namespace Skeleton.Console
             domain.Operations.AddRange(ops);
         }
 
-        private void SetupRootFolder()
+        private void SetupRootDirectory()
         {
             if (!_fs.Directory.Exists(_settings.RootDirectory))
             {
@@ -234,8 +234,8 @@ namespace Skeleton.Console
         {
             var generator = new ClassGenerator();
             var files = generator.GenerateDomain(domain);
-            const string DomainObjectFolderName = "Domain";
-            var dir = _fs.Path.Combine(CSharpDataAccessFolder, DomainObjectFolderName);
+            const string DomainObjectDirectoryName = "Domain";
+            var dir = _fs.Path.Combine(CSharpDataAccessDirectory, DomainObjectDirectoryName);
             _fileWriter.ApplyCodeFiles(files, dir);
         }
 
@@ -243,8 +243,8 @@ namespace Skeleton.Console
         {
             var generator = new ClassGenerator();
             var files = generator.GenerateReturnTypes(domain);
-            const string folderName = "Model";
-            var dir = _fs.Path.Combine(CSharpDataAccessFolder, folderName);
+            const string directoryName = "Model";
+            var dir = _fs.Path.Combine(CSharpDataAccessDirectory, directoryName);
             _fileWriter.ApplyCodeFiles(files, dir);
         }
 
@@ -253,7 +253,7 @@ namespace Skeleton.Console
             var generator = new DbFunctionGenerator();
             var files = generator.Generate(domain, _settings);
 
-            _fileWriter.ApplyDatabaseFiles(files, DatabaseScriptsFolder, file =>
+            _fileWriter.ApplyDatabaseFiles(files, DatabaseScriptsDirectory, file =>
             {
                 if (addGeneratedOperationsToDatabase)
                 {
@@ -270,8 +270,8 @@ namespace Skeleton.Console
             var infra = generator.GenerateRepositoryInfrastructure(domain);
             files.AddRange(infra);
 
-            const string RepoFolderName = "Repository";
-            var path = _fs.Path.Combine(CSharpDataAccessFolder, RepoFolderName);
+            const string RepoDirectoryName = "Repository";
+            var path = _fs.Path.Combine(CSharpDataAccessDirectory, RepoDirectoryName);
 
             _fileWriter.ApplyCodeFiles(files, path);
         }
@@ -281,8 +281,8 @@ namespace Skeleton.Console
             var generator = new ClassGenerator();
             var files = generator.GenerateTestRepositories(domain);
             
-            const string RepoFolderName = "Repository";
-            var path = _fs.Path.Combine(CSharpDataAccessTestFolder, RepoFolderName);
+            const string RepoDirectoryName = "Repository";
+            var path = _fs.Path.Combine(CSharpDataAccessTestDirectory, RepoDirectoryName);
 
             _fileWriter.ApplyCodeFiles(files, path);
         }

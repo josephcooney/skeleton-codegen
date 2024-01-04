@@ -147,14 +147,14 @@ namespace Skeleton.Console
                 { "data-test-dir|database-test-directory=", "the root directory to generate database test helpers into.", m => s.TestDataDirectory = m },
                 { "client-dir|client-code-directory=", "the directory to generate client code into.", m => s.ClientAppDirectory = m },
                 { "dbg|debug", "Attach Debugger on start", d => s.Debug = d != null },
-                { "db-squash", "Consolidate db files into current folder - useful if template changes have resulted in inadvertent drops", d => s.DbSquash = d != null },
+                { "db-squash", "Consolidate db files into current directory - useful if template changes have resulted in inadvertent drops", d => s.DbSquash = d != null },
                 { "del", "delete generated files before re-generating", d => s.DeleteGeneratedFiles = d != null},
                 { "flutter", "Generate a Flutter client for application", f => {if (f != null) s.ClientAppTypes.Add(ClientAppUIType.Flutter); } },
                 { "h|?|help",  "show this message and exit", h => s.ShowHelp = h != null },
                 { "name=", "Name of the application. Used for default C# namespace for generated items", n => s.ApplicationName = n },
                 { "no-policy", "Globally disable generation of security policies", p => { if (p != null) s.GenerateSecurityPolicies = false; }  },
                 { "no-test-repo", "Disable generation of test repositories", t => { if (t != null) s.GenerateTestRepos = false; }},
-                { "r|root=", "the root folder to generate code into.", r => s.RootDirectory = r },
+                { "r|root=", "the root directory to generate code into.", r => s.RootDirectory = r },
                 { "react", "Set the web UI generated to be React", r => {if (r != null) s.WebUIType = WebUIType.React; } },
                 { "react-native", "Generate a React Native client for application", r => {if (r != null) s.ClientAppTypes.Add(ClientAppUIType.ReactNative); } },
                 { "test-data=", "Generate test data of the specified size for empty tables.", t => s.TestDataSize = int.Parse(t) },
@@ -213,7 +213,7 @@ namespace Skeleton.Console
                 settings.RootDirectory = configuration.GetValue<string>("root");
                 if (string.IsNullOrEmpty(settings.RootDirectory))
                 {
-                    Log.Error("root folder has not been specified. You can provide an entry for 'root' in the codegen.json, or provide one using the -r command-line argument");
+                    Log.Error("root directory has not been specified. You can provide an entry for 'root' in the codegen.json, or provide one using the -r command-line argument");
                     return false;
                 }
             }

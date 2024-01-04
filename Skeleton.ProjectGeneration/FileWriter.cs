@@ -10,12 +10,12 @@ namespace Skeleton.ProjectGeneration
     public class FileWriter
     {
         private readonly IFileSystem _fs;
-        private readonly string _rootFolder;
+        private readonly string _rootDirectory;
 
-        public FileWriter(IFileSystem fs, string rootFolder)
+        public FileWriter(IFileSystem fs, string rootDirectory)
         {
             _fs = fs;
-            _rootFolder = rootFolder;
+            _rootDirectory = rootDirectory;
         }
 
         public void ApplyCodeFiles(List<CodeFile> files, string directoryName)
@@ -85,7 +85,7 @@ namespace Skeleton.ProjectGeneration
         {
             if (files.Any())
             {
-                var directoryPath = _fs.Path.Combine(_rootFolder, directoryName);
+                var directoryPath = _fs.Path.Combine(_rootDirectory, directoryName);
 
                 if (!_fs.Directory.Exists(directoryPath))
                 {

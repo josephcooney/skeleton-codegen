@@ -22,21 +22,21 @@ namespace Skeleton.Flutter
             _fs = fileSystem;
             _settings = settings;
             
-            FlutterRootFolder = _fs.Path.Combine(_settings.RootDirectory, _settings.FlutterSettings.FlutterRootDirectory);
-            if (!FlutterRootFolder.ToLowerInvariant().EndsWith("lib"))
+            RootDirectory = _fs.Path.Combine(_settings.RootDirectory, _settings.FlutterSettings.FlutterRootDirectory);
+            if (!RootDirectory.ToLowerInvariant().EndsWith("lib"))
             {
-                FlutterRootFolder = _fs.Path.Combine(FlutterRootFolder, "lib");
+                RootDirectory = _fs.Path.Combine(RootDirectory, "lib");
             }
         }
 
-        public string FlutterRootFolder { get; }
+        public string RootDirectory { get; }
         
         public override List<CodeFile> Generate(Domain domain)
         {
             var files = new List<CodeFile>();
             
             Log.Information("Starting Flutter Generation");
-            Log.Debug("Generating flutter code into {FlutterDirectory}", FlutterRootFolder);
+            Log.Debug("Generating flutter code into {FlutterDirectory}", RootDirectory);
 
             files.AddRange(GenerateClientModels(domain));
             return files;
