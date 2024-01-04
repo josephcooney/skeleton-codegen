@@ -178,7 +178,7 @@ namespace Skeleton.Templating.ReactClient
             return GenerateFromTemplate(new DomainApiAdapter(domain), "ReactLeftNavItems");
         }
 
-        private string GenerateApiClient(ApplicationType type, Domain domain)
+        protected string GenerateApiClient(ApplicationType type, Domain domain)
         {
             var adapter = new ClientApiAdapter(type, domain);
             try
@@ -202,7 +202,7 @@ namespace Skeleton.Templating.ReactClient
             return GenerateFromTemplate(type, TemplateNames.ApiClientResult);
         }
 
-        private string GetRelativePathFromTypeName(string typeName)
+        protected string GetRelativePathFromTypeName(string typeName)
         {
             return "domain\\" + Util.KebabCase(typeName) + "\\";
         }

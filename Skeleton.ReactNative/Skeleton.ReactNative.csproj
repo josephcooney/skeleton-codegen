@@ -10,4 +10,70 @@
       <ProjectReference Include="..\Skeleton.Templating\Skeleton.Templating.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\AddEdit\ReactAddEditPage.handlebars">
+        <Link>Templates\Templates\AddEdit\ReactAddEditPage.handlebars</Link>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\AddEdit\ReactAddEditPageRendering.handlebars">
+        <Link>Templates\Templates\AddEdit\ReactAddEditPageRendering.handlebars</Link>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\ApiClient\ApiClient.handlebars">
+        <Link>Templates\Templates\ApiClient\ApiClient.handlebars</Link>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\ApiClient\ApiClientModel.handlebars">
+        <Link>Templates\Templates\ApiClient\ApiClientModel.handlebars</Link>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\ApiClient\ApiClientResult.handlebars">
+        <Link>Templates\Templates\ApiClient\ApiClientResult.handlebars</Link>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\ApiClient\ModelValidator.handlebars">
+        <Link>Templates\Templates\ApiClient\ModelValidator.handlebars</Link>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\AppImports.handlebars">
+        <Link>Templates\Templates\AppImports.handlebars</Link>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\AppRoutes.handlebars">
+        <Link>Templates\Templates\AppRoutes.handlebars</Link>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\List\ReactListHeader.handlebars">
+        <Link>Templates\Templates\List\ReactListHeader.handlebars</Link>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\List\ReactListPage.handlebars">
+        <Link>Templates\Templates\List\ReactListPage.handlebars</Link>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\List\ReactListRendering.handlebars">
+        <Link>Templates\Templates\List\ReactListRendering.handlebars</Link>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\List\ReactListRow.handlebars">
+        <Link>Templates\Templates\List\ReactListRow.handlebars</Link>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\List\ReactPagedListPage.handlebars">
+        <Link>Templates\Templates\List\ReactPagedListPage.handlebars</Link>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\ReactComponent.handlebars">
+        <Link>Templates\Templates\ReactComponent.handlebars</Link>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\ReactConfirmDeletePage.handlebars">
+        <Link>Templates\Templates\ReactConfirmDeletePage.handlebars</Link>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\ReactDetailDisplay.handlebars">
+        <Link>Templates\Templates\ReactDetailDisplay.handlebars</Link>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\ReactDetailPage.handlebars">
+        <Link>Templates\Templates\ReactDetailPage.handlebars</Link>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\ReactLeftNavItems.handlebars">
+        <Link>Templates\Templates\ReactLeftNavItems.handlebars</Link>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\ReactRegularUserHome.handlebars">
+        <Link>Templates\Templates\ReactRegularUserHome.handlebars</Link>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\ReactSearchControl.handlebars">
+        <Link>Templates\Templates\ReactSearchControl.handlebars</Link>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\ReactSelectControl.handlebars">
+        <Link>Templates\Templates\ReactSelectControl.handlebars</Link>
+      </EmbeddedResource>
+    </ItemGroup>
+
 </Project>
