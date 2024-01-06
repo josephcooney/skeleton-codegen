@@ -4,7 +4,7 @@ import {createDrawerNavigator} from '@react-navigation/drawer';
 
 import {HomeScreen} from './HomeScreen';
 {{#each NonReferenceTypesThatHaveUI}}
-import { {{cs_name Name}}ListScreen } from './domain/{{kb_case Name}}/list/{{cml_case Name}}ListScreen'
+import { {{cs_name Name}}Screen } from './domain/{{kb_case Name}}/{{cml_case Name}}Screen'
 {{/each}}
 
 export type AppDrawerParamList = {
@@ -18,7 +18,7 @@ export const DrawerNav = (): JSX.Element => {
 return (<Drawer.Navigator initialRouteName="home">
     <Drawer.Screen name="HomeScreen" component={HomeScreen} />
 {{#each NonReferenceTypesThatHaveUI}}
-    <Drawer.Screen name="{{hmn Name}}" component={ {{cs_name Name}}ListScreen } />
+    <Drawer.Screen name="{{hmn Name}}" component={ {{cs_name Name}}Screen } />
 {{/each}}        
 </Drawer.Navigator>);
 }

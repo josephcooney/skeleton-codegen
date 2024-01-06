@@ -47,6 +47,9 @@ public class Generator : ReactClientGenerator
         var drawerNav = new CodeFile { Name = "DrawerNav.tsx", Contents = GenerateFromTemplate(new DomainApiAdapter(domain), ReactNativeTemplateNames.DrawerNav) };
         files.Add(drawerNav);
         
+        var stackNav = new CodeFile { Name = "StackNav.tsx", Contents = GenerateFromTemplate(new DomainApiAdapter(domain), ReactNativeTemplateNames.StackNav) };
+        files.Add(stackNav);
+        
         foreach (var type in domain.FilteredTypes.OrderBy(t => t.Name))
         {
             if (type.GenerateUI)
@@ -55,6 +58,8 @@ public class Generator : ReactClientGenerator
                 var path = GetRelativePathFromTypeName(type.Name);
                 var adapter = new ClientApiAdapter(type, domain);
 
+                files.Add(new CodeFile { Name = namestart + "Screen.tsx", Contents = GenerateFromTemplate(adapter, ReactNativeTemplateNames.Screen), RelativePath = path, Template = ReactNativeTemplateNames.Screen});
+                
                 if (adapter.GenerateSelectComponent)
                 {
                     // TODO - generate select
@@ -77,8 +82,8 @@ public class Generator : ReactClientGenerator
                 var listPath = GetRelativePathFromTypeName(rt.RelatedType.Name) + "list\\";
                 var nameStart = Util.TypescriptFileName(rt.SimpleReturnType.Name);
 
-                files.Add(new CodeFile { Name = nameStart + "ListScreen.tsx", Contents = GenerateFromTemplate(listAdapter, ReactNativeTemplateNames.ListScreen), RelativePath = listPath, Template = TemplateNames.ReactListPage});
-                files.Add(new CodeFile { Name = nameStart + "ListItem.tsx", Contents = GenerateFromTemplate(listAdapter, ReactNativeTemplateNames.ListItem), RelativePath = listPath, Template = TemplateNames.ReactListHeader});
+                files.Add(new CodeFile { Name = nameStart + "ListScreen.tsx", Contents = GenerateFromTemplate(listAdapter, ReactNativeTemplateNames.ListScreen), RelativePath = listPath, Template = ReactNativeTemplateNames.ListScreen});
+                files.Add(new CodeFile { Name = nameStart + "ListItem.tsx", Contents = GenerateFromTemplate(listAdapter, ReactNativeTemplateNames.ListItem), RelativePath = listPath, Template = ReactNativeTemplateNames.ListItem});
                 files.Add(new CodeFile { Name = nameStart + "ListRendering.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactListRendering), RelativePath = listPath, Template = TemplateNames.ReactListRendering});
             }
         }
@@ -92,4 +97,6 @@ public class ReactNativeTemplateNames
     public const string DrawerNav = "ReactNativeDrawerNav";
     public const string ListScreen = "ReactNativeListScreen";
     public const string ListItem = "ReactNativeListItem";
+    public const string StackNav = "ReactNativeStackNav";
+    public const string Screen = "ReactNativeScreen";
 }
