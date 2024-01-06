@@ -17,10 +17,12 @@ export const {{cs_name Name}}ListItem = (props: {{cs_name Name}}ListItemProps) :
     };
 
     return (<View>
-        <Pressable style={({pressed}) => { 
-                padding: 10, margin:2,
+        <Pressable style={({pressed}) => [
+            {
+                padding: 10, 
+                margin:2,
                 backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'white',
-            }} 
+            },]} 
             onPress={navToDetail}>
             {{#each ListFields}}
             <Text>{ props.item.{{cml_case Name}} }</Text>

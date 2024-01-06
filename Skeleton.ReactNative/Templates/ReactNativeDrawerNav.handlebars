@@ -2,6 +2,7 @@
 import React from 'react';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 
+import {HomeScreen} from './HomeScreen';
 {{#each NonReferenceTypesThatHaveUI}}
 import { {{cs_name Name}}ListScreen } from './domain/{{kb_case Name}}/list/{{cml_case Name}}ListScreen'
 {{/each}}
@@ -10,7 +11,7 @@ export type AppDrawerParamList = {
     HomeScreen: undefined;
 };
 
-const Drawer = createDrawerNavigator<AppDrawerParamList>();
+const Drawer = createDrawerNavigator();
 
 export const DrawerNav = (): JSX.Element => {
 

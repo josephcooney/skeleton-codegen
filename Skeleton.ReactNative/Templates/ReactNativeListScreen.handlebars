@@ -10,8 +10,9 @@ import { {{cs_name Name}} } from '../{{cs_name Name}}';
 import { {{UnderlyingType.ClientApiInterfaceName}}, {{UnderlyingType.ClientApiTypeName}}, {{cs_name UnderlyingType.Name}}ApiClientQueryKeys } from '../{{cml_case UnderlyingType.Name}}ApiClient';
 import {defaultCacheDuration, queryCall} from "../../../api";
 import {{cs_name Name}}ListRendering from './{{cml_case Name}}ListRendering';
-import {r {{cs_name Name}}ListItem } from './{{cml_case Name}}ListItem';
+import { {{cs_name Name}}ListItem } from './{{cml_case Name}}ListItem';
 import {useQuery} from "@tanstack/react-query";
+import { useTheme } from '@react-navigation/native';
 {{#if UnderlyingType.IsReferenceData}}
 import { UserConsumer, isAdmin } from '../../../api-authorization/UserContext';
 {{/if}}
@@ -80,8 +81,6 @@ export const {{cs_name Name}}ListScreen = (props: {{cs_name Name}}ListProps) : J
 				contents = query.data && query.data.length > 0 ? renderData() : null;
 			}
         }
-
-        const buttonRowStyle = {paddingTop: theme.spacing(1), paddingBottom: theme.spacing(1)};
 
         return (
             <View> 
