@@ -8,7 +8,7 @@ interface {{cs_name Name}}ListItemProps {
     item: {{cs_name Name}};
 }
 
-export default const {{cs_name Name}}ListItem = (props: {{cs_name Name}}ListItemProps) : JSX.Element => {
+export const {{cs_name Name}}ListItem = (props: {{cs_name Name}}ListItemProps) : JSX.Element => {
     const navigation = useNavigation();
 
     const navToDetail = () => {

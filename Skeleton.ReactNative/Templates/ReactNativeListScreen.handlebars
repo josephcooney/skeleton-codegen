@@ -10,8 +10,7 @@ import { {{cs_name Name}} } from '../{{cs_name Name}}';
 import { {{UnderlyingType.ClientApiInterfaceName}}, {{UnderlyingType.ClientApiTypeName}}, {{cs_name UnderlyingType.Name}}ApiClientQueryKeys } from '../{{cml_case UnderlyingType.Name}}ApiClient';
 import {defaultCacheDuration, queryCall} from "../../../api";
 import {{cs_name Name}}ListRendering from './{{cml_case Name}}ListRendering';
-import {{cs_name Name}}ListItem from './{{cml_case Name}}ListItem';
-import {useSnackbar} from "notistack";
+import {r {{cs_name Name}}ListItem } from './{{cml_case Name}}ListItem';
 import {useQuery} from "@tanstack/react-query";
 {{#if UnderlyingType.IsReferenceData}}
 import { UserConsumer, isAdmin } from '../../../api-authorization/UserContext';
@@ -44,8 +43,7 @@ export const {{cs_name Name}}ListScreen = (props: {{cs_name Name}}ListProps) : J
     const rendering: {{cs_name Name}}ListRendering = new {{cs_name Name}}ListRendering();
     const query = useQuery({queryKey: getKey(), staleTime: defaultCacheDuration, queryFn: selectData });
 
-    const navigate = useNavigate();
-    const { enqueueSnackbar } = useSnackbar();
+    // TODO snackbar
     const theme = useTheme();
 
     {{#if HasMultipleKeys}}
@@ -67,7 +65,7 @@ export const {{cs_name Name}}ListScreen = (props: {{cs_name Name}}ListProps) : J
     }
 
     function onAddClick(){
-        navigate('/{{kb_case UnderlyingType.Name}}/add', {replace: false, state:{linkedType: props.linkedType, linkedId: props.linkedId}});
+        // navigate('/{{kb_case UnderlyingType.Name}}/add', {replace: false, state:{linkedType: props.linkedType, linkedId: props.linkedId}});
     }
 
 	function render() {
@@ -92,22 +90,7 @@ export const {{cs_name Name}}ListScreen = (props: {{cs_name Name}}ListProps) : J
                 {{has UnderlyingType.AddOperations}}
                 {props.hideAddButton ? null :
                     (
-                    {{#if UnderlyingType.IsReferenceData}}
-                        <UserConsumer>
-                            {userProps => {
-                            return isAdmin(userProps) ? (<Grid container direction="column" alignItems="flex-end" style={buttonRowStyle}>
-                            <Fab onClick={onAddClick} size="medium" color="primary" aria-label="add {{UnderlyingType.HumanizedName}}">
-                                <AddIcon />
-                            </Fab>
-                        </Grid>) : null;} }
-                        </UserConsumer>
-                    {{else}}
-                        <Grid container direction="column" alignItems="flex-end" style={buttonRowStyle}>
-                            <Fab onClick={onAddClick} size="medium" color="primary" aria-label="add {{UnderlyingType.HumanizedName}}">
-                                <AddIcon />
-                            </Fab>
-                        </Grid>
-                    {{/if}}
+                    <Text>TODO: add button</Text>
                     )
                 }
                 {{/has}}
@@ -131,7 +114,7 @@ export const {{cs_name Name}}ListScreen = (props: {{cs_name Name}}ListProps) : J
         const customDescription = rendering.renderCustomDescription(query);
         return customDescription
             ? customDescription
-            : ((query.data && query.data.length > 0) || query.isFetching ? null : <Information title="No Items" message={noItemsMessage}>);
+            : ((query.data && query.data.length > 0) || query.isFetching ? null : <Information title="No Items" message={noItemsMessage} />);
     }
             
     async function selectData() : Promise<{{{ListStateTypeName}}}> {
@@ -139,7 +122,8 @@ export const {{cs_name Name}}ListScreen = (props: {{cs_name Name}}ListProps) : J
             return props.data ?? [];
         } else {
             {{#if HasOperations}}
-            return await queryCall(api.{{cml_case PrimaryOperation.BareName}}(), {errorText: 'Error fetching {{UnderlyingType.HumanizedNamePlural}}'}, enqueueSnackbar);
+            return await api.{{cml_case PrimaryOperation.BareName}}();
+            // return await queryCall(api.{{cml_case PrimaryOperation.BareName}}(), {errorText: 'Error fetching {{UnderlyingType.HumanizedNamePlural}}'}, enqueueSnackbar);
             {{else}}
             return [];    
             {{/if}}    
