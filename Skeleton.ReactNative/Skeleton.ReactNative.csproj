@@ -78,6 +78,8 @@
       <EmbeddedResource Include="Templates\ReactNativeListScreen.handlebars" />
       <None Remove="Templates\ReactNativeListItem.handlebars" />
       <EmbeddedResource Include="Templates\ReactNativeListItem.handlebars" />
+      <None Remove="Templates\ReactNativeDrawerNav.handlebars" />
+      <EmbeddedResource Include="Templates\ReactNativeDrawerNav.handlebars" />
     </ItemGroup>
 
 </Project>

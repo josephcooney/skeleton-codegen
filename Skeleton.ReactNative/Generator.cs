@@ -43,6 +43,10 @@ public class Generator : ReactClientGenerator
     public List<CodeFile> GenerateComponents(Domain domain)
     {
         var files = new List<CodeFile>();
+        
+        var drawerNav = new CodeFile { Name = "DrawerNav.tsx", Contents = GenerateFromTemplate(new DomainApiAdapter(domain), ReactNativeTemplateNames.DrawerNav) };
+        files.Add(drawerNav);
+        
         foreach (var type in domain.FilteredTypes.OrderBy(t => t.Name))
         {
             if (type.GenerateUI)
@@ -85,6 +89,7 @@ public class Generator : ReactClientGenerator
 
 public class ReactNativeTemplateNames
 {
+    public const string DrawerNav = "ReactNativeDrawerNav";
     public const string ListScreen = "ReactNativeListScreen";
     public const string ListItem = "ReactNativeListItem";
 }
