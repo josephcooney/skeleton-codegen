@@ -74,6 +74,10 @@
       <EmbeddedResource Include="..\Skeleton.Templating\ReactClient\Templates\ReactSelectControl.handlebars">
         <Link>Templates\Templates\ReactSelectControl.handlebars</Link>
       </EmbeddedResource>
+      <None Remove="Templates\ReactNativeListScreen.handlebars" />
+      <EmbeddedResource Include="Templates\ReactNativeListScreen.handlebars" />
+      <None Remove="Templates\ReactNativeListItem.handlebars" />
+      <EmbeddedResource Include="Templates\ReactNativeListItem.handlebars" />
     </ItemGroup>
 
 </Project>
