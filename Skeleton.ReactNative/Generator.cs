@@ -68,23 +68,41 @@ public class Generator : ReactClientGenerator
                 // TODO generate detail screen
             }
         }
+
+        var listTypes = domain.Operations.Where(o =>
+                o.GenerateUI && o.RelatedType?.GenerateUI == true &&
+                (o.Returns != null && o.Returns.ReturnType == ReturnType.ApplicationType ||
+                 o.Returns != null && o.Returns.ReturnType == ReturnType.CustomType))
+            .Select(o => new
+            {
+                o.Returns.SimpleReturnType,
+                RelatedType = o.Returns.SimpleReturnType is ApplicationType
+                    ? o.RelatedType
+                    : ((ResultType)o.Returns.SimpleReturnType).RelatedType
+            }) // get the related type from the result type if it is a custom type, or from the operation if the operation returns an application type - allows OpenApi operations to re-use types across application types.
+            .Distinct()
+            .OrderBy(rt => rt.RelatedType.Name);
         
         // build 'list' UIs from return types
-        foreach (var rt in domain.Operations.Where(o => o.GenerateUI && o.RelatedType?.GenerateUI == true && (o.Returns != null && o.Returns.ReturnType == ReturnType.ApplicationType || o.Returns != null && o.Returns.ReturnType == ReturnType.CustomType))
-            .Select(o => new {o.Returns.SimpleReturnType, RelatedType = o.Returns.SimpleReturnType is ApplicationType ? o.RelatedType : ((ResultType)o.Returns.SimpleReturnType).RelatedType}) // get the related type from the result type if it is a custom type, or from the operation if the operation returns an application type - allows OpenApi operations to re-use types across application types.
-            .Distinct()
-            .OrderBy(rt => rt.RelatedType.Name))
+        foreach (var rt in listTypes)
         {
             if (rt.RelatedType == null || domain.FilteredTypes.Contains(rt.RelatedType))
             {
-                
-                var listAdapter = new ListViewAdapter(rt.SimpleReturnType, domain, rt.RelatedType);
-                var listPath = GetRelativePathFromTypeName(rt.RelatedType.Name) + "list\\";
-                var nameStart = Util.TypescriptFileName(rt.SimpleReturnType.Name);
+                var clientAdapter = new ClientApiAdapter(rt.RelatedType, domain);
 
-                files.Add(new CodeFile { Name = nameStart + "ListScreen.tsx", Contents = GenerateFromTemplate(listAdapter, ReactNativeTemplateNames.ListScreen), RelativePath = listPath, Template = ReactNativeTemplateNames.ListScreen});
-                files.Add(new CodeFile { Name = nameStart + "ListItem.tsx", Contents = GenerateFromTemplate(listAdapter, ReactNativeTemplateNames.ListItem), RelativePath = listPath, Template = ReactNativeTemplateNames.ListItem});
-                files.Add(new CodeFile { Name = nameStart + "ListRendering.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactListRendering), RelativePath = listPath, Template = TemplateNames.ReactListRendering});
+
+                var createListForType = !clientAdapter.HasSelectAllType /* HasSelectAllType is really HasSelectAllForDisplayType */ || rt.SimpleReturnType == clientAdapter.SelectAllType;
+
+                if (createListForType)
+                {
+                    var listAdapter = new ListViewAdapter(rt.SimpleReturnType, domain, rt.RelatedType);
+                    var listPath = GetRelativePathFromTypeName(rt.RelatedType.Name) + "list\\";
+                    var nameStart = Util.TypescriptFileName(rt.SimpleReturnType.Name);
+
+                    files.Add(new CodeFile { Name = nameStart + "ListScreen.tsx", Contents = GenerateFromTemplate(listAdapter, ReactNativeTemplateNames.ListScreen), RelativePath = listPath, Template = ReactNativeTemplateNames.ListScreen});
+                    files.Add(new CodeFile { Name = nameStart + "ListItem.tsx", Contents = GenerateFromTemplate(listAdapter, ReactNativeTemplateNames.ListItem), RelativePath = listPath, Template = ReactNativeTemplateNames.ListItem});
+                    files.Add(new CodeFile { Name = nameStart + "ListRendering.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactListRendering), RelativePath = listPath, Template = TemplateNames.ReactListRendering});
+                }
             }
         }
 

@@ -3,7 +3,7 @@ import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 {{#each TypesThatHaveUI}}
-import { {{cs_name Name}}ListScreen } from './domain/{{kb_case Name}}/list/{{cml_case Name}}ListScreen'
+import { {{cs_name SelectAllType.Name}}ListScreen } from './domain/{{kb_case Name}}/list/{{cml_case SelectAllType.Name}}ListScreen'
 // TODO import detail
 {{/each}}
 
@@ -24,7 +24,7 @@ export const StackNav = (props: StackNavProps):JSX.Element => {
     return (
     <Stack.Navigator initialRouteName={props.routeName}>
         {{#each TypesThatHaveUI}}
-        <Stack.Screen name="{{cs_name Name}}List" component={ {{cs_name Name}}ListScreen } />
+        <Stack.Screen name="{{cs_name Name}}List" component={ {{cs_name SelectAllType.Name}}ListScreen } />
         {{/each}}
     </Stack.Navigator>
     );
