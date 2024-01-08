@@ -65,7 +65,7 @@ public class Generator : ReactClientGenerator
                     // TODO - generate select
                 }
                 
-                // TODO generate detail screen
+                files.Add(new CodeFile { Name = namestart + "DetailScreen.tsx", Contents = GenerateFromTemplate(adapter, ReactNativeTemplateNames.DetailScreen), RelativePath = path, Template = ReactNativeTemplateNames.DetailScreen});
             }
         }
 
@@ -117,4 +117,5 @@ public class ReactNativeTemplateNames
     public const string ListItem = "ReactNativeListItem";
     public const string StackNav = "ReactNativeStackNav";
     public const string Screen = "ReactNativeScreen";
+    public const string DetailScreen = "ReactNativeDetailScreen";
 }
