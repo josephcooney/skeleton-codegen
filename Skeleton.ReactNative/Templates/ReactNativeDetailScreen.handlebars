@@ -75,7 +75,7 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : Rea
 
 	let contents = null;
     if ({{cml_case Name}}Query.error) {
-        contents = <ErrorControl message={ {{cml_case Name}}Query.error.message ? {{cml_case Name}}Query.error.message : "unable to load {{hmn Name}}"}></ErrorControl>;
+        contents = <Error message={ {{cml_case Name}}Query.error.message ? {{cml_case Name}}Query.error.message : "unable to load {{hmn Name}}"}></Error>;
     } else {
         if ({{cml_case Name}}Query.data) {
             contents = render{{cs_name Name}}Detail({{cml_case Name}}Query.data);
@@ -91,7 +91,7 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : Rea
         {{else}}
     let {{cml_case Name}}Contents = null;
     if ({{cml_case Name}}Query.error) {
-        {{cml_case Name}}Contents = <ErrorControl message={"unable to load {{hmn Name}}."}></ErrorControl>;
+        {{cml_case Name}}Contents = <Error message={"unable to load {{hmn Name}}."}></Error>;
     } else {
         if ({{cml_case Name}}Query.isFetching){
             {{cml_case Name}}Contents = <ActivityIndicator />;			
@@ -105,7 +105,7 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : Rea
 
     if ({{cml_case Name}}Query.data) {
         return (
-        <div style={ {width: '100%'} }>
+        <View style={ {width: '100%'} }>
             {{#if DisplayField}}
             <Title>{ {{cml_case Name}}Query.data.{{cml_case DisplayField.Name}} }</Title>
             {{else}}
@@ -114,24 +114,24 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : Rea
             <p>{{HumanizedName}} Details</p>
             {contents}
             {{#each RelatedDetails}}
-            <div className="related-detail">
+            <View className="related-detail">
             { {{cml_case Name}}Contents }
-            </div>
+            </View>
             {{/each}}
-        </div>
+        </View>
         );
     }
     else {
         return (
-        <div style={ {width: '100%'} }>
+        <View style={ {width: '100%'} }>
             <Title>{{HumanizedName}}</Title>
             {contents}
             {{#each RelatedDetails}}
-            <div className="related-detail">
+            <View className="related-detail">
             { {{cml_case Name}}Contents }
-            </div>
+            </View>
             {{/each}}
-        </div>			
+        </View>			
         );
     }
 }

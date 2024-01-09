@@ -66,6 +66,7 @@ public class Generator : ReactClientGenerator
                 }
                 
                 files.Add(new CodeFile { Name = namestart + "DetailScreen.tsx", Contents = GenerateFromTemplate(adapter, ReactNativeTemplateNames.DetailScreen), RelativePath = path, Template = ReactNativeTemplateNames.DetailScreen});
+                files.Add(new CodeFile { Name = namestart + "DetailDisplay.tsx", Contents = GenerateFromTemplate(adapter, ReactNativeTemplateNames.DetailDisplay), RelativePath = path, Template = ReactNativeTemplateNames.DetailDisplay});
             }
         }
 
@@ -118,4 +119,5 @@ public class ReactNativeTemplateNames
     public const string StackNav = "ReactNativeStackNav";
     public const string Screen = "ReactNativeScreen";
     public const string DetailScreen = "ReactNativeDetailScreen";
+    public const string DetailDisplay = "ReactNativeDetailDisplay";
 }
