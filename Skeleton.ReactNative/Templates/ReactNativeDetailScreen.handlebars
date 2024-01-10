@@ -8,6 +8,7 @@ import DateTimeDisplay from '../../controls/DateTimeDisplay';
 import Thumbnail from '../../controls/thumbnail';
 import {defaultCacheDuration, queryCall} from "../../api";
 import {useQuery} from "@tanstack/react-query";
+import {useToast} from "react-native-toast-notifications";
 {{#each RelatedDetails}}
 import { {{ClientApiTypeName}}, {{ClientApiInterfaceName}}, {{cs_name Name}}ApiClientQueryKeys } from '../{{kb_case Name}}/{{cml_case Name}}ApiClient';
 import { {{cs_name SelectAllType.Name}} } from '../{{kb_case Name}}/{{cs_name SelectAllType.Name}}';
@@ -26,15 +27,15 @@ interface {{cs_name Name}}DetailProps {
 {{/each}}
 }
 
-export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : React.ReactElement =>  {
+export const {{cs_name Name}}DetailScreen = (props: {{cs_name Name}}DetailProps) : React.ReactElement =>  {
     // TODO - get ID from nav
 
     const api : {{ClientApiInterfaceName}} = props.api ?? new {{ClientApiTypeName}}();
 	{{#each RelatedDetails}}
     const {{cml_case Name}}Api : {{ClientApiInterfaceName}} = props.{{cml_case Name}}Api ?? new {{ClientApiTypeName}}();
 	{{/each}}
-    
-    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
+    const toast = useToast();
     const {{cml_case Name}}Query = useQuery<{{cs_name DetailType.Name}}>({queryKey: {{cs_name Name}}ApiClientQueryKeys.selectForDisplayById(itemId), 
                                              staleTime: defaultCacheDuration, 
                                              queryFn: async () => queryCall(api.selectForDisplayById(itemId), {errorText: 'Error fetching {{HumanizedName}}'}, enqueueSnackbar),

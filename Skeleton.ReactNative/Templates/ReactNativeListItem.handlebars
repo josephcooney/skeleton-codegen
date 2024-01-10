@@ -13,7 +13,7 @@ export const {{cs_name Name}}ListItem = (props: {{cs_name Name}}ListItemProps) :
 
     const navToDetail = () => {
         console.log(`selected {{cs_name UnderlyingType.Name}} {{#each KeyFields}}{{cml_case Name}} : ${props.item.{{cml_case Name}} } {{/each}}`);
-        navigation.navigate('{{cs_name UnderlyingType.Name}}', { {{#each KeyFields}}{{cml_case Name}} : props.item.{{cml_case Name}}{{#unless @last}}, {{/unless}} {{/each}} });
+        navigation.navigate('{{cs_name UnderlyingType.Name}}Detail', { {{#each KeyFields}}{{cml_case Name}} : props.item.{{cml_case Name}}{{#unless @last}}, {{/unless}} {{/each}} });
     };
 
     return (<View>
