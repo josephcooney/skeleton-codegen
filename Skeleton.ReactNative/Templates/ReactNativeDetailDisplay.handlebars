@@ -4,7 +4,8 @@ import { {{cs_name DetailType.Name}} } from './{{cs_name DetailType.Name}}';
 import DateTimeDisplay from '../../controls/DateTimeDisplay';
 import Thumbnail from '../../controls/thumbnail';
 import Title from "../../controls/Title";
-import { View, Text } from 'react-native';
+import {View, Text} from 'react-native';
+import {detailStyles} from '../../controls/DetailStyle';
 
 interface {{cs_name Name}}DetailDisplayProps {
 item: {{cs_name DetailType.Name}}
@@ -12,13 +13,13 @@ item: {{cs_name DetailType.Name}}
 
 export const {{cs_name Name}}DetailDisplay = (props: {{cs_name Name}}DetailDisplayProps):React.ReactElement => {
 return (
-    <View style={ {flex: 1} }>
+    <View style={detailStyles.container}>
         {{#each DisplayFields}}
-            <View style={ { flex: 1, alignSelf: 'stretch', flexDirection: 'row' } }>
-                <View style={ { flex: 1, alignSelf: 'stretch' } }>
+            <View style={detailStyles.row}>
+                <View style={detailStyles.fieldName}>
                     <Text>{{DisplayName}}</Text>
                 </View>
-                <View style={ { flex: 1, alignSelf: 'stretch' } }>
+                <View style={detailStyles.fieldValue}>
                     {{#if IsDateTime}}
                         <DateTimeDisplay date={ props.item.{{cml_case Name}} } />
                     {{else}}
