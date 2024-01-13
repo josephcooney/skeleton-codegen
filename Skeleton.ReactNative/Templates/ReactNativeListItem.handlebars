@@ -2,6 +2,7 @@
 import React from 'react';
 import {Pressable, Text, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import DateTimeDisplay from '../../../controls/DateTimeDisplay';
 import { {{cs_name Name}} } from '../{{cs_name Name}}';
 
 interface {{cs_name Name}}ListItemProps {
@@ -25,7 +26,11 @@ export const {{cs_name Name}}ListItem = (props: {{cs_name Name}}ListItemProps) :
             },]} 
             onPress={navToDetail}>
             {{#each ListFields}}
-            <Text>{ props.item.{{cml_case Name}} }</Text>
+                {{#if IsDateTime}}
+                <DateTimeDisplay date={ props.item.{{cml_case Name}} } showTime={true} />
+                {{else}}
+                <Text>{ props.item.{{cml_case Name}} }</Text>
+                {{/if}}
             {{/each}}
         </Pressable>
     </View>);
