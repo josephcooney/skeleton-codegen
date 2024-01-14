@@ -18,7 +18,7 @@ export const DrawerNav = (): JSX.Element => {
 return (<Drawer.Navigator initialRouteName="home">
     <Drawer.Screen name="HomeScreen" component={HomeScreen} />
 {{#each NonReferenceTypesThatHaveUI}}
-    <Drawer.Screen name="{{hmn Name}}" component={ {{cs_name Name}}Screen } />
+    <Drawer.Screen name="{{hmn Name}}" component={ {{cs_name Name}}Screen } options={ {headerShown: false} } />
 {{/each}}        
 </Drawer.Navigator>);
 }

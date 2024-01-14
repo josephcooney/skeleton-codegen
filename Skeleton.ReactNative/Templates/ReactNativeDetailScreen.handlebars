@@ -13,6 +13,7 @@ import {useToast} from "react-native-toast-notifications";
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {AppStackParamList} from '../../StackNav';
 import Title from '../../controls/Title';
+import {detailStyles} from '../../controls/DetailStyle';
 {{#each RelatedDetails}}
 import { {{ClientApiTypeName}}, {{ClientApiInterfaceName}}, {{cs_name Name}}ApiClientQueryKeys } from '../{{kb_case Name}}/{{cml_case Name}}ApiClient';
 import { {{cs_name SelectAllType.Name}} } from '../{{kb_case Name}}/{{cs_name SelectAllType.Name}}';
@@ -93,7 +94,7 @@ export const {{cs_name Name}}DetailScreen = (props: {{cs_name Name}}DetailProps)
 
     if ({{cml_case Name}}Query.data) {
         return (
-        <View style={ {flex: 1} }>
+        <View style={detailStyles.detailRoot}>
             {{#if DisplayField}}
             <Title>{ {{cml_case Name}}Query.data.{{cml_case DisplayField.Name}} }</Title>
             {{else}}
@@ -111,7 +112,7 @@ export const {{cs_name Name}}DetailScreen = (props: {{cs_name Name}}DetailProps)
     }
     else {
         return (
-        <View style={ {flex: 1} }>
+        <View style={detailStyles.detailRoot}>
             <Title>{{HumanizedName}}</Title>
             {contents}
             {{#each RelatedDetails}}
