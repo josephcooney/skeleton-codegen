@@ -46,6 +46,18 @@ export const {{cs_name Name}}DetailScreen = (props: {{cs_name Name}}DetailProps)
     const {{cml_case Name}}Query = useQuery<{{cs_name SelectAllType.Name}}[]>({queryKey: {{cs_name Name}}ApiClientQueryKeys.selectVia{{cs_name ../Name}}Id(itemId), staleTime: defaultCacheDuration, queryFn: async () => queryCall({{cml_case Name}}Api.selectVia{{cs_name ../Name}}Id(itemId), {errorText: 'Error fetching {{HumanizedName}}'}, toast.show) });
     {{/each}}
 
+{{#if DisplayField}}
+    if ({{cml_case Name}}Query.data?.{{cml_case DisplayField.Name}}) {
+        props.navigation.setOptions({title: {{cml_case Name}}Query.data?.{{cml_case DisplayField.Name}} });
+    }
+{{else}}
+    if ({{cml_case Name}}Query.data?.{{cml_case DisplayField.Name}}) {
+        const title = `{{HumanizedName}} { ${{cml_case Name}}Query.data.{{cml_case IdentityField.Name}} }`
+        props.navigation.setOptions({title: title });
+    }
+{{/if}}
+
+
     {{#each UpdateOperations}}
         {{#if GenerateUI}}
     const on{{cs_name Name}}Click = () => {
@@ -95,11 +107,6 @@ export const {{cs_name Name}}DetailScreen = (props: {{cs_name Name}}DetailProps)
     if ({{cml_case Name}}Query.data) {
         return (
         <View style={detailStyles.detailRoot}>
-            {{#if DisplayField}}
-            <Title>{ {{cml_case Name}}Query.data.{{cml_case DisplayField.Name}} }</Title>
-            {{else}}
-            <Title>{{HumanizedName}} { {{cml_case Name}}Query.data.{{cml_case IdentityField.Name}} }</Title>
-            {{/if}}
             <Text>{{HumanizedName}} Details</Text>
             {contents}
             {{#each RelatedDetails}}

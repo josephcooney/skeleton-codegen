@@ -27,8 +27,8 @@ export const StackNav = (props: StackNavProps):JSX.Element => {
     return (
     <Stack.Navigator initialRouteName={props.routeName} screenOptions={ { headerStyle: {backgroundColor: theme.colors.primary}, headerTitle: navProp => <CustomHeader {...navProp} />} }>
         {{#each TypesThatHaveUI}}
-        <Stack.Screen name="{{cs_name Name}}List" component={ {{cs_name SelectAllType.Name}}ListScreen } />
-        <Stack.Screen name="{{cs_name Name}}Detail" component={ {{cs_name Name}}DetailScreen } />
+        <Stack.Screen name="{{cs_name Name}}List" component={ {{cs_name SelectAllType.Name}}ListScreen } options={ {title: '{{HumanizedNamePlural}}' } } />
+        <Stack.Screen name="{{cs_name Name}}Detail" component={ {{cs_name Name}}DetailScreen } options={ {title: '{{hmn Name}}' } } />
         {{/each}}
     </Stack.Navigator>
     );
