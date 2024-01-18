@@ -4,7 +4,7 @@ import { {{cs_name DetailType.Name}} } from './{{cs_name DetailType.Name}}';
 import DateTimeDisplay from '../../controls/DateTimeDisplay';
 import Thumbnail from '../../controls/thumbnail';
 import Title from "../../controls/Title";
-import {View, Text} from 'react-native';
+import {View, Text, Pressable} from 'react-native';
 import {detailStyles} from '../../controls/DetailStyle';
 
 interface {{cs_name Name}}DetailDisplayProps {
@@ -12,10 +12,29 @@ item: {{cs_name DetailType.Name}}
 }
 
 export const {{cs_name Name}}DetailDisplay = (props: {{cs_name Name}}DetailDisplayProps):React.ReactElement => {
+
+{{#each DisplayFields}}
+    {{#if IsLinkingFieldWithDetails}}
+    function on{{cs_name LinkingField.Name}}Pressed() {
+    
+    }
+    
+    {{/if}}    
+{{/each}}
+
 return (
     <View style={detailStyles.container}>
         {{#each DisplayFields}}
+        {{#if IsLinkingFieldWithDetails}}
+            <Pressable style={({pressed}) => [
+                {
+                    padding: 10,
+                    marginBottom: 1,
+                    backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'transparent',
+                }, detailStyles.row]}  onPress={on{{cs_name LinkingField.Name}}Pressed}>
+        {{else}}
             <View style={detailStyles.row}>
+        {{/if}}
                 <View style={detailStyles.fieldName}>
                     <Text>{{DisplayName}}</Text>
                 </View>
@@ -50,7 +69,11 @@ return (
                         {{/if}}
                     {{/if}}
                 </View>
+            {{#if IsLinkingFieldWithDetails}}
+            </Pressable>
+            {{else}}
             </View>
+            {{/if}}
         {{/each}}
     </View>);
 }
