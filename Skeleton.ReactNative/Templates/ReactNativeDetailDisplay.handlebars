@@ -6,17 +6,18 @@ import Thumbnail from '../../controls/thumbnail';
 import Title from "../../controls/Title";
 import {View, Text, Pressable} from 'react-native';
 import {detailStyles} from '../../controls/DetailStyle';
+import {useNavigation} from '@react-navigation/native';
 
 interface {{cs_name Name}}DetailDisplayProps {
 item: {{cs_name DetailType.Name}}
 }
 
 export const {{cs_name Name}}DetailDisplay = (props: {{cs_name Name}}DetailDisplayProps):React.ReactElement => {
-
+    const navigation = useNavigation();
 {{#each DisplayFields}}
     {{#if IsLinkingFieldWithDetails}}
     function on{{cs_name LinkingField.Name}}Pressed() {
-    
+        navigation.navigate('{{cs_name RelatedType.Name}}Detail', { {{cml_case RelatedType.IdentityField.Name}} : props.item.{{cml_case LinkingField.Name}} });
     }
     
     {{/if}}    
