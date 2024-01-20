@@ -47,16 +47,23 @@ export const {{cs_name Name}}DetailScreen = (props: {{cs_name Name}}DetailProps)
     {{/each}}
 
 {{#if DisplayField}}
-    if ({{cml_case Name}}Query.data?.{{cml_case DisplayField.Name}}) {
-        props.navigation.setOptions({title: {{cml_case Name}}Query.data?.{{cml_case DisplayField.Name}} });
-    }
+    useEffect(() => {
+        if ({{cml_case Name}}Query.data?.{{cml_case DisplayField.Name}}) {
+            props.navigation.setOptions({title: {{cml_case Name}}Query.data?.{{cml_case DisplayField.Name}} });
+        } else {
+            props.navigation.setOptions({title: '{{HumanizedName}}' });
+        }
+    }, [{{cml_case Name}}Query.data?.{{cml_case DisplayField.Name}}]);
 {{else}}
-    if ({{cml_case Name}}Query.data?.{{cml_case DisplayField.Name}}) {
-        const title = `{{HumanizedName}} { ${{cml_case Name}}Query.data.{{cml_case IdentityField.Name}} }`
-        props.navigation.setOptions({title: title });
-    }
+    useEffect(() => {
+        if ({{cml_case Name}}Query.data.{{cml_case IdentityField.Name}}) {
+            const title = `{{HumanizedName}} { ${{cml_case Name}}Query.data.{{cml_case IdentityField.Name}} }`
+            props.navigation.setOptions({title: title });
+        } else {
+            props.navigation.setOptions({title: '{{HumanizedName}}' });
+        }
+    }, [{{cml_case Name}}Query.data.{{cml_case IdentityField.Name}}]);
 {{/if}}
-
 
     {{#each UpdateOperations}}
         {{#if GenerateUI}}
@@ -66,8 +73,7 @@ export const {{cs_name Name}}DetailScreen = (props: {{cs_name Name}}DetailProps)
     }
 
         {{/if}}
-    {{/each}} 
-    
+    {{/each}}
     const render{{cs_name Name}}Detail = (data: {{cs_name DetailType.Name}}):React.ReactElement => {
         return (
             <{{cs_name Name}}DetailDisplay item={data} />
