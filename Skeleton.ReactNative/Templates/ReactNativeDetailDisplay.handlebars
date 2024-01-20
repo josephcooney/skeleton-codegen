@@ -7,6 +7,7 @@ import Title from "../../controls/Title";
 import {View, Text, Pressable} from 'react-native';
 import {detailStyles} from '../../controls/DetailStyle';
 import {useNavigation} from '@react-navigation/native';
+import PressableRow from '../../controls/PressableRow';
 
 interface {{cs_name Name}}DetailDisplayProps {
 item: {{cs_name DetailType.Name}}
@@ -27,12 +28,7 @@ return (
     <View style={detailStyles.container}>
         {{#each DisplayFields}}
         {{#if IsLinkingFieldWithDetails}}
-            <Pressable style={({pressed}) => [
-                {
-                    padding: 10,
-                    marginBottom: 1,
-                    backgroundColor: pressed ? 'rgb(210, 230, 255)' : 'transparent',
-                }, detailStyles.row]}  onPress={on{{cs_name LinkingField.Name}}Pressed}>
+            <PressableRow onPress={on{{cs_name LinkingField.Name}}Pressed}>
         {{else}}
             <View style={detailStyles.row}>
         {{/if}}
@@ -71,7 +67,7 @@ return (
                     {{/if}}
                 </View>
             {{#if IsLinkingFieldWithDetails}}
-            </Pressable>
+            </PressableRow>
             {{else}}
             </View>
             {{/if}}
