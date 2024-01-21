@@ -56,8 +56,8 @@ export const {{cs_name Name}}DetailScreen = (props: {{cs_name Name}}DetailProps)
     }, [{{cml_case Name}}Query.data?.{{cml_case DisplayField.Name}}]);
 {{else}}
     useEffect(() => {
-        if ({{cml_case Name}}Query.data.{{cml_case IdentityField.Name}}) {
-            const title = `{{HumanizedName}} { ${{cml_case Name}}Query.data.{{cml_case IdentityField.Name}} }`
+        if ({{cml_case Name}}Query.data?.{{cml_case IdentityField.Name}}) {
+            const title = `{{HumanizedName}} ${ {{cml_case Name}}Query.data?.{{cml_case IdentityField.Name}} }`
             props.navigation.setOptions({title: title });
         } else {
             props.navigation.setOptions({title: '{{HumanizedName}}' });
