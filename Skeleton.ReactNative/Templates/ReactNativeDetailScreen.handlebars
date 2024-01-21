@@ -62,7 +62,7 @@ export const {{cs_name Name}}DetailScreen = (props: {{cs_name Name}}DetailProps)
         } else {
             props.navigation.setOptions({title: '{{HumanizedName}}' });
         }
-    }, [{{cml_case Name}}Query.data.{{cml_case IdentityField.Name}}]);
+    }, [{{cml_case Name}}Query.data?.{{cml_case IdentityField.Name}}]);
 {{/if}}
 
     {{#each UpdateOperations}}
