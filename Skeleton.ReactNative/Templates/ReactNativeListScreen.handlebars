@@ -76,7 +76,7 @@ export const {{cs_name Name}}ListScreen = (props: {{cs_name Name}}ListProps) : J
             contents = renderError();
         } else {
             if (query.isFetching && !query.isRefetching) {
-                contents = <ActivityIndicator />;
+                contents = <ActivityIndicator size={'large'} />;
             } else {
 				contents = query.data && query.data.length > 0 ? renderData() : null;
 			}
