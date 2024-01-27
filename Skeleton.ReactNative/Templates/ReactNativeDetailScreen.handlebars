@@ -74,7 +74,7 @@ export const {{cs_name Name}}DetailScreen = (props: {{cs_name Name}}DetailProps)
 
         {{/if}}
     {{/each}}
-    const render{{cs_name Name}}Detail = (data: {{cs_name DetailType.Name}}):React.ReactElement => {
+    const render{{cs_name Name}}Detail = (data: {{cs_name DetailType.Name}}): React.ReactElement => {
         return (
             <{{cs_name Name}}DetailDisplay item={data} />
         );
@@ -133,7 +133,7 @@ export const {{cs_name Name}}DetailScreen = (props: {{cs_name Name}}DetailProps)
             { {{cml_case Name}}Contents }
             </View>
             {{/each}}
-        </View>			
+        </View>
         );
     }
 }
