@@ -60,6 +60,8 @@ export const {{cs_name Name}}ListScreen = (props: {{cs_name Name}}ListProps) : J
                 data={query.data}
                 renderItem={({item}) => <{{cs_name Name}}ListItem item={item} />}
                 keyExtractor={a => a.id.toString()}
+                refreshing={query.isRefetching}
+                onRefresh={query.refetch}
             />
         );
     }
@@ -73,7 +75,7 @@ export const {{cs_name Name}}ListScreen = (props: {{cs_name Name}}ListProps) : J
         if (query.error) {
             contents = renderError();
         } else {
-            if (query.isFetching) {
+            if (query.isFetching && !query.isRefetching) {
                 contents = <ActivityIndicator />;
             } else {
 				contents = query.data && query.data.length > 0 ? renderData() : null;
