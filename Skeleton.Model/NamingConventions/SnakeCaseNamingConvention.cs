@@ -26,7 +26,7 @@ public class SnakeCaseNamingConvention : NamingConventionBase, INamingConvention
 
     public string[] GetNameParts(string name)
     {
-        return name.Split('_');
+        return name.Split('_').Where(s => !string.IsNullOrEmpty(s)).ToArray();
     }
 
     public string CreateParameterNameFromFieldName(string fieldName)

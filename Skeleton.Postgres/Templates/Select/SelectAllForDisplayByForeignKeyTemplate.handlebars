@@ -24,7 +24,7 @@ $$
             {{/each}}
         FROM {{{escape_sql_keyword Name}}} {{ShortName}}
         {{#each RelatedFields}}
-        LEFT JOIN {{{escape_sql_keyword Field.ReferencesType.Name}}} AS {{ParentAlias}} ON {{PrimaryAlias}}.{{escape_sql_keyword Field.Name}} = {{ParentAlias}}.{{{escape_sql_keyword Field.ReferencesTypeField.Name}}} 
+        LEFT JOIN {{{escape_sql_keyword Field.ReferencesType.Name}}} AS {{ParentAlias}} ON {{PrimaryAlias}}.{{{escape_sql_keyword Field.Name}}} = {{ParentAlias}}.{{{escape_sql_keyword Field.ReferencesTypeField.Name}}} 
         {{/each}}
 		WHERE 
         {{#each SelectFields}}
