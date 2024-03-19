@@ -364,7 +364,7 @@ namespace Skeleton.Postgres
         {
             if (SqlReservedWords.Contains(name.ToUpperInvariant()) || name.ToLowerInvariant() != name)
             {
-                return "\"" + name + "\"";
+                return $"\"{name}\"";
             }
 
             return name;

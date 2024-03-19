@@ -88,7 +88,7 @@ export const {{cs_name Name}}DetailScreen = (props: {{cs_name Name}}DetailProps)
             contents = render{{cs_name Name}}Detail({{cml_case Name}}Query.data);
         }
         else {
-            contents = <ActivityIndicator />;
+            contents = <ActivityIndicator size={'large'} />;
         }
     }
 
@@ -101,7 +101,7 @@ export const {{cs_name Name}}DetailScreen = (props: {{cs_name Name}}DetailProps)
         {{cml_case Name}}Contents = <Error message={"unable to load {{hmn Name}}."} />;
     } else {
         if ({{cml_case Name}}Query.isFetching){
-            {{cml_case Name}}Contents = <ActivityIndicator />;			
+            {{cml_case Name}}Contents = <ActivityIndicator size={'large'} />;			
         }
         else {
             {{cml_case Name}}Contents = <{{cs_name SelectAllType.Name}}List data={ {{cml_case Name}}Query.data } dataProvided={true} linkedType='{{../Name}}' linkedId={ {{cml_case ../Name}}Query.data ? {{cml_case ../Name}}Query.data.id : null} />;		
