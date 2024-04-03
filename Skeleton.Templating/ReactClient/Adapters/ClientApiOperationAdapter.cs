@@ -131,7 +131,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
 
         public bool IsColor => Field?.IsColor ?? false;
 
-        public Type ClrType => Field?.ClrType ?? Parameter.ClrType;
+        public Type ClrType => Field?.ClrType ?? Parameter?.ClrType;
 
         public bool IsHtml => Field?.IsHtml ?? Parameter.IsHtml;
     }

@@ -312,17 +312,24 @@ namespace Skeleton.Templating
 
             Handlebars.RegisterHelper("input_type", (writer, ContextBoundObject, parameters) =>
             {
-                System.Type originalType = (System.Type)parameters[0];
-                var type = System.Nullable.GetUnderlyingType(originalType) ?? originalType;
-
-                if (_inputTypes.ContainsKey(type))
+                Type originalType = (System.Type)parameters[0];
+                if (originalType == null)
                 {
-                    var inputType = _inputTypes[type];
-                    writer.Write(inputType);
-                    return;
+                    writer.Write("ERROR: No type provided - input_type");
                 }
+                else
+                {
+                    var type = System.Nullable.GetUnderlyingType(originalType) ?? originalType;
 
-                writer.Write("text"); // fallback
+                    if (_inputTypes.ContainsKey(type))
+                    {
+                        var inputType = _inputTypes[type];
+                        writer.Write(inputType);
+                        return;
+                    }
+
+                    writer.Write("text"); // fallback
+                }
             });
 
             Handlebars.RegisterHelper("has", (output, options, context, arguments) =>
