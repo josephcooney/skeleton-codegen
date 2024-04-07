@@ -135,8 +135,9 @@ namespace Skeleton.Postgres
                                     var order = int.Parse(fieldRow["ColumnOrdinal"].ToString());
                                     var providerTypeName = fieldRow["DataTypeName"].ToString();
                                     var size = int.Parse(fieldRow["ColumnSize"].ToString());
-                                    var clrType = (System.Type)fieldRow["DataType"];
-
+                                    // CLR type from (System.Type)fieldRow["DataType"] is inaccurate here - for custom types e.g. enums
+                                    var clrType = new PostgresType(providerTypeName).ClrType;
+                                    
                                     // AllowDbNull doesn't seem to be accurate for postgres
                                     // IsIdentity also doesn't seem accurate, however it does accord with what information_schema.columns contains for that table 
 
@@ -160,14 +161,87 @@ namespace Skeleton.Postgres
                 GetTypeAttributes(types);
 
                 // now that we've done an initial pass on loading the types we need to construct the relationships between them
+                // and fix up any missing type info
                 foreach (var applicationType in types)
                 {
                     GetForeignKeyInfoFromInformationSchema(cn, applicationType, types);
+                    PopulateMissingTypeInfo(cn, applicationType, domain);
                 }
             }
 
-
             return types;
+        }
+
+        private void PopulateMissingTypeInfo(NpgsqlConnection cn, ApplicationType applicationType, Domain domain)
+        {
+            foreach (var field in applicationType.Fields)
+            {
+                if (field.ClrType == null)
+                {
+                    Log.Debug("Fixing up type info for {TypeName} {FieldName}", applicationType.Name, field.Name);
+                    var nameParts = field.ProviderTypeName.Split('.');
+                    if (nameParts.Length == 2)
+                    {
+                        var isEnum = GetIsUnderlyingTypePostgresEnum(nameParts, cn);
+                        if (isEnum)
+                        {
+                            // this is an enum
+                            var enumType = domain.EnumTypes.FirstOrDefault(t =>
+                                t.Name == nameParts[1] && t.Namespace == nameParts[0]);
+
+                            if (enumType == null)
+                            {
+                                var values = GetPostgresEnumTypeValues(nameParts, cn);
+                                enumType = new EnumType(nameParts[1], nameParts[0], domain, values);
+                            }
+
+                            field.ClrType = enumType.GetType();
+                        }
+                    }
+                }
+            }
+        }
+
+        private List<string> GetPostgresEnumTypeValues(string[] nameParts, NpgsqlConnection cn)
+        {
+            var valuesQuery = @"SELECT e.enumlabel
+                                                            FROM pg_type AS t
+                                                              JOIN pg_enum AS e ON t.oid = e.enumtypid
+                                                            WHERE t.typname = '{0}'
+                                                            ORDER BY e.enumsortorder;";
+
+            using (var valuesCmd = new NpgsqlCommand(string.Format(valuesQuery, nameParts[1]), cn))
+            {
+                using (var valReader = valuesCmd.ExecuteReader())
+                {
+                    var values = new List<string>();
+
+                    while (valReader.Read())
+                    {
+                        values.Add(valReader[0].ToString());
+                    }
+
+                    return values;
+                }
+            }
+        }
+
+        private bool GetIsUnderlyingTypePostgresEnum(string[] nameParts, NpgsqlConnection cn)
+        {
+            var typeQuery = @"select t.* FROM pg_catalog.pg_type t
+                                            INNER JOIN pg_catalog.pg_namespace n
+                                            ON n.oid = t.typnamespace
+                                            WHERE t.typname = '{0}'
+                                            AND n.nspname = '{1}'";
+            
+            using (var cmd = new NpgsqlCommand(string.Format(typeQuery, nameParts[1], nameParts[0]), cn))
+            {
+                using (var reader = cmd.ExecuteReader())
+                {
+                    reader.Read();
+                    return reader["typcategory"].ToString() == "E";
+                }
+            }        
         }
 
         private string SanitizeFieldName(string name)

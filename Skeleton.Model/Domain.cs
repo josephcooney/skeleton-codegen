@@ -22,6 +22,7 @@ namespace Skeleton.Model
             Types = new List<ApplicationType>();
             Operations = new List<Operation>();
             ResultTypes = new List<ResultType>();
+            EnumTypes = new List<EnumType>();
             TypeProvider = typeProvider;
             NamingConvention = namingConvention;
             DefaultNamespace = settings.ApplicationName;
@@ -32,6 +33,8 @@ namespace Skeleton.Model
         public List<Operation> Operations { get; }
 
         public List<ResultType> ResultTypes { get; }
+        
+        public List<EnumType> EnumTypes { get; }
 
         public string DefaultNamespace { get; set; }
 

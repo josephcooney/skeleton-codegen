@@ -107,6 +107,21 @@ public class PostgresTypeProviderTests : DbTestBase
             DestroyTestDb(testDbInfo.dbName);
         }
     }
+
+    [Fact]  // -- this test can't run because npgsql has some issues getting the details of this table with CommandBehavior.SchemaOnly
+    public void CanCreateDomainWhereFieldIsCustomEnumType()
+    {
+        var testDbInfo = CreateTestDatabase(DbSchemaWithColumnThatUsesEnumType);
+        try
+        {
+            var provider = new PostgresTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()));
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
     
     private const string TestDbScript = @"
         create table simple_lookup_table (
@@ -237,6 +252,18 @@ COMMENT ON FUNCTION change_task_type ( integer, integer)
 
 ";
 
+    public const string DbSchemaWithColumnThatUsesEnumType = @"
+        CREATE TYPE item_status AS ENUM (
+	        'unknown',
+	        'new',
+	        'in_progress',
+	        'completed');
 
+        CREATE TABLE work_item (
+            id serial primary key not null,
+            status item_status not null,
+            created timestamptz not null
+        );
+    ";
 
 }
