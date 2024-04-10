@@ -25,6 +25,11 @@ namespace Skeleton.ProjectGeneration
 
         public void ApplyDatabaseFiles(List<CodeFile> files, string directoryName, Action<CodeFile> postUpdateAction)
         {
+            if (!_fs.Directory.Exists(directoryName))
+            {
+                _fs.Directory.CreateDirectory(directoryName);
+            }
+            
             var childDirectories = _fs.Directory.EnumerateDirectories(directoryName).OrderByDescending(n => n);
             if (!childDirectories.Any())
             {
