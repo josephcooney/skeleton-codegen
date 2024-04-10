@@ -230,6 +230,13 @@ namespace Skeleton.Console
                 settings.DataDirectory = configuration.GetValue<string>("data-dir");
             }
 
+            // optional setting for location of domain objects, helpful for EF co-existence
+            var domainDir = configuration.GetValue<string>("domain-dir");
+            if (!string.IsNullOrEmpty(domainDir))
+            {
+                settings.DomainDirectory = domainDir;
+            }
+
             if (string.IsNullOrEmpty(settings.ClientAppDirectory))
             {
                 // this setting is not required so should also not trigger an error

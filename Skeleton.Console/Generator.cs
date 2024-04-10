@@ -61,7 +61,7 @@ namespace Skeleton.Console
         public void Generate(ITypeProvider typeProvider)
         {
             Log.Information("Starting Code Generation in {RootDirectory}", _settings.RootDirectory);
-            Domain oldDomain = typeProvider.GetDomain(_settings);
+            var oldDomain = typeProvider.GetDomain(_settings);
             typeProvider.GetOperations(oldDomain);
             if (_settings.AddGeneratedOptionsToDatabase)
             {
@@ -70,6 +70,7 @@ namespace Skeleton.Console
             }
 
             var domain = typeProvider.GetDomain(_settings);
+            
             Log.Information("Finished building domain");
 
             SetupRootDirectory();
@@ -234,9 +235,17 @@ namespace Skeleton.Console
         {
             var generator = new ClassGenerator();
             var files = generator.GenerateDomain(domain);
-            const string DomainObjectDirectoryName = "Domain";
-            var dir = _fs.Path.Combine(CSharpDataAccessDirectory, DomainObjectDirectoryName);
-            _fileWriter.ApplyCodeFiles(files, dir);
+            if (!string.IsNullOrEmpty(_settings.DomainDirectory))
+            {
+                var domainDir = _fs.Path.Combine(_settings.RootDirectory, _settings.DomainDirectory);
+                _fileWriter.ApplyCodeFiles(files, domainDir);
+            }
+            else
+            {
+                const string DomainObjectDirectoryName = "Domain";
+                var dir = _fs.Path.Combine(CSharpDataAccessDirectory, DomainObjectDirectoryName);
+                _fileWriter.ApplyCodeFiles(files, dir);
+            }
         }
 
         private void GenerateReturnTypes(Domain domain)
