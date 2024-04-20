@@ -124,7 +124,7 @@ namespace Skeleton.Templating
                 }
             });
 
-            Handlebars.RegisterHelper("escape_sql_keyword", (writer, context, parameters) =>
+            Handlebars.RegisterHelper("escape_sql", (writer, context, parameters) =>
             {
                 string name = parameters[0] as string;
 
@@ -134,8 +134,30 @@ namespace Skeleton.Templating
                     return;
                 }
 
-                var escaped = EscapeSqlReservedWord(name);
+                var escaped = _typeProvider.EscapeReservedWord(name);
                 writer.Write(escaped);
+            });
+            
+            Handlebars.RegisterHelper("escape_sql_name", (writer, context, parameters) =>
+            {
+                string name = parameters[0] as string;
+
+                if (name == null)
+                {
+                    writer.Write("NULL - No parameter provided");
+                    return;
+                }
+
+                var escaped = _typeProvider.EscapeSqlName(name);
+                writer.Write(escaped);
+            });
+            
+            Handlebars.RegisterHelper("make_db_name", (writer, context, parameters) =>
+            {
+                var parts = parameters.Select(p => p.ToString()).ToList();
+                var name =  _namingConvention.CreateNameFromFragments(parts);
+                name = _typeProvider.EscapeReservedWord(name);
+                writer.Write(name);
             });
 
             Handlebars.RegisterHelper("cs_name", (writer, context, parameters) =>

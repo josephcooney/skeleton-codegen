@@ -25,4 +25,12 @@ public class PascalCaseNameingConventionTests
         parts.Length.ShouldBe(1);
         parts[0].ShouldBe("Stack");
     }
+
+    [Fact]
+    public void CanCreateNameFromParts()
+    {
+        var namingConvention = new PascalCaseNamingConvention(null);
+        var name = namingConvention.CreateNameFromFragments(new List<string>(){"Status", "display"});
+        name.ShouldBe("StatusDisplay");
+    }
 }

@@ -370,6 +370,16 @@ namespace Skeleton.Postgres
             return name;
         }
 
+        public string EscapeSqlName(string name)
+        {
+            if (name.ToLowerInvariant() != name)
+            {
+                return $"\"{name}\"";
+            }
+
+            return name;
+        }
+
         public string GetCsDbTypeFromDbType(string dbTypeName)
         {
             var result = GetNpgsqlDbTypeFromPostgresType(dbTypeName);
@@ -1191,7 +1201,7 @@ namespace Skeleton.Postgres
         private dynamic GetDbCustomTypeAttributes(string name, string ns)
         {
             using (var cn = new NpgsqlConnection(_connectionString))
-            using (var cmd = new NpgsqlCommand($"SELECT description FROM pg_catalog.pg_description WHERE objoid = '{ns}.{name}'::regtype;", cn))
+            using (var cmd = new NpgsqlCommand($"SELECT description FROM pg_catalog.pg_description WHERE objoid = '\"{ns}\".\"{name}\"'::regtype;", cn))
             {
                 cn.Open();
                 var result = cmd.ExecuteScalar();

@@ -407,6 +407,11 @@ public class SqlServerTypeProvider : ITypeProvider
         return name;
     }
 
+    public string EscapeSqlName(string name)
+    {
+        return name;
+    }
+
     public string GetCsDbTypeFromDbType(string dbTypeName)
     {
         var type = GetSqlDbTypeFromSqlType(dbTypeName);

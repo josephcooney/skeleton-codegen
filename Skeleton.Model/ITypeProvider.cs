@@ -19,6 +19,8 @@ namespace Skeleton.Model
         
         string EscapeReservedWord(string name);
 
+        string EscapeSqlName(string name); // like the above but ignores reserved words
+
         public string GetCsDbTypeFromDbType(string dbTypeName);
 
         public string GetSqlName(string entityName);

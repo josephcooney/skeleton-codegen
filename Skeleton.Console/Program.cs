@@ -11,6 +11,7 @@ using Mono.Options;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using Skeleton.Model.NamingConventions;
 
 namespace Skeleton.Console
 {
@@ -259,7 +260,13 @@ namespace Skeleton.Console
             {
                 settings.OpenApiUri = configuration.GetValue<string>("openapi-uri");
             }
-
+            
+            var namingConventions = configuration.GetSection("NamingConventions").Get<NamingConventionSettings>();
+            if (namingConventions != null)
+            {
+                settings.NamingConventionSettings = namingConventions;
+            }
+            
             if (settings.ClientAppTypes.Contains(ClientAppUIType.Flutter))
             {
                 settings.FlutterSettings = new FlutterSettings();
