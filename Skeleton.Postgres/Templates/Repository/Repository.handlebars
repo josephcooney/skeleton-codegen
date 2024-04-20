@@ -38,7 +38,7 @@ namespace {{cs_name Namespace}}.Data.Repository
             try 
             {
                 using (var cn = CreateConnection(_connectionString))
-                using (var cmd = new NpgsqlCommand("{{{SqlName}}}", cn))
+                using (var cmd = new NpgsqlCommand("{{{escape_quotes SqlName}}}", cn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
     

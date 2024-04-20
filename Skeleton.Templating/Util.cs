@@ -366,7 +366,8 @@ namespace Skeleton.Templating
             Handlebars.RegisterHelper("escape_quotes", (writer, context, parameters) =>
             {
                 string parameter = (string)parameters[0];
-                writer.Write(parameter.Replace("\"", "\\\""));
+                const string escapedQuote = "\\\"";
+                writer.Write(parameter.Replace("\"", escapedQuote));
             });
         }
 

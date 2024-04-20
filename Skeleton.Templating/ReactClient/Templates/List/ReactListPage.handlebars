@@ -116,14 +116,14 @@ export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps>
                         <UserConsumer>
                             {userProps => {
                             return isAdmin(userProps) ? (<Grid container direction="column" alignItems="flex-end" style={buttonRowStyle}>
-                            <Fab onClick={onAddClick} size="medium" color="primary" aria-label="add {{UnderlyingType.HumanizedName}}">
+                            <Fab onClick={onAddClick} size="medium" color="secondary" aria-label="add {{UnderlyingType.HumanizedName}}">
                                 <AddIcon />
                             </Fab>
                         </Grid>) : null;} }
                         </UserConsumer>
                     {{else}}
                         <Grid container direction="column" alignItems="flex-end" style={buttonRowStyle}>
-                            <Fab onClick={onAddClick} size="medium" color="primary" aria-label="add {{UnderlyingType.HumanizedName}}">
+                            <Fab onClick={onAddClick} size="medium" color="secondary" aria-label="add {{UnderlyingType.HumanizedName}}">
                                 <AddIcon />
                             </Fab>
                         </Grid>
