@@ -389,10 +389,17 @@ namespace Skeleton.Postgres
         {
             if (entityName.Length > NameLengthLimit)
             {
-                return entityName.Substring(0, NameLengthLimit);
+                return GetSqlName(entityName.Substring(0, NameLengthLimit));
             }
 
-            return entityName;
+            if (entityName.ToLowerInvariant() == entityName)
+            {
+                return entityName;
+            }
+            else
+            {
+                return $"\"{entityName}\"";
+            }
         }
 
         public bool CustomTypeExists(string customTypeName)

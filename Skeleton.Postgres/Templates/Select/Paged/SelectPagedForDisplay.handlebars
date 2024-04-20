@@ -14,9 +14,11 @@ $$
     
     BEGIN
 
+    {{#if Domain.HasUserType}}
         IF (security_user_id_param is not null) THEN
-		    perform set_config('app.user_id', security_user_id_param::text, true);
+            perform set_config('app.user_id', security_user_id_param::text, true);
         END IF;
+    {{/if}}
 
         IF ({{SortParameter.Name}} is not null and {{SortParameter.Name}} not in ({{#each DisplayAllFields}}{{#if HasDisplayName}}'{{{DisplayName}}}'{{else}}'{{{Name}}}'{{/if}}{{#unless @last}},{{/unless}}{{/each}})) THEN
             RAISE 'Invalid sort: %', {{SortParameter.Name}};

@@ -105,6 +105,21 @@ namespace Skeleton.Templating.Classes
             get { return _domain.Operations.Any(o => !o.Ignore && o.Returns.SimpleReturnType != null && (o.Returns.SimpleReturnType is ResultType) && !((ResultType)o.Returns.SimpleReturnType).Ignore); }
         }
 
+        public string DomainNamespace
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(_domain.Settings.DomainNamespace))
+                {
+                    return _domain.Settings.DomainNamespace;
+                }
+                else
+                {
+                    return $"{Util.CSharpNameFromName(Namespace)}.Data.Domain";
+                }
+            }
+        }
+        
         public virtual List<OperationAdapter> Operations
         {
             get

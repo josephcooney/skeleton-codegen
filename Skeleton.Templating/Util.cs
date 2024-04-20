@@ -362,6 +362,12 @@ namespace Skeleton.Templating
                     options.Inverse(output, context);
                 }
             });
+            
+            Handlebars.RegisterHelper("escape_quotes", (writer, context, parameters) =>
+            {
+                string parameter = (string)parameters[0];
+                writer.Write(parameter.Replace("\"", "\\\""));
+            });
         }
 
         public static string FormatClrType(Type originalType)

@@ -52,6 +52,8 @@ namespace Skeleton.Model
 
         public ApplicationType? UserType => Types.SingleOrDefault(t => t.IsSecurityPrincipal);
 
+        public bool HasUserType => UserType != null;
+        
         public ApplicationType? HelpType => Types.SingleOrDefault(t => t.IsHelp);
 
         public bool HasHelpType => HelpType != null;

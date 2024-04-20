@@ -45,6 +45,9 @@ namespace Skeleton.Model
         public string DataDirectory { get; set; }
         
         public string DomainDirectory { get; set; }
+        
+        public string DomainNamespace { get; set; }
+        
         public string ClientAppDirectory { get; set; }
         public WebUIType WebUIType { get; set; }
         public string TypeName { get; set; } // used for debugging purposes to do things for just a single type

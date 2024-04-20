@@ -237,6 +237,13 @@ namespace Skeleton.Console
                 settings.DomainDirectory = domainDir;
             }
 
+            // also for ef-coexistence
+            var domainNamespace = configuration.GetValue<string>("domain-namespace");
+            if (!string.IsNullOrEmpty(domainNamespace))
+            {
+                settings.DomainNamespace = domainNamespace;
+            }
+            
             if (string.IsNullOrEmpty(settings.ClientAppDirectory))
             {
                 // this setting is not required so should also not trigger an error
