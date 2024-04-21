@@ -120,6 +120,7 @@ public class PostgresTypeProviderTests : DbTestBase
             var lookupType = model.Types.SingleOrDefault(t => t.Name == "SimpleLookupTable");
             lookupType.ShouldNotBeNull();
             lookupType.Fields.Count.ShouldBe(4);
+            lookupType.IsReferenceData.ShouldBe(true);
             
             // check id field
             var idField = lookupType.GetFieldByName("Id");
@@ -298,6 +299,8 @@ COMMENT ON FUNCTION change_task_type ( integer, integer)
             ""Created"" timestamp not null,
             ""Modified"" timestamp
         );
+
+        COMMENT ON TABLE ""SimpleLookupTable"" IS '{""type"":""reference""}';
     ";
 
 }
