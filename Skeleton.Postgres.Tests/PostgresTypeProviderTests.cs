@@ -163,9 +163,45 @@ public class PostgresTypeProviderTests : DbTestBase
         }
     }
     
+    [Fact]
+    public void IdentifiesGuidPrimaryKeyAsNotUserProvided()
+    {
+        var testDbInfo = CreateTestDatabase(TestDbScriptWithGuid);
+        try
+        {
+            var provider = new PostgresTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()){NamingConventionSettings = new NamingConventionSettings(){DbNamingConvention = DbNamingConvention.PascalCase}});
+            var lookupType = model.Types.SingleOrDefault(t => t.Name == "simple_lookup_table");
+            lookupType.ShouldNotBeNull();
+            lookupType.Fields.Count.ShouldBe(4);
+            
+            // check id field
+            var idField = lookupType.GetFieldByName("id");
+            idField.ShouldNotBeNull();
+            idField.IsKey.ShouldBeTrue();
+            idField.IsGenerated.ShouldBeTrue();
+            idField.ClrType.ShouldBe(typeof(Guid));
+            idField.IsRequired.ShouldBeTrue();
+            idField.Size.ShouldBeNull();
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
+    
     private const string TestDbScript = @"
         create table simple_lookup_table (
             id serial primary key not null,
+            name text not null,
+            created timestamp not null,
+            modified timestamp
+        );
+    ";
+    
+    private const string TestDbScriptWithGuid = @"
+        create table simple_lookup_table (
+            id uuid primary key not null,
             name text not null,
             created timestamp not null,
             modified timestamp

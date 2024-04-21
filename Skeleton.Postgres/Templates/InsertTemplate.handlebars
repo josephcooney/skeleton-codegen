@@ -11,7 +11,7 @@ CREATE OR REPLACE FUNCTION {{{escape_sql FunctionName}}} (
 ) RETURNS {{PrimaryKeyField.ProviderTypeName}}{{#if PrimaryKeyField.HasSize}}({{PrimaryKeyField.Size}}){{/if}} AS 
 $$
     DECLARE new_id {{PrimaryKeyField.ProviderTypeName}}{{#if PrimaryKeyField.HasSize}}({{PrimaryKeyField.Size}}){{/if}};
-
+ 
     BEGIN
 
         {{#if Domain.HasUserType}}
@@ -20,9 +20,11 @@ $$
         END IF;
         {{/if}}
 
-		{{#if PrimaryKeyField.IsUuid}}
-			new_id = uuid_generate_v1();
-		{{/if}}
+        {{#if PrimaryKeyField.IsGenerated}}
+        {{#if PrimaryKeyField.IsUuid}}
+            new_id = uuid_generate_v1();
+        {{/if}}
+        {{/if}}
 
         insert into {{{escape_sql Name}}} (
             {{#each InsertFields}}
@@ -41,7 +43,7 @@ $$
         {{else}}
             {{#if PrimaryKeyField.IsUserEditable}}
                 {{#if UsesCustomInsertType}}
-        new_id = {{NewRecordParameterName}}.{{PrimaryKeyField.Name}};
+        new_id = {{{escape_sql NewRecordParameterName}}}.{{{escape_sql PrimaryKeyField.Name}}};
                 {{else}}
         new_id = {{FunctionName}}.{{PrimaryKeyField.Name}};
                 {{/if}}

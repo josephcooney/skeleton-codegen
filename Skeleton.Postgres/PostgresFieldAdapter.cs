@@ -29,7 +29,7 @@ public class PostgresFieldAdapter : IParamterPrototype
                         return "DEFAULT"; 
                     }
 
-                    if (_field.IsKey && _field.ClrType == typeof(Guid))
+                    if (_field.IsKey && _field.IsGenerated && _field.ClrType == typeof(Guid))
                     {
                         return "new_id"; 
                     }
