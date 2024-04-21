@@ -9,7 +9,7 @@ CREATE OR REPLACE FUNCTION {{FunctionName}} (
 {{/each}}
 ) 
 {{#if HasExcludedFields}}
-RETURNS SETOF {{Name}}_result AS 
+RETURNS SETOF {{{make_db_name Name "result"}}} AS 
 {{else}}
 RETURNS SETOF {{{escape_sql Name}}} AS
 {{/if}}

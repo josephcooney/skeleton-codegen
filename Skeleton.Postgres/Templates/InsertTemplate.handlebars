@@ -6,7 +6,7 @@ CREATE OR REPLACE FUNCTION {{{escape_sql FunctionName}}} (
 {{{escape_sql Name}}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}}
 {{/each}}
 {{#if UsesCustomInsertType}}
-{{#if HasInsertInputFields}},{{/if}}{{NewRecordParameterName}} {{NewTypeName}}
+{{#if HasInsertInputFields}},{{/if}}{{{escape_sql NewRecordParameterName}}} {{{escape_sql_name NewTypeName}}}
 {{/if}}
 ) RETURNS {{PrimaryKeyField.ProviderTypeName}}{{#if PrimaryKeyField.HasSize}}({{PrimaryKeyField.Size}}){{/if}} AS 
 $$
@@ -32,7 +32,7 @@ $$
         VALUES
         (
             {{#each InsertFields}}
-            {{{escape_sql Value}}}{{#unless @last}},{{/unless}}
+            {{{Value}}}{{#unless @last}},{{/unless}}
             {{/each}}
         );
 
@@ -54,9 +54,9 @@ $$
   LANGUAGE plpgsql VOLATILE SECURITY INVOKER
   COST 100;
 
-REVOKE ALL ON FUNCTION {{{escape_sql FunctionName}}} ({{#each InsertInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}}{{/each}}{{#if UsesCustomInsertType}}{{#if HasInsertInputFields}} ,{{/if}}{{NewTypeName}}{{/if}}) FROM public;
+REVOKE ALL ON FUNCTION {{{escape_sql FunctionName}}} ({{#each InsertInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}}{{/each}}{{#if UsesCustomInsertType}}{{#if HasInsertInputFields}} ,{{/if}}{{{escape_sql_name NewTypeName}}}{{/if}}) FROM public;
 
-GRANT EXECUTE ON FUNCTION {{{escape_sql FunctionName}}} ({{#each InsertInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}}{{/each}}{{#if UsesCustomInsertType}}{{#if HasInsertInputFields}} ,{{/if}}{{NewTypeName}}{{/if}}) TO web_app_role;
+GRANT EXECUTE ON FUNCTION {{{escape_sql FunctionName}}} ({{#each InsertInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}}{{/each}}{{#if UsesCustomInsertType}}{{#if HasInsertInputFields}} ,{{/if}}{{{escape_sql_name NewTypeName}}}{{/if}}) TO web_app_role;
 
-COMMENT ON FUNCTION {{{escape_sql FunctionName}}} ({{#each InsertInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}}{{/each}}{{#if UsesCustomInsertType}}{{#if HasInsertInputFields}} ,{{/if}}{{NewTypeName}}{{/if}})
+COMMENT ON FUNCTION {{{escape_sql FunctionName}}} ({{#each InsertInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}}{{/each}}{{#if UsesCustomInsertType}}{{#if HasInsertInputFields}} ,{{/if}}{{{escape_sql_name NewTypeName}}}{{/if}})
     IS '{"applicationtype":"{{Name}}", "generated":true, "changesData":true, "friendlyName":"Add", "fullName":"{{FunctionName}}", "createsNew":true {{#if NoAddUI}},"ui":false, "api":false {{/if}} }';

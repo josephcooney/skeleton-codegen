@@ -54,10 +54,10 @@ public class PostgresFieldAdapter : IParamterPrototype
 
                     if (_prototype.AddMany)
                     {
-                        return _prototype.AddManyArrayItemVariableName + "." + _field.Name;
+                        return _typeProvider.EscapeSqlName(_prototype.AddManyArrayItemVariableName) + "." + _typeProvider.EscapeSqlName(_field.Name);
                     }
                     
-                    return _prototype.NewRecordParameterName + "." + _field.Name;
+                    return _typeProvider.EscapeSqlName(_prototype.NewRecordParameterName) + "." + _typeProvider.EscapeSqlName(_field.Name);
                 }
 
                 if (_prototype.OperationType == OperationType.Update)
