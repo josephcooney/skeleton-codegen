@@ -8,14 +8,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using {{DomainNamespace}};
-using {{cs_name Namespace}}.Data.Repository;
-using {{cs_name Namespace}}.Models;
-using {{cs_name Namespace}}.Services;
+using {{Namespace}}.Data.Repository;
+using {{Namespace}}.Models;
+using {{Namespace}}.Services;
 {{#if HasCustomResultType}}
-using {{cs_name Namespace}}.Data.Model; 
+using {{Namespace}}.Data.Model; 
 {{/if}}
 
-namespace {{cs_name Namespace}}.Controllers
+namespace {{Namespace}}.Controllers
 {
 	[Route("api/{{kb_case Name}}")]
     public partial class {{cs_name Name}}ApiController : {{{ControllerBaseClassName}}}

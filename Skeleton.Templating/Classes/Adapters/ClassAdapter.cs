@@ -44,7 +44,7 @@ namespace Skeleton.Templating.Classes
                     return _domain.DefaultNamespace;
                 }
 
-                return _type.Namespace;
+                return Util.CSharpNameFromName(_type.Namespace);
             }
         }
 
