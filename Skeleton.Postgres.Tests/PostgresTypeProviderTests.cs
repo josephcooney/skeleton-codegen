@@ -2,6 +2,7 @@
 using Npgsql;
 using Shouldly;
 using Skeleton.Model;
+using Skeleton.Model.NamingConventions;
 using Xunit;
 
 namespace Skeleton.Postgres.Tests;
@@ -101,6 +102,59 @@ public class PostgresTypeProviderTests : DbTestBase
             var op = model.Operations.First();
             op.Parameters.Count.ShouldBe(2);
 
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
+
+    [Fact]
+    public void CanBuildDomainForPascalCaseSchema()
+    {
+        var testDbInfo = CreateTestDatabase(PascalCaseSchemaScript);
+        try
+        {
+            var provider = new PostgresTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()){NamingConventionSettings = new NamingConventionSettings(){DbNamingConvention = DbNamingConvention.PascalCase}});
+            var lookupType = model.Types.SingleOrDefault(t => t.Name == "SimpleLookupTable");
+            lookupType.ShouldNotBeNull();
+            lookupType.Fields.Count.ShouldBe(4);
+            
+            // check id field
+            var idField = lookupType.GetFieldByName("Id");
+            idField.ShouldNotBeNull();
+            idField.IsKey.ShouldBeTrue();
+            idField.IsGenerated.ShouldBeTrue();
+            idField.ClrType.ShouldBe(typeof(int));
+            idField.IsRequired.ShouldBeTrue();
+            idField.Size.ShouldBeNull();
+            
+            // check name field
+            var nameField = lookupType.GetFieldByName("Name");
+            nameField.ShouldNotBeNull();
+            nameField.IsKey.ShouldBeFalse();
+            nameField.IsRequired.ShouldBeTrue();
+            nameField.IsGenerated.ShouldBeFalse();
+            nameField.ClrType.ShouldBe(typeof(string));
+            
+            // check created field
+            var createdField = lookupType.GetFieldByName("Created");
+            createdField.ShouldNotBeNull();
+            createdField.IsKey.ShouldBeFalse();
+            createdField.IsRequired.ShouldBeTrue();
+            createdField.IsGenerated.ShouldBeFalse();
+            createdField.ClrType.ShouldBe(typeof(DateTime));
+            createdField.IsTrackingDate.ShouldBe(true);
+            createdField.IsCreatedDate.ShouldBe(true);
+            
+            // check modified field
+            var modifiedField = lookupType.GetFieldByName("Modified");
+            modifiedField.ShouldNotBeNull();
+            modifiedField.IsKey.ShouldBeFalse();
+            modifiedField.IsRequired.ShouldBeFalse();
+            modifiedField.IsGenerated.ShouldBeFalse();
+            modifiedField.ClrType.ShouldBe(typeof(DateTime?));
         }
         finally
         {
@@ -237,6 +291,13 @@ COMMENT ON FUNCTION change_task_type ( integer, integer)
 
 ";
 
-
+    const string PascalCaseSchemaScript = @"
+        create table ""SimpleLookupTable"" (
+            ""Id"" serial primary key not null,
+            ""Name"" text not null,
+            ""Created"" timestamp not null,
+            ""Modified"" timestamp
+        );
+    ";
 
 }
