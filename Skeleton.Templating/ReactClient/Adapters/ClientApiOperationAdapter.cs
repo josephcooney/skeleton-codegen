@@ -62,6 +62,11 @@ namespace Skeleton.Templating.ReactClient.Adapters
                     }
                 }
 
+                if (_op.ChangesData && !_op.CreatesNew)
+                {
+                    return fields.Where(f => !f.IsKey).ToList();
+                }
+
                 return fields;
             }
         }
@@ -134,5 +139,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
         public Type ClrType => Field?.ClrType ?? Parameter?.ClrType;
 
         public bool IsHtml => Field?.IsHtml ?? Parameter.IsHtml;
+
+        public bool IsKey => Field?.IsKey ?? Parameter.RelatedTypeField?.IsKey ?? false;
     }
 }

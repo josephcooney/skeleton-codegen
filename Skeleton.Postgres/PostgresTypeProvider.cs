@@ -498,7 +498,7 @@ namespace Skeleton.Postgres
         public bool GenerateCustomTypes => true;
         public string FormatOperationParameterName(string operationName, string name)
         {
-            return operationName + "." + name;
+            return EscapeSqlName(operationName) + "." + EscapeSqlName(name);
         }
 
         public string OperationTimestampFunction()
