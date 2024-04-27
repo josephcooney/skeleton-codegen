@@ -1657,8 +1657,13 @@ namespace Skeleton.Postgres
                         else
                         {
                             field.IsRequired = !isNullable;
+                            
                             // nextval is the syntax for use of sequences
-                            field.IsGenerated = isGenerated || colDefault?.StartsWith("nextval(") == true;
+                            if (isGenerated || colDefault?.StartsWith("nextval(") == true)
+                            {
+                                field.IsGenerated = true;
+                            }
+
                             if (isNullable && !ClrTypeIsNullable(field.ClrType))
                             {
                                 // we need to change the CLR type to make it nullable
