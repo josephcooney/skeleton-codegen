@@ -97,7 +97,7 @@ namespace Skeleton.Templating.Classes.Adapters
                     return customControllerBase;
                 }
 
-                return "ControllerBase";
+                return "BaseController";
             }
         }
     }

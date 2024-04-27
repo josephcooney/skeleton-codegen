@@ -47,8 +47,25 @@ namespace Skeleton.Model
         
         public bool HasDisplayName => false;
 
-        public bool IsGenerated { get; set; }
-        
+        private bool _isGenerated;
+
+        public bool IsGenerated
+        {
+            get
+            {
+                if (_isGenerated || Attributes?.generated == true)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+            set
+            {
+                _isGenerated = value;
+            }
+        }
+
         public bool IsComputed { get; set; }
         
         public bool IsCallerProvided => !IsAutoAssignedIdentity && !IsTrackingDate && !IsDelete && !IsTrackingUser && !IsSearch && !IsExcludedFromResults && !IsGenerated && !IsComputed;

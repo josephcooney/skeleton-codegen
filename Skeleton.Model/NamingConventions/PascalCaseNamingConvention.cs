@@ -56,7 +56,7 @@ public class PascalCaseNamingConvention : NamingConventionBase, INamingConventio
         }
         
         items.Reverse();
-        return items.ToArray();
+        return items.Where(s => !string.IsNullOrEmpty(s)).ToArray();
     }
 
     public string CreateParameterNameFromFieldName(string fieldName)
@@ -79,6 +79,7 @@ public class PascalCaseNamingConvention : NamingConventionBase, INamingConventio
     
     public static string PascalCaseName(IEnumerable<string> parts)
     {
+        parts = parts.Where(s => !string.IsNullOrEmpty(s));
         return string.Join("", parts.Select(p => char.ToUpperInvariant(p[0]) + p.Substring(1)));
     }
 }

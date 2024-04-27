@@ -38,6 +38,11 @@ public class SQLiteTypeProvider : ITypeProvider
         throw new NotImplementedException();
     }
 
+    public string EscapeSqlName(string name)
+    {
+        throw new NotImplementedException();
+    }
+
     public string GetCsDbTypeFromDbType(string dbTypeName)
     {
         throw new NotImplementedException();

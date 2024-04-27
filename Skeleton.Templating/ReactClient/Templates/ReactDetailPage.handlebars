@@ -91,7 +91,7 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : Rea
             <Grid container direction="column" alignItems="flex-end" style={ {paddingTop: theme.spacing(1), paddingBottom: theme.spacing(1)} }>
 			{{#each UpdateOperations}}
                 {{#if GenerateUI}}
-                <Fab size="medium" color="primary" aria-label="{{FriendlyName}} {{../HumanizedName}}" onClick={on{{cs_name Name}}Click}>
+                <Fab size="medium" color="secondary" aria-label="{{FriendlyName}} {{../HumanizedName}}" onClick={on{{cs_name Name}}Click}>
                     <EditIcon />
                 </Fab>
                 {{/if}}

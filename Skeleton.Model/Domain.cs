@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using Serilog;
 using Skeleton.Model.NamingConventions;
 
 namespace Skeleton.Model
@@ -51,6 +52,8 @@ namespace Skeleton.Model
 
         public ApplicationType? UserType => Types.SingleOrDefault(t => t.IsSecurityPrincipal);
 
+        public bool HasUserType => UserType != null;
+        
         public ApplicationType? HelpType => Types.SingleOrDefault(t => t.IsHelp);
 
         public bool HasHelpType => HelpType != null;
@@ -152,15 +155,17 @@ namespace Skeleton.Model
                 {
                     if (resFld.ClrType == null)
                     {
-                        throw new InvalidOperationException($"No CLR type specified for field {resFld.Name} with provider type {resFld.ProviderTypeName}");
+                        Log.Warning("For Operation {OperationName} No CLR type specified for result field {FieldName} with provider type {ProviderTypeName}", operation.Name, resFld.Name, resFld.ProviderTypeName);
                     }
-
-                    // e.g. fld is int? and resFld is int
-                    if ((resFld.ClrType != fld.ClrType) && typeof(Nullable<>).MakeGenericType(resFld.ClrType) == fld.ClrType)
+                    else
                     {
-                        resFld.ClrType = fld.ClrType;
+                        // e.g. fld is int? and resFld is int
+                        if ((resFld.ClrType != fld.ClrType) && typeof(Nullable<>).MakeGenericType(resFld.ClrType) == fld.ClrType)
+                        {
+                            resFld.ClrType = fld.ClrType;
+                        }    
                     }
-
+                    
                     resFld.Size = fld.Size;
 
                     if (resFld.Attributes != null)

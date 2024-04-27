@@ -43,6 +43,11 @@ namespace Skeleton.Model
         public bool AddGeneratedOptionsToDatabase { get; set; }
         public string ApplicationName { get; set; }
         public string DataDirectory { get; set; }
+        
+        public string DomainDirectory { get; set; }
+        
+        public string DomainNamespace { get; set; }
+        
         public string ClientAppDirectory { get; set; }
         public WebUIType WebUIType { get; set; }
         public string TypeName { get; set; } // used for debugging purposes to do things for just a single type
@@ -77,11 +82,18 @@ namespace Skeleton.Model
             : @"ClientApp\src\components\";
 
         public FlutterSettings FlutterSettings { get; set; }
+        
+        public ReactNativeSettings ReactNativeSettings { get; set; }
     }
 
     public class FlutterSettings
     {
         public string FlutterRootDirectory { get; set; }
+    }
+
+    public class ReactNativeSettings
+    {
+        public string RootDirectory { get; set; }
     }
     
     public enum WebUIType
@@ -93,7 +105,8 @@ namespace Skeleton.Model
 
     public enum ClientAppUIType
     {
-        Flutter
+        Flutter,
+        ReactNative
     }
 
     public enum DatabaseType

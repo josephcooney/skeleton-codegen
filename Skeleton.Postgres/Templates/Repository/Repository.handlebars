@@ -4,12 +4,13 @@ using System;
 using System.Data;
 using System.Data.Common;
 using NpgsqlTypes;
-using {{cs_name Namespace}}.Data.Domain; 
+using {{DomainNamespace}}; 
 {{#if HasCustomResultType}}
-using {{cs_name Namespace}}.Data.Model; 
+using {{Namespace}}.Data.Model; 
+using {{Namespace}}.Data.Model; 
 {{/if}}
 
-namespace {{cs_name Namespace}}.Data.Repository 
+namespace {{Namespace}}.Data.Repository 
 {
     public partial interface I{{cs_name Type.Name}}Repository 
     {
@@ -38,7 +39,7 @@ namespace {{cs_name Namespace}}.Data.Repository
             try 
             {
                 using (var cn = CreateConnection(_connectionString))
-                using (var cmd = new NpgsqlCommand("{{SqlName}}", cn))
+                using (var cmd = new NpgsqlCommand("{{{escape_quotes SqlName}}}", cn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
     
@@ -87,7 +88,7 @@ namespace {{cs_name Namespace}}.Data.Repository
             try 
             {
                 using (var cn = CreateConnection(_connectionString))
-                using (var cmd = new NpgsqlCommand("{{SqlName}}", cn))
+                using (var cmd = new NpgsqlCommand("{{{escape_quotes SqlName}}}", cn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
     

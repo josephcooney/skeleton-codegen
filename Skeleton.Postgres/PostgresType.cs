@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using NpgsqlTypes;
+using Serilog;
 
 namespace Skeleton.Postgres
 {
@@ -69,7 +70,7 @@ namespace Skeleton.Postgres
                 ["xid"] = typeof(uint),
                 ["cid"] = typeof(uint),
                 ["oidvector"] = typeof(uint[]),
-
+                ["enum"] = typeof(Enum), // types probably won't show up as enums, but custom pg types
             };
         }
         
@@ -109,7 +110,6 @@ namespace Skeleton.Postgres
 
                     return type;
                 }
-            
                 return null;
             }
         }

@@ -46,6 +46,21 @@ namespace Skeleton.Templating.Classes.Repository
                 return Type.Namespace;
             }
         }
+
+        public string DomainNamespace
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(_domain.Settings.DomainNamespace))
+                {
+                    return _domain.Settings.DomainNamespace;
+                }
+                else
+                {
+                    return $"{Util.CSharpNameFromName(Namespace)}.Data.Domain";
+                }
+            }
+        }
     }
 
     public class ReturnModel

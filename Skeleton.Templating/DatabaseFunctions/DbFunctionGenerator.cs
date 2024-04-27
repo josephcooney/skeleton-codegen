@@ -239,23 +239,27 @@ namespace Skeleton.Templating.DatabaseFunctions
             var adapter = new PagedDbTypeAdapter(applicationType, OperationType.Select, domain);
             return GenerateTemplateFromAdapter(adapter, "SelectPaged");
         }
+
+        // This bumps SQL fiels to be (hopefully) some of the first ones run by dbup
+        // previously we used _ but PascalCase file names broke this...so we went for 0
+        private const string FileOrderBusterPrefix = "0";
         
         private CodeFile GenerateDisplayType(ApplicationType type, Domain domain)
         {
             var adapter = new SelectForDisplayDbTypeAdapter(type, new []{"display"} , domain);
-            return GenerateTemplateFromAdapter(adapter, "DisplayType", "_"); // underscore prefix allows fine-tuning of order that scripts are executed by dbup
+            return GenerateTemplateFromAdapter(adapter, "DisplayType", FileOrderBusterPrefix); 
         }
 
         private CodeFile GenerateResultType(ApplicationType applicationType, Domain domain)
         {
             var adapter = new DbTypeAdapter(applicationType, new []{"result"} , OperationType.None, domain);
-            return GenerateTemplateFromAdapter(adapter, "ResultType", "_");
+            return GenerateTemplateFromAdapter(adapter, "ResultType", FileOrderBusterPrefix);
         }
         
         private CodeFile GenerateInsertType(ApplicationType applicationType, Domain domain)
         {
             var adapter = new DbTypeAdapter(applicationType, new []{"new"}, OperationType.Insert, domain);
-            return GenerateTemplateFromAdapter(adapter, "InsertType", "_");
+            return GenerateTemplateFromAdapter(adapter, "InsertType", FileOrderBusterPrefix);
         }
 
         private CodeFile GenerateSelectAllForDisplayFunction(ApplicationType applicationType, Domain domain)

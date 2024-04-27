@@ -13,12 +13,12 @@ namespace Skeleton.Templating.ReactClient.Adapters
             _domain = domain;
         }
 
-        public List<ApplicationType> TypesThatHaveUI => _domain.Types.Where(t => t.GenerateUI).OrderBy(t => t.Name).ToList();
+        public List<ClientApiAdapter> TypesThatHaveUI => _domain.Types.Where(t => t.GenerateUI).OrderBy(t => t.Name).Select(t => new ClientApiAdapter(t, _domain)).ToList();
 
-        public List<ApplicationType> NonReferenceTypesThatHaveUI =>
+        public List<ClientApiAdapter> NonReferenceTypesThatHaveUI =>
             TypesThatHaveUI.Where(t => !t.IsReferenceData).ToList();
 
-        public List<ApplicationType> ReferenceTypesThatHaveUI =>
+        public List<ClientApiAdapter> ReferenceTypesThatHaveUI =>
             TypesThatHaveUI.Where(t => t.IsReferenceData).ToList();
 
         public bool HasReferenceTypesWithUI => ReferenceTypesThatHaveUI.Any();

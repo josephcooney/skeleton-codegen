@@ -52,7 +52,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
             }
         }    
         
-        public virtual SimpleType SelectAllType 
+        public virtual SimpleType SelectAllType // kind of misleading as this is the select all for display version 
         {
             get
             {

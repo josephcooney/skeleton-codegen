@@ -50,6 +50,6 @@ namespace Skeleton.Templating.Classes
 
         public ClassFieldAdapter LinkingField => _linkingIdField != null ? new ClassFieldAdapter(_linkingIdField) : null;
 
-        public ClassAdapter RelatedType => _linkingIdField != null ? new ClassAdapter(_linkingIdField.ReferencesType, _domain) : null; 
+        public ClassAdapter RelatedType => _linkingIdField != null ? new ClassAdapter(_linkingIdField.ReferencesType, _domain) : null;
     }
 }

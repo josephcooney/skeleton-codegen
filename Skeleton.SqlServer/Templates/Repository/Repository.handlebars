@@ -42,7 +42,7 @@ namespace {{cs_name Namespace}}.Data.Repository
             try 
             {
                 using (var cn = CreateConnection(_connectionString))
-                using (var cmd = new SqlCommand("{{SqlName}}", cn))
+                using (var cmd = new SqlCommand("{{{SqlName}}}", cn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
     
@@ -94,7 +94,7 @@ namespace {{cs_name Namespace}}.Data.Repository
             try 
             {
                 using (var cn = CreateConnection(_connectionString))
-                using (var cmd = new SqlCommand("{{SqlName}}", cn))
+                using (var cmd = new SqlCommand("{{{SqlName}}}", cn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
     

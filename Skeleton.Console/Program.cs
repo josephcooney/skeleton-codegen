@@ -11,6 +11,7 @@ using Mono.Options;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using Skeleton.Model.NamingConventions;
 
 namespace Skeleton.Console
 {
@@ -147,15 +148,16 @@ namespace Skeleton.Console
                 { "data-test-dir|database-test-directory=", "the root directory to generate database test helpers into.", m => s.TestDataDirectory = m },
                 { "client-dir|client-code-directory=", "the directory to generate client code into.", m => s.ClientAppDirectory = m },
                 { "dbg|debug", "Attach Debugger on start", d => s.Debug = d != null },
-                { "db-squash", "Consolidate db files into current folder - useful if template changes have resulted in inadvertent drops", d => s.DbSquash = d != null },
+                { "db-squash", "Consolidate db files into current directory - useful if template changes have resulted in inadvertent drops", d => s.DbSquash = d != null },
                 { "del", "delete generated files before re-generating", d => s.DeleteGeneratedFiles = d != null},
                 { "flutter", "Generate a Flutter client for application", f => {if (f != null) s.ClientAppTypes.Add(ClientAppUIType.Flutter); } },
                 { "h|?|help",  "show this message and exit", h => s.ShowHelp = h != null },
                 { "name=", "Name of the application. Used for default C# namespace for generated items", n => s.ApplicationName = n },
                 { "no-policy", "Globally disable generation of security policies", p => { if (p != null) s.GenerateSecurityPolicies = false; }  },
                 { "no-test-repo", "Disable generation of test repositories", t => { if (t != null) s.GenerateTestRepos = false; }},
-                { "r|root=", "the root folder to generate code into.", r => s.RootDirectory = r },
+                { "r|root=", "the root directory to generate code into.", r => s.RootDirectory = r },
                 { "react", "Set the web UI generated to be React", r => {if (r != null) s.WebUIType = WebUIType.React; } },
+                { "react-native", "Generate a React Native client for application", r => {if (r != null) s.ClientAppTypes.Add(ClientAppUIType.ReactNative); } },
                 { "test-data=", "Generate test data of the specified size for empty tables.", t => s.TestDataSize = int.Parse(t) },
                 { "t|type=", "Only generate for a single type (for debugging)", t => s.TypeName = t },
                 { "u|update-db-operations",  "Update database with generated operations", u => s.AddGeneratedOptionsToDatabase = u != null },
@@ -212,7 +214,7 @@ namespace Skeleton.Console
                 settings.RootDirectory = configuration.GetValue<string>("root");
                 if (string.IsNullOrEmpty(settings.RootDirectory))
                 {
-                    Log.Error("root folder has not been specified. You can provide an entry for 'root' in the codegen.json, or provide one using the -r command-line argument");
+                    Log.Error("root directory has not been specified. You can provide an entry for 'root' in the codegen.json, or provide one using the -r command-line argument");
                     return false;
                 }
             }
@@ -229,6 +231,20 @@ namespace Skeleton.Console
                 settings.DataDirectory = configuration.GetValue<string>("data-dir");
             }
 
+            // optional setting for location of domain objects, helpful for EF co-existence
+            var domainDir = configuration.GetValue<string>("domain-dir");
+            if (!string.IsNullOrEmpty(domainDir))
+            {
+                settings.DomainDirectory = domainDir;
+            }
+
+            // also for ef-coexistence
+            var domainNamespace = configuration.GetValue<string>("domain-namespace");
+            if (!string.IsNullOrEmpty(domainNamespace))
+            {
+                settings.DomainNamespace = domainNamespace;
+            }
+            
             if (string.IsNullOrEmpty(settings.ClientAppDirectory))
             {
                 // this setting is not required so should also not trigger an error
@@ -244,11 +260,23 @@ namespace Skeleton.Console
             {
                 settings.OpenApiUri = configuration.GetValue<string>("openapi-uri");
             }
-
+            
+            var namingConventions = configuration.GetSection("NamingConventions").Get<NamingConventionSettings>();
+            if (namingConventions != null)
+            {
+                settings.NamingConventionSettings = namingConventions;
+            }
+            
             if (settings.ClientAppTypes.Contains(ClientAppUIType.Flutter))
             {
                 settings.FlutterSettings = new FlutterSettings();
                 configuration.GetSection("FlutterSettings").Bind(settings.FlutterSettings);
+            }
+
+            if (settings.ClientAppTypes.Contains(ClientAppUIType.ReactNative))
+            {
+                settings.ReactNativeSettings = new ReactNativeSettings();
+                configuration.GetSection("ReactNativeSettings").Bind(settings.ReactNativeSettings);
             }
             
             return true;

@@ -27,6 +27,7 @@
     <ProjectReference Include="..\Skeleton.OpenApi\Skeleton.OpenApi.csproj" />
     <ProjectReference Include="..\Skeleton.Postgres\Skeleton.Postgres.csproj" />
     <ProjectReference Include="..\Skeleton.ProjectGeneration\Skeleton.ProjectGeneration.csproj" />
+    <ProjectReference Include="..\Skeleton.ReactNative\Skeleton.ReactNative.csproj" />
     <ProjectReference Include="..\Skeleton.SqlServer\Skeleton.SqlServer.csproj" />
   </ItemGroup>
 

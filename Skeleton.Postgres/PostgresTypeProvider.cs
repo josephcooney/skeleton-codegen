@@ -185,6 +185,18 @@ namespace Skeleton.Postgres
 
             return name;
         }
+        
+        private string SanitizeObjectName(string name)
+        {
+
+            // fix up quoted names
+            if (name.StartsWith("\""))
+            {
+                return name.Replace("\"", "");
+            }
+
+            return name;
+        }
 
         private int? GetFieldSize(int size)
         {
@@ -275,7 +287,7 @@ namespace Skeleton.Postgres
                     while (reader.Read())
                     {
                         var ns = GetField<string>(reader, "nspname");
-                        var typeName = GetField<string>(reader, "obj_name");
+                        var typeName = SanitizeObjectName(GetField<string>(reader, "obj_name"));
                         var attributes = GetField<string>(reader, "description");
 
                         var resultType = domain.ResultTypes.SingleOrDefault(rt => rt.Namespace == ns && rt.Name == typeName);
@@ -364,7 +376,17 @@ namespace Skeleton.Postgres
         {
             if (SqlReservedWords.Contains(name.ToUpperInvariant()) || name.ToLowerInvariant() != name)
             {
-                return "\"" + name + "\"";
+                return $"\"{name}\"";
+            }
+
+            return name;
+        }
+
+        public string EscapeSqlName(string name)
+        {
+            if (name.ToLowerInvariant() != name)
+            {
+                return $"\"{name}\"";
             }
 
             return name;
@@ -389,10 +411,17 @@ namespace Skeleton.Postgres
         {
             if (entityName.Length > NameLengthLimit)
             {
-                return entityName.Substring(0, NameLengthLimit);
+                return GetSqlName(entityName.Substring(0, NameLengthLimit));
             }
 
-            return entityName;
+            if (entityName.ToLowerInvariant() == entityName)
+            {
+                return entityName;
+            }
+            else
+            {
+                return $"\"{entityName}\"";
+            }
         }
 
         public bool CustomTypeExists(string customTypeName)
@@ -469,7 +498,7 @@ namespace Skeleton.Postgres
         public bool GenerateCustomTypes => true;
         public string FormatOperationParameterName(string operationName, string name)
         {
-            return operationName + "." + name;
+            return EscapeSqlName(operationName) + "." + EscapeSqlName(name);
         }
 
         public string OperationTimestampFunction()
@@ -1184,7 +1213,7 @@ namespace Skeleton.Postgres
         private dynamic GetDbCustomTypeAttributes(string name, string ns)
         {
             using (var cn = new NpgsqlConnection(_connectionString))
-            using (var cmd = new NpgsqlCommand($"SELECT description FROM pg_catalog.pg_description WHERE objoid = '{ns}.{name}'::regtype;", cn))
+            using (var cmd = new NpgsqlCommand($"SELECT description FROM pg_catalog.pg_description WHERE objoid = '\"{ns}\".\"{name}\"'::regtype;", cn))
             {
                 cn.Open();
                 var result = cmd.ExecuteScalar();
@@ -1229,7 +1258,7 @@ namespace Skeleton.Postgres
                 while (reader.Read())
                 {
                     var schema = reader.GetString(0);
-                    var table = reader.GetString(1);
+                    var table = SanitizeObjectName(reader.GetString(1));
                     var col = SanitizeFieldName(GetField<string>(reader, 2));
                     var attributes = reader.GetString(3);
 
@@ -1374,8 +1403,8 @@ namespace Skeleton.Postgres
             using var cn = new NpgsqlConnection(_connectionString);
             using var cmd = new NpgsqlCommand(TypeQuery, cn);
             // TODO - this code assumes the custom type is in the same namespace as the function that returns it, which may not be a valid assumption
-            cmd.Parameters.AddWithValue("schemaName", NpgsqlDbType.Text, operation.Namespace);
-            cmd.Parameters.AddWithValue("typeName", NpgsqlDbType.Text, typeName);
+            cmd.Parameters.AddWithValue("schemaName", NpgsqlDbType.Text, EscapeSqlName(operation.Namespace));
+            cmd.Parameters.AddWithValue("typeName", NpgsqlDbType.Text, EscapeSqlName(typeName));
 
             cn.Open();
             using (var reader = cmd.ExecuteReader())
@@ -1600,7 +1629,7 @@ namespace Skeleton.Postgres
             value = value.Trim();
             var space = value.IndexOf(' ');
             var name = SanitizeFieldName(value.Substring(0, space));
-            var pgType = new PostgresType(value.Substring(space + 1));
+            var pgType = new PostgresType(SanitizeObjectName(value.Substring(space + 1)));
             return new NameAndType {Name = name, Type = pgType };
         }
 
@@ -1628,8 +1657,13 @@ namespace Skeleton.Postgres
                         else
                         {
                             field.IsRequired = !isNullable;
+                            
                             // nextval is the syntax for use of sequences
-                            field.IsGenerated = isGenerated || colDefault?.StartsWith("nextval(") == true;
+                            if (isGenerated || colDefault?.StartsWith("nextval(") == true)
+                            {
+                                field.IsGenerated = true;
+                            }
+
                             if (isNullable && !ClrTypeIsNullable(field.ClrType))
                             {
                                 // we need to change the CLR type to make it nullable

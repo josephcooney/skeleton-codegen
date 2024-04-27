@@ -29,7 +29,7 @@ public class PostgresFieldAdapter : IParamterPrototype
                         return "DEFAULT"; 
                     }
 
-                    if (_field.IsKey && _field.ClrType == typeof(Guid))
+                    if (_field.IsKey && _field.IsGenerated && _field.ClrType == typeof(Guid))
                     {
                         return "new_id"; 
                     }
@@ -54,10 +54,10 @@ public class PostgresFieldAdapter : IParamterPrototype
 
                     if (_prototype.AddMany)
                     {
-                        return _prototype.AddManyArrayItemVariableName + "." + _field.Name;
+                        return _typeProvider.EscapeSqlName(_prototype.AddManyArrayItemVariableName) + "." + _typeProvider.EscapeSqlName(_field.Name);
                     }
                     
-                    return _prototype.NewRecordParameterName + "." + _field.Name;
+                    return _typeProvider.EscapeSqlName(_prototype.NewRecordParameterName) + "." + _typeProvider.EscapeSqlName(_field.Name);
                 }
 
                 if (_prototype.OperationType == OperationType.Update)
