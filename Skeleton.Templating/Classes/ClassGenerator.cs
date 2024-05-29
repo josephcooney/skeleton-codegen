@@ -10,7 +10,7 @@ using Serilog;
 
 namespace Skeleton.Templating.Classes
 {
-    public class ClassGenerator
+    public class ClassGenerator : GeneratorBase
     {
         public List<CodeFile> GenerateDomain(Domain domain)
         {
@@ -111,7 +111,7 @@ namespace Skeleton.Templating.Classes
             {
                 if (type.GenerateApi)
                 {
-                    var file = new CodeFile { Name = Util.CSharpNameFromName(type.Name) + "ApiController.cs", Contents = GenerateApiController(type, domain) };
+                    var file = new CodeFile { Name = Util.CSharpNameFromName(type.Name) + "ApiController.cs", Contents = GenerateApiController(type, domain), RelativePath = FormatRelativePath(type, domain.Settings.ControllerDirectory) };
                     files.Add(file);
                 }
             }
@@ -263,5 +263,12 @@ namespace Skeleton.Templating.Classes
         {
             return Util.GetCompiledTemplate("EditViewModel", Assembly.GetExecutingAssembly())(new ClassAdapter(applicationType, domain));
         }
+
+        public override List<CodeFile> Generate(Domain domain)
+        {
+            return GenerateDomain(domain);
+        }
+
+        public override Assembly Assembly { get; }
     }
 }

@@ -90,7 +90,7 @@ namespace Skeleton.ProjectGeneration
         {
             if (files.Any())
             {
-                var directoryPath = _fs.Path.Combine(_rootDirectory, directoryName);
+                var directoryPath = string.IsNullOrEmpty(directoryName) ? _rootDirectory : _fs.Path.Combine(_rootDirectory, directoryName);
 
                 if (!_fs.Directory.Exists(directoryPath))
                 {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using HandlebarsDotNet;
 using Skeleton.Model;
 using Serilog;
 
@@ -35,6 +36,17 @@ namespace Skeleton.Templating
                 Log.Fatal("Error applying template {TemplateName} with model {Model}", templateName, model);
                 throw;
             }
+        }
+
+        protected string FormatRelativePath(ApplicationType type, string path)
+        {
+            if (path.IndexOf("{") > -1)
+            {
+                var template = Handlebars.Compile(path);
+                return template(type);
+            }
+
+            return path;
         }
     }
 }

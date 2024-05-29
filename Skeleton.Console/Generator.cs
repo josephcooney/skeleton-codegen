@@ -300,7 +300,7 @@ namespace Skeleton.Console
         {
             var generator = new ClassGenerator();
             var files = generator.GenerateWebApiControllers(domain);
-            _fileWriter.ApplyCodeFiles(files, "Controllers");
+            _fileWriter.ApplyCodeFiles(files, null);
         }
 
         private void GenerateWebApiModels(Domain domain)

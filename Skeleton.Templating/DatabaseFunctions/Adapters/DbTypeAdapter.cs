@@ -175,7 +175,6 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 
         private void AddLogFields(List<IPseudoField> fields, Operation domainLogOperation)
         {
-            Console.WriteLine("here");
         }
 
         public bool HasInsertInputFields => InsertInputFields.Any();

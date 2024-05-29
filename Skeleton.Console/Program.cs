@@ -84,7 +84,6 @@ namespace Skeleton.Console
         {
             // copy settings files from 'root' project dir into \bin\debug\ so you don't need to
             var parentPath = _fileSystem.Path.Combine(_fileSystem.Directory.GetCurrentDirectory(), "../../../");
-            System.Console.WriteLine(parentPath);
             var files = _fileSystem.Directory.GetFiles(parentPath, "*.codegen.json");
             foreach (var file in files)
             {
@@ -236,6 +235,13 @@ namespace Skeleton.Console
             if (!string.IsNullOrEmpty(domainDir))
             {
                 settings.DomainDirectory = domainDir;
+            }
+            
+            // optional setting for location of controllers
+            var controllerDir = configuration.GetValue<string>("controller-dir");
+            if (!string.IsNullOrEmpty(controllerDir))
+            {
+                settings.ControllerDirectory = controllerDir;
             }
 
             // also for ef-coexistence
