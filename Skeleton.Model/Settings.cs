@@ -47,6 +47,8 @@ namespace Skeleton.Model
         public string DomainDirectory { get; set; }
 
         public string ControllerDirectory { get; set; } = "Controllers";
+
+        public string ModelDirectory { get; set; } = "Models";
         
         public string DomainNamespace { get; set; }
         

@@ -119,29 +119,7 @@ namespace Skeleton.Templating.Classes
             return files;
         }
 
-        public List<CodeFile> GenerateEditModels(Domain domain)
-        {
-            Util.RegisterHelpers(domain);
-            var files = new List<CodeFile>();
-
-            foreach (var type in domain.Types)
-            {
-                if (type.GenerateApi)
-                {
-                    var file = new CodeFile { Name = Util.CSharpNameFromName(type.Name) + "EditViewModel.cs", Contents = GenerateEditViewModel(type, domain) };
-                    files.Add(file);
-                }
-            }
-
-            if (files.Any())
-            {
-                var file = new CodeFile { Name = "RelatedFieldListItem.cs", Contents = Util.GetCompiledTemplate("RelatedFieldListItem", Assembly.GetExecutingAssembly())(new { Namespace  = domain.DefaultNamespace }) };
-                files.Add(file);
-            }
-
-            return files;
-        }
-
+        
         public List<CodeFile> GenerateWebApiModels(Domain domain)
         {
             Util.RegisterHelpers(domain);
@@ -158,12 +136,12 @@ namespace Skeleton.Templating.Classes
                         {
                             if (op.UsesModel)
                             {
-                                var file = new CodeFile { Name = Util.CSharpNameFromName(op.Name) + "Model.cs", Contents = GenerateApiModel(op) };
+                                var file = new CodeFile { Name = Util.CSharpNameFromName(op.Name) + "Model.cs", Contents = GenerateApiModel(op), RelativePath = FormatRelativePath(type, domain.Settings.ModelDirectory) };
                                 files.Add(file);
                             } else if (op.ChangesData && op.RelatedType.IsAttachment)
                             {
                                 // generate special model for attachments, since the 
-                                var file = new CodeFile { Name = Util.CSharpNameFromName(op.Name) + "Model.cs", Contents = GenerateAttachmentApiModel(op) };
+                                var file = new CodeFile { Name = Util.CSharpNameFromName(op.Name) + "Model.cs", Contents = GenerateAttachmentApiModel(op), RelativePath = FormatRelativePath(type, domain.Settings.ModelDirectory) };
                                 files.Add(file);
                             }
                         }
@@ -258,12 +236,7 @@ namespace Skeleton.Templating.Classes
         {
             return Util.GetCompiledTemplate("ApiAttachmentRequestModel", Assembly.GetExecutingAssembly())(operation.CustomType);
         }
-
-        private string GenerateEditViewModel(ApplicationType applicationType, Domain domain)
-        {
-            return Util.GetCompiledTemplate("EditViewModel", Assembly.GetExecutingAssembly())(new ClassAdapter(applicationType, domain));
-        }
-
+        
         public override List<CodeFile> Generate(Domain domain)
         {
             return GenerateDomain(domain);

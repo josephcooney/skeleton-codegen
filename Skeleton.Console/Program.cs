@@ -244,6 +244,12 @@ namespace Skeleton.Console
                 settings.ControllerDirectory = controllerDir;
             }
 
+            var modelDir = configuration.GetValue<string>("model-dir");
+            if (!string.IsNullOrEmpty(modelDir))
+            {
+                settings.ModelDirectory = modelDir;
+            }
+
             // also for ef-coexistence
             var domainNamespace = configuration.GetValue<string>("domain-namespace");
             if (!string.IsNullOrEmpty(domainNamespace))

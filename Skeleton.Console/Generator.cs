@@ -307,15 +307,7 @@ namespace Skeleton.Console
         {
             var generator = new ClassGenerator();
             var files = generator.GenerateWebApiModels(domain);
-            _fileWriter.ApplyCodeFiles(files, "Models");
-        }
-        
-        private void GenerateViewModels(Domain domain)
-        {
-            var generator = new ClassGenerator();
-            var files = generator.GenerateEditModels(domain);
-
-            _fileWriter.ApplyCodeFiles(files, "Models");
+            _fileWriter.ApplyCodeFiles(files, null);
         }
         
         private void GenerateClientServiceProxy(Domain domain)
