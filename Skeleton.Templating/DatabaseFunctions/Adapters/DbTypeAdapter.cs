@@ -438,9 +438,9 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         }
 
         public string AddManyArrayItemVariableName => "item";
-        public string NewRecordParameterName =>  _domain.NamingConvention.CreateNameFromFragments(new List<string> {Name, "to", "add"});
+        public string NewRecordParameterName =>  Util.MakeDbNameNotEscaped(new List<string> {Name, "to", "add"});
 
-        public string NewTypeName => _domain.NamingConvention.CreateNameFromFragments(new List<string> {Name, "new"});
+        public string NewTypeName => Util.MakeDbNameNotEscaped([Name, "new"]);
 
         public bool UsesCustomInsertType
         {

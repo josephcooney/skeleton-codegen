@@ -58,4 +58,6 @@ public abstract class NamingConventionBase
     }
     
     public abstract string CreateNameFromFragments(List<string> fragments);
+
+    public bool SingularizeTypeNames => _settings.SingularizeTypeNames;
 }

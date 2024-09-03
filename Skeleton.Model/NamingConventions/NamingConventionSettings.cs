@@ -2,6 +2,8 @@
 
 public class NamingConventionSettings
 {
+    public bool SingularizeTypeNames { get; set; }
+    
     public DbNamingConvention DbNamingConvention { get; set; }
     
     public string[] CreatedUserFieldNames { get; set; }

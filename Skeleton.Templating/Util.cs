@@ -155,8 +155,7 @@ namespace Skeleton.Templating
             Handlebars.RegisterHelper("make_db_name", (writer, context, parameters) =>
             {
                 var parts = parameters.Select(p => p.ToString()).ToList();
-                var name =  _namingConvention.CreateNameFromFragments(parts);
-                name = _typeProvider.EscapeReservedWord(name);
+                var name = MakeDbName(parts);
                 writer.Write(name);
             });
 
@@ -393,6 +392,31 @@ namespace Skeleton.Templating
             });
         }
 
+        public static string MakeDbName(List<string> parts)
+        {
+            var name = _typeProvider.EscapeReservedWord(MakeDbNameNotEscaped(parts));
+            return name;
+        }
+        
+        public static string MakeDbNameNotEscaped(List<string> parts)
+        {
+            if (parts.Count > 0)
+            {
+                if (_namingConvention.SingularizeTypeNames)
+                {
+                    var subParts = _namingConvention.GetNameParts(parts[0]);
+                    if (_pluralize.IsPlural(subParts[^1]))
+                    {
+                        subParts[^1] = _pluralize.Singularize(subParts[^1]);
+                        parts[0] = _namingConvention.CreateNameFromFragments(subParts.ToList());
+                    }
+                }
+            }
+            
+            var name =  _namingConvention.CreateNameFromFragments(parts);
+            return name;
+        }
+
         public static string FormatClrType(Type originalType)
         {
             var type = Nullable.GetUnderlyingType(originalType) ?? originalType;
@@ -436,6 +460,14 @@ namespace Skeleton.Templating
                 return name;
             }
 
+            if (_namingConvention.SingularizeTypeNames)
+            {
+                if (_pluralize.IsPlural(parts[^1]))
+                {
+                    parts[^1] = _pluralize.Singularize(parts[^1]);
+                }
+            }
+            
             return PascalCaseNamingConvention.PascalCaseName(parts);
         }
 

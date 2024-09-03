@@ -29,4 +29,6 @@ public interface INamingConvention
     string CreateNameFromFragments(List<string> fragments);
 
     string CreateResultTypeNameForOperation(string operationName);
+    
+    public bool SingularizeTypeNames { get; }
 }

@@ -15,4 +15,16 @@ public class CSharpNameFromNameTests
         var name = Skeleton.Templating.Util.CSharpNameFromName("Supervisor_display");
         name.Should().Be("SupervisorDisplay");
     }
+
+    [Theory]
+    [InlineData("CustomerAddresses", "CustomerAddress")] // compound word that is pluralised
+    [InlineData("Customers", "Customer")] // single word that is pluralised
+    [InlineData("Document", "Document")] // not plural
+    public void CanCreateSingularNameFromPluralTableName(string pluralisedName, string expectedSingularisedName)
+    {
+        var domain = TestUtil.CreateTestDomain(new MockFileSystem(), new PascalCaseNamingConvention(new NamingConventionSettings(){SingularizeTypeNames = true}));
+        Skeleton.Templating.Util.RegisterHelpers(domain);
+        var name = Skeleton.Templating.Util.CSharpNameFromName(pluralisedName);
+        name.Should().Be(expectedSingularisedName);
+    }
 }
