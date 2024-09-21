@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Linq;
 using Skeleton.Model;
@@ -21,6 +22,31 @@ namespace Skeleton.ProjectGeneration
         public void ApplyCodeFiles(List<CodeFile> files, string directoryName)
         {
             ApplyCodeFiles(files, directoryName, null);
+        }
+        
+        public void ApplyCSharpFiles(List<CodeFile> files, string directoryName)
+        {
+            ApplyCodeFiles(files, directoryName, null);
+            FormatFiles(files, directoryName);
+        }
+
+        private void FormatFiles(List<CodeFile> files, string directoryName)
+        {
+            var filesToFormat = files.Where(f => f.WasWritten)
+                .Select(f => _fs.Path.GetRelativePath(_rootDirectory, f.AbsoluteFilePath));
+
+            if (filesToFormat.Any())
+            {
+                var args = new List<string>();
+                args.Add("format");
+                args.Add("--include");
+                args.AddRange(filesToFormat);
+            
+                var startInfo = new ProcessStartInfo("dotnet", args);
+                startInfo.WorkingDirectory = _rootDirectory;
+                var process = Process.Start(startInfo);
+                //process.WaitForExit();
+            }
         }
 
         public void ApplyDatabaseFiles(List<CodeFile> files, string directoryName, Action<CodeFile> postUpdateAction)
@@ -139,6 +165,9 @@ namespace Skeleton.ProjectGeneration
                     {
                         _fs.File.WriteAllText(fileName, codeFile.Contents);
                     }
+
+                    codeFile.WasWritten = true;
+                    codeFile.AbsoluteFilePath = fileName;
                     postUpdateAction?.Invoke(codeFile);
 
                     Log.Debug("Updated {FileName} from template {Template}", fileName, codeFile.Template);

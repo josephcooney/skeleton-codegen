@@ -78,7 +78,6 @@ namespace Skeleton.Console
             GenerateDbFunctions(domain, _settings.AddGeneratedOptionsToDatabase, typeProvider);
             Log.Information("Finished generating db functions");
             
-
             typeProvider.GetOperations(domain);
             Log.Information("Finished adding operations to domain");
 
@@ -155,6 +154,8 @@ namespace Skeleton.Console
             }
             
             Log.Information("Finished Code Generation");
+            
+            
         }
 
         public List<string> GetRelativeSqlFileNamesForDirectory(string directoryName)
@@ -238,13 +239,13 @@ namespace Skeleton.Console
             if (!string.IsNullOrEmpty(_settings.DomainDirectory))
             {
                 var domainDir = _fs.Path.Combine(_settings.RootDirectory, _settings.DomainDirectory);
-                _fileWriter.ApplyCodeFiles(files, domainDir);
+                _fileWriter.ApplyCSharpFiles(files, domainDir);
             }
             else
             {
                 const string DomainObjectDirectoryName = "Domain";
                 var dir = _fs.Path.Combine(CSharpDataAccessDirectory, DomainObjectDirectoryName);
-                _fileWriter.ApplyCodeFiles(files, dir);
+                _fileWriter.ApplyCSharpFiles(files, dir);
             }
         }
 
@@ -254,7 +255,7 @@ namespace Skeleton.Console
             var files = generator.GenerateReturnTypes(domain);
             const string directoryName = "Model";
             var dir = _fs.Path.Combine(CSharpDataAccessDirectory, directoryName);
-            _fileWriter.ApplyCodeFiles(files, dir);
+            _fileWriter.ApplyCSharpFiles(files, dir);
         }
 
         private void GenerateDbFunctions(Domain domain, bool addGeneratedOperationsToDatabase, ITypeProvider typeProvider)
@@ -282,7 +283,7 @@ namespace Skeleton.Console
             const string RepoDirectoryName = "Repository";
             var path = _fs.Path.Combine(CSharpDataAccessDirectory, RepoDirectoryName);
 
-            _fileWriter.ApplyCodeFiles(files, path);
+            _fileWriter.ApplyCSharpFiles(files, path);
         }
         
         private void GenerateTestRepositories(Domain domain)
@@ -293,7 +294,7 @@ namespace Skeleton.Console
             const string RepoDirectoryName = "Repository";
             var path = _fs.Path.Combine(CSharpDataAccessTestDirectory, RepoDirectoryName);
 
-            _fileWriter.ApplyCodeFiles(files, path);
+            _fileWriter.ApplyCSharpFiles(files, path);
         }
 
         private void GenerateWebApi(Domain domain)

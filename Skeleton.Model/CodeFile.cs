@@ -11,5 +11,9 @@
         public bool IsFragment { get; set; }
         
         public string Template { get; set; }
+        
+        public bool WasWritten { get; set; }
+        
+        public string AbsoluteFilePath { get; set; }
     }
 }
