@@ -154,6 +154,7 @@ namespace Skeleton.Console
                 { "name=", "Name of the application. Used for default C# namespace for generated items", n => s.ApplicationName = n },
                 { "no-policy", "Globally disable generation of security policies", p => { if (p != null) s.GenerateSecurityPolicies = false; }  },
                 { "no-test-repo", "Disable generation of test repositories", t => { if (t != null) s.GenerateTestRepos = false; }},
+                { "no-db-role", "Don't grant rights to functions and operations to db role", db => { if (db != null) s.UseDbRoleForSecurity = false; }},
                 { "r|root=", "the root directory to generate code into.", r => s.RootDirectory = r },
                 { "react", "Set the web UI generated to be React", r => {if (r != null) s.WebUIType = WebUIType.React; } },
                 { "react-native", "Generate a React Native client for application", r => {if (r != null) s.ClientAppTypes.Add(ClientAppUIType.ReactNative); } },

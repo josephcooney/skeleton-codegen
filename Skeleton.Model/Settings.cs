@@ -19,6 +19,7 @@ namespace Skeleton.Model
             ExcludedSchemas = new List<string>();
             GenerateTestRepos = false;
             DatabaseType = DatabaseType.Postgres;
+            UseDbRoleForSecurity = true;
         }
 
         public string ConfigurationFile
@@ -78,6 +79,8 @@ namespace Skeleton.Model
         public string AdminRoleName { get; set; }
         
         public bool DbSquash { get; set; }
+        
+        public bool UseDbRoleForSecurity { get; set; }
         
         public NamingConventionSettings NamingConventionSettings { get; set; }
 

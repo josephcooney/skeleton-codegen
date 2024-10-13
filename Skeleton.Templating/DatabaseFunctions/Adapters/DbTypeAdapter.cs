@@ -258,6 +258,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         public string Namespace => _applicationType.Namespace;
 
         public List<IParamterPrototype> Fields => _applicationType.Fields.Where(f => (!f.IsExcludedFromResults)).Select(a => _domain.TypeProvider.CreateFieldAdapter(a, this)).ToList();
+        public bool UseDbRoleForSecurity => Domain.Settings.UseDbRoleForSecurity;
 
         public bool HasExcludedFields => _applicationType.Fields.Any(f => f.IsExcludedFromResults);
 

@@ -21,4 +21,6 @@ public interface IOperationPrototype
     string NewRecordParameterName { get; }
     
     List<IParamterPrototype> Fields { get; }
+    
+    bool UseDbRoleForSecurity { get; }
 }
