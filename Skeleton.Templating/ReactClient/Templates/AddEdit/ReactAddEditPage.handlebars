@@ -28,7 +28,7 @@ import { {{ClientApiInterfaceName}}, {{ClientApiTypeName}}, {{ClientApiTypeName}
 import { {{cs_name Name}}Validate } from './{{cml_case Name}}Validate';
 import {{cs_name Name}}{{OperationNameFriendly}}Rendering from './{{cml_case Name}}{{OperationNameFriendly}}Rendering';
 {{#if CurrentOperation.UsesModel}}
-import { {{cs_name Name}}{{OperationName}}Model } from "./{{cs_name Name}}{{OperationName}}Model";
+import { {{ModelTypeName}} } from "./{{ModelTypeName}}";
 {{/if}}
 {{#each CurrentOperation.UserProvidedParameters}}
 {{#if IsCustomTypeOrCustomArray}}

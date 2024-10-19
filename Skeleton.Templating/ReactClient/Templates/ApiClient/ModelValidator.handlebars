@@ -5,7 +5,7 @@ import { FormikErrors, setIn } from 'formik';
 {{#if ChangesData}}
     {{#unless IsDelete}}
 {{#if UsesModel}}
-import { {{cs_name Name}}{{OperationName}}Model } from "./{{cs_name Name}}{{OperationName}}Model";
+import { {{ModelTypeName}} } from "./{{ModelTypeName}}";
 {{else}}
 import { {{cs_name RelatedType.Name}}{{FriendlyName}}State } from './{{cml_case RelatedType.Name}}{{FriendlyName}}';
 {{/if}}
