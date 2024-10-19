@@ -7,7 +7,7 @@ import Thumbnail from '../../controls/thumbnail';
 import Title from "../../controls/Title";
 import { StyledTableRow } from '../../controls/styled-table-row';
 import { StyledTable } from '../../controls/styled-table';
-import {Interweave} from "interweave";
+{{#if HasHtmlFields}}import {Interweave} from "interweave";{{/if}}
 
 interface {{cs_name Name}}DetailDisplayProps {
     item: {{cs_name DetailType.Name}}
