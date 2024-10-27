@@ -200,8 +200,9 @@ public class PostgresTypeProviderTests : DbTestBase
     ";
     
     private const string TestDbScriptWithGuid = @"
+        CREATE EXTENSION IF NOT EXISTS ""uuid-ossp"";
         create table simple_lookup_table (
-            id uuid primary key not null,
+            id uuid primary key not null DEFAULT uuid_generate_v4(),
             name text not null,
             created timestamp not null,
             modified timestamp

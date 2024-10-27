@@ -1659,7 +1659,7 @@ namespace Skeleton.Postgres
                             field.IsRequired = !isNullable;
                             
                             // nextval is the syntax for use of sequences
-                            if (isGenerated || colDefault?.StartsWith("nextval(") == true)
+                            if (isGenerated || !string.IsNullOrEmpty(colDefault))
                             {
                                 field.IsGenerated = true;
                             }
