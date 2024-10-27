@@ -135,6 +135,8 @@ namespace Skeleton.Templating.ReactClient.Adapters
 
         public bool HasDisplayField => _type.DisplayField != null;
 
+        public bool HasHtmlFields => DisplayFields.Any(f => f.IsHtml);
+
         public List<Field> LinkingFields
         {
             get

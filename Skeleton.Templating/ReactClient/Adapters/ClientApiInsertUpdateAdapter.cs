@@ -24,7 +24,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
 
         public string StateTypeName => $"{Util.CSharpNameFromName(Name)}{OperationNameFriendly}State";
 
-        public string ModelTypeName => _operation.UsesModel ? $"{Util.CSharpNameFromName(Name)}{OperationName}{NamingConventions.ModelClassNameSuffix}" : null;
+        public string ModelTypeName => _operation.ModelTypeName;
 
         public string FormDataTypeName => _operation.UsesModel ? ModelTypeName : StateTypeName;
 

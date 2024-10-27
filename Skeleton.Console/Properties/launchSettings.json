@@ -2,10 +2,16 @@
   "profiles": {
     "Generator.Console": {
       "commandName": "Project",
+      "commandLineArgs11": "-u -c raisecoach --del --no-policy -x migration",
       "commandLineArgs3": "-u -c sqltest",
-      "commandLineArgs": "-u -c bins -x hangfire --del --no-policy -adm bins.admin --flutter",
+      "commandLineArgs5": "-u -c bins -x hangfire --del --no-policy -adm bins.admin --flutter",
       "commandLineArgs2": "-u -c bins2 -x HangFire --del --no-policy -adm bins.admin",
-      "commandLineArgs4": "-u -c tenseg --no-policy -adm tenseg.admin"
+      "commandLineArgs4": "-u -c tenseg --no-policy -adm tenseg.admin",
+      "commandLineArgs6": "-u -c scoreboard -x hangfire --no-policy",
+      "commandLineArgs7": "-u -c eisteddfod --del --no-policy -adm bins.admin",
+      "commandLineArgs8": "-u -c homer --del --no-policy -x hangfire -x migration --db-squash --react-native",
+      "commandLineArgs": "-u -c pz-timesheet --del --no-policy --no-db-role -x hangfire -x migration",
+      "commandLineArgs9": "-u -c redteam --del --no-policy -x migration"
     }
   }
 }

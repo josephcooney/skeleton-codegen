@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace {{DefaultNamespace}}.Data.Repository 
 {
-    public class RepositoryBase
+    public class RepositoryBase (NpgsqlDataSource dataSource)
     {
 		private static byte[] _keyFileBytes;
 		private static object _keyFileSync = new object();
@@ -56,7 +56,15 @@ namespace {{DefaultNamespace}}.Data.Repository
 			cmd.Parameters.AddWithValue(name, searchText);
 		}
 
-		protected NpgsqlConnection CreateConnection(string connectionString)
+		protected NpgsqlConnection CreateConnection()
+        {
+            var connection = dataSource.CreateConnection();
+            connection.ProvideClientCertificatesCallback = ClientCertificateValidationCallback;
+            connection.UserCertificateValidationCallback = ServerCertificateValidationCallback;
+            return connection;
+        }
+
+        protected NpgsqlConnection CreateConnection(string connectionString)
         {
             var connection = new NpgsqlConnection(connectionString);
             connection.ProvideClientCertificatesCallback = ClientCertificateValidationCallback;

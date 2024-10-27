@@ -84,7 +84,6 @@ namespace Skeleton.Console
         {
             // copy settings files from 'root' project dir into \bin\debug\ so you don't need to
             var parentPath = _fileSystem.Path.Combine(_fileSystem.Directory.GetCurrentDirectory(), "../../../");
-            System.Console.WriteLine(parentPath);
             var files = _fileSystem.Directory.GetFiles(parentPath, "*.codegen.json");
             foreach (var file in files)
             {
@@ -155,6 +154,7 @@ namespace Skeleton.Console
                 { "name=", "Name of the application. Used for default C# namespace for generated items", n => s.ApplicationName = n },
                 { "no-policy", "Globally disable generation of security policies", p => { if (p != null) s.GenerateSecurityPolicies = false; }  },
                 { "no-test-repo", "Disable generation of test repositories", t => { if (t != null) s.GenerateTestRepos = false; }},
+                { "no-db-role", "Don't grant rights to functions and operations to db role", db => { if (db != null) s.UseDbRoleForSecurity = false; }},
                 { "r|root=", "the root directory to generate code into.", r => s.RootDirectory = r },
                 { "react", "Set the web UI generated to be React", r => {if (r != null) s.WebUIType = WebUIType.React; } },
                 { "react-native", "Generate a React Native client for application", r => {if (r != null) s.ClientAppTypes.Add(ClientAppUIType.ReactNative); } },
@@ -236,6 +236,19 @@ namespace Skeleton.Console
             if (!string.IsNullOrEmpty(domainDir))
             {
                 settings.DomainDirectory = domainDir;
+            }
+            
+            // optional setting for location of controllers
+            var controllerDir = configuration.GetValue<string>("controller-dir");
+            if (!string.IsNullOrEmpty(controllerDir))
+            {
+                settings.ControllerDirectory = controllerDir;
+            }
+
+            var modelDir = configuration.GetValue<string>("model-dir");
+            if (!string.IsNullOrEmpty(modelDir))
+            {
+                settings.ModelDirectory = modelDir;
             }
 
             // also for ef-coexistence

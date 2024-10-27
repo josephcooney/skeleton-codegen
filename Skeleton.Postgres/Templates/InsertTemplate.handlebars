@@ -56,9 +56,10 @@ $$
   LANGUAGE plpgsql VOLATILE SECURITY INVOKER
   COST 100;
 
+{{#if UseDbRoleForSecurity}}
 REVOKE ALL ON FUNCTION {{{escape_sql FunctionName}}} ({{#each InsertInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}}{{/each}}{{#if UsesCustomInsertType}}{{#if HasInsertInputFields}} ,{{/if}}{{{escape_sql_name NewTypeName}}}{{/if}}) FROM public;
-
 GRANT EXECUTE ON FUNCTION {{{escape_sql FunctionName}}} ({{#each InsertInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}}{{/each}}{{#if UsesCustomInsertType}}{{#if HasInsertInputFields}} ,{{/if}}{{{escape_sql_name NewTypeName}}}{{/if}}) TO web_app_role;
+{{/if}}
 
 COMMENT ON FUNCTION {{{escape_sql FunctionName}}} ({{#each InsertInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}}{{/each}}{{#if UsesCustomInsertType}}{{#if HasInsertInputFields}} ,{{/if}}{{{escape_sql_name NewTypeName}}}{{/if}})
     IS '{"applicationtype":"{{Name}}", "generated":true, "changesData":true, "friendlyName":"Add", "fullName":"{{FunctionName}}", "createsNew":true {{#if NoAddUI}},"ui":false, "api":false {{/if}} }';

@@ -1521,7 +1521,7 @@ namespace Skeleton.Postgres
                         });
                         result.Fields.AddRange(newFields);
 
-                        if (operation.Attributes.applicationtype != null)
+                        if (operation.Attributes?.applicationtype != null)
                         {
                             domain.UpdateResultFieldPropertiesFromApplicationType(operation, result);
                         }

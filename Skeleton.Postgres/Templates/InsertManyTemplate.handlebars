@@ -51,10 +51,11 @@ $$
   LANGUAGE plpgsql VOLATILE SECURITY INVOKER
   COST 100;
 
+{{#if UseDbRoleForSecurity}}
 REVOKE ALL ON FUNCTION {{FunctionName}} ({{#each InsertInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}}{{/each}}{{#if UsesCustomInsertType}},{{NewTypeName}}[]{{/if}}) FROM public;
 
 GRANT EXECUTE ON FUNCTION {{FunctionName}} ({{#each InsertInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}}{{/each}}{{#if UsesCustomInsertType}},{{NewTypeName}}[]{{/if}}) TO web_app_role;
-
+{{/if}}
 
 COMMENT ON FUNCTION {{FunctionName}} ({{#each InsertInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}}{{/each}}{{#if UsesCustomInsertType}},{{NewTypeName}}[]{{/if}})
     IS '{"applicationtype":"{{Name}}", "generated":true, "changesData":true, "friendlyName":"Add", "fullName":"{{FunctionName}}", "createsNew":true {{#if NoAddUI}},"ui":false, "api":false {{/if}} }';

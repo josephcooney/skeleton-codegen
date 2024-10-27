@@ -40,9 +40,11 @@ $$
   LANGUAGE plpgsql STABLE SECURITY INVOKER
   COST 100;
 
+{{#if UseDbRoleForSecurity}}
 REVOKE ALL ON FUNCTION {{FunctionName}} (integer, character varying) FROM public;
 
 GRANT EXECUTE ON FUNCTION {{FunctionName}} (integer, character varying) TO web_app_role;
+{{/if}}
 
 COMMENT ON FUNCTION {{FunctionName}} (integer, character varying)
     IS '{"applicationtype":"{{Name}}", "generated":true, "fullName":"{{FunctionName}}", "returnTypeName":"{{{make_db_name Name "select" "for" "display" "result"}}}" }';

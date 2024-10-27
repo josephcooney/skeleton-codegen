@@ -23,22 +23,15 @@ namespace {{Namespace}}.Data.Repository
     {{/each}}        
     }
 
-    public partial class {{cs_name Type.Name}}Repository : RepositoryBase, I{{cs_name Type.Name}}Repository
+    public partial class {{cs_name Type.Name}}Repository(NpgsqlDataSource dataSource) : RepositoryBase(dataSource), I{{cs_name Type.Name}}Repository
     {
-        private string _connectionString;
-
-        public {{cs_name Type.Name}}Repository(IConfiguration configuration)
-        {
-            _connectionString = BuildConnectionString(configuration);
-        }
-
         {{#each Operations}}
 
         public {{{ReturnsWithNullability}}} {{cs_name BareName}}({{#each Parameters}}{{{ResolvedClrType}}} {{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}})
         {
             try 
             {
-                using (var cn = CreateConnection(_connectionString))
+                using (var cn = CreateConnection())
                 using (var cmd = new NpgsqlCommand("{{{escape_quotes SqlName}}}", cn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -87,7 +80,7 @@ namespace {{Namespace}}.Data.Repository
         {
             try 
             {
-                using (var cn = CreateConnection(_connectionString))
+                using (var cn = CreateConnection())
                 using (var cmd = new NpgsqlCommand("{{{escape_quotes SqlName}}}", cn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;

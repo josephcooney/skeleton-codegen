@@ -175,7 +175,6 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 
         private void AddLogFields(List<IPseudoField> fields, Operation domainLogOperation)
         {
-            Console.WriteLine("here");
         }
 
         public bool HasInsertInputFields => InsertInputFields.Any();
@@ -259,6 +258,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         public string Namespace => _applicationType.Namespace;
 
         public List<IParamterPrototype> Fields => _applicationType.Fields.Where(f => (!f.IsExcludedFromResults)).Select(a => _domain.TypeProvider.CreateFieldAdapter(a, this)).ToList();
+        public bool UseDbRoleForSecurity => Domain.Settings.UseDbRoleForSecurity;
 
         public bool HasExcludedFields => _applicationType.Fields.Any(f => f.IsExcludedFromResults);
 
@@ -439,9 +439,9 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         }
 
         public string AddManyArrayItemVariableName => "item";
-        public string NewRecordParameterName =>  _domain.NamingConvention.CreateNameFromFragments(new List<string> {Name, "to", "add"});
+        public string NewRecordParameterName =>  Util.MakeDbNameNotEscaped(new List<string> {Name, "to", "add"});
 
-        public string NewTypeName => _domain.NamingConvention.CreateNameFromFragments(new List<string> {Name, "new"});
+        public string NewTypeName => Util.MakeDbNameNotEscaped([Name, "new"]);
 
         public bool UsesCustomInsertType
         {

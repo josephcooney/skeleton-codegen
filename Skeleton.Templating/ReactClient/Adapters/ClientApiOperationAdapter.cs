@@ -13,7 +13,9 @@ namespace Skeleton.Templating.ReactClient.Adapters
         }
 
         public bool HasCustomType => UsesModel || Parameters.Any(p => p.IsCustomTypeOrCustomArray);
-
+        
+        public string ModelTypeName => UsesModel ? $"{Util.CSharpNameFromName(_op.Name)}{NamingConventions.ModelClassNameSuffix}" : null;
+        
         public ClientApiAdapter ClientApi => new ClientApiAdapter(_type, _domain);
         
         public List<Field> EditableLinkingFields

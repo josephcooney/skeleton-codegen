@@ -69,7 +69,7 @@ namespace Skeleton.Templating.Classes
             {
                 if (IsCustomType)
                 {
-                    return Util.CSharpNameFromName(_parameter.ProviderTypeName) + "Model";
+                    return Util.CSharpNameFromName(_parameter.ProviderTypeName) + NamingConventions.ModelClassNameSuffix;
                 }
                 else
                 {
