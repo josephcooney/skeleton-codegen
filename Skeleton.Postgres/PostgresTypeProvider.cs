@@ -1644,9 +1644,12 @@ namespace Skeleton.Postgres
                 {
                     while (reader.Read())
                     {
+                        const string always = "ALWAYS";
+                        
                         var fieldName = reader["column_name"].ToString();
                         var isNullable = reader["is_nullable"].ToString() == "YES";
-                        var isGenerated = reader["is_generated"].ToString() == "ALWAYS";
+                        var isGenerated = reader["is_generated"].ToString() == always;
+                        var identityGeneration = reader["identity_generation"].ToString();
                         var colDefault = reader["column_default"] == DBNull.Value ? null : reader["column_default"].ToString();
 
                         var field = type.Fields.FirstOrDefault(f => f.Name == fieldName);
@@ -1659,7 +1662,7 @@ namespace Skeleton.Postgres
                             field.IsRequired = !isNullable;
                             
                             // nextval is the syntax for use of sequences
-                            if (isGenerated || !string.IsNullOrEmpty(colDefault))
+                            if (isGenerated || !string.IsNullOrEmpty(colDefault) || identityGeneration == always)
                             {
                                 field.IsGenerated = true;
                             }

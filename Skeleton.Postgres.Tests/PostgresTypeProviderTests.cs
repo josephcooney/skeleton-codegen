@@ -9,10 +9,12 @@ namespace Skeleton.Postgres.Tests;
 
 public class PostgresTypeProviderTests : DbTestBase
 {
-    [Fact]
-    public void CanBuildBasicDomain()
+    [Theory]
+    [InlineData(TestDbScript)]
+    [InlineData(TestDbScriptWithIdentityCol)]
+    public void CanBuildBasicDomain(string scriptName)
     {
-        var testDbInfo = CreateTestDatabase(TestDbScript);
+        var testDbInfo = CreateTestDatabase(scriptName);
         try
         {
             var provider = new PostgresTypeProvider(testDbInfo.connectionString);
@@ -193,6 +195,15 @@ public class PostgresTypeProviderTests : DbTestBase
     private const string TestDbScript = @"
         create table simple_lookup_table (
             id serial primary key not null,
+            name text not null,
+            created timestamp not null,
+            modified timestamp
+        );
+    ";
+
+    private const string TestDbScriptWithIdentityCol = @"
+        create table simple_lookup_table (
+            id int generated always as identity primary key not null,
             name text not null,
             created timestamp not null,
             modified timestamp
