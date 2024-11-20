@@ -64,19 +64,6 @@ namespace {{DefaultNamespace}}.Data.Repository
             return connection;
         }
 
-        protected NpgsqlConnection CreateConnection(string connectionString)
-        {
-            var connection = new NpgsqlConnection(connectionString);
-            connection.ProvideClientCertificatesCallback = ClientCertificateValidationCallback;
-            connection.UserCertificateValidationCallback = ServerCertificateValidationCallback;
-            return connection;
-        }
-
-        protected string BuildConnectionString(IConfiguration configuration)
-        {
-            return configuration.GetConnectionString("DefaultConnection") + configuration.GetValue<string>("UserPassword") + ";";
-        }
-
 		public static bool ServerCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslpolicyerrors)
         {
             // blanket accept whatever the server sent
