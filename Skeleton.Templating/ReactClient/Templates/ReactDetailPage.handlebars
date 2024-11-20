@@ -7,7 +7,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { {{cs_name DetailType.Name}} } from './{{cs_name DetailType.Name}}';
 import { {{ClientApiTypeName}}, {{ClientApiInterfaceName}}, {{cs_name Name}}ApiClientQueryKeys } from './{{cml_case Name}}ApiClient';
 import { {{cs_name Name}}DetailDisplay } from './{{ts_file_name Name}}DetailDisplay';
-import { Loading } from '../../controls/loading';
+import { CircularProgress } from "@mui/material";
 import { ErrorControl } from '../../controls/error-control';
 import DateTimeDisplay from '../../controls/DateTimeDisplay';
 import Thumbnail from '../../controls/thumbnail';
@@ -109,7 +109,7 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : Rea
             contents = render{{cs_name Name}}Detail({{cml_case Name}}Query.data);
         }
         else {
-            contents = <Loading />;
+            contents = <CircularProgress />;
         }
     }
 
@@ -122,7 +122,7 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : Rea
         {{cml_case Name}}Contents = <ErrorControl message={"unable to load {{hmn Name}}."}></ErrorControl>;
     } else {
         if ({{cml_case Name}}Query.isFetching){
-            {{cml_case Name}}Contents = <Loading />;			
+            {{cml_case Name}}Contents = <CircularProgress />;			
         }
         else {
             {{cml_case Name}}Contents = <{{cs_name SelectAllType.Name}}List data={ {{cml_case Name}}Query.data } dataProvided={true} linkedType='{{../Name}}' linkedId={ {{cml_case ../Name}}Query.data ? {{cml_case ../Name}}Query.data.id : null} />;		

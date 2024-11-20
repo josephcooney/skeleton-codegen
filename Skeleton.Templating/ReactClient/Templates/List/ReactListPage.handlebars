@@ -14,7 +14,7 @@ import { {{cs_name Name}}Row } from './{{cml_case Name}}Row';
 import { {{cs_name Name}}Header } from './{{cml_case Name}}Header';
 import { {{UnderlyingType.ClientApiInterfaceName}}, {{UnderlyingType.ClientApiTypeName}}, {{cs_name UnderlyingType.Name}}ApiClientQueryKeys } from '../{{cml_case UnderlyingType.Name}}ApiClient';
 import {defaultCacheDuration, queryCall} from "../../../api";
-import { Loading } from '../../../controls/loading';
+import { CircularProgress } from "@mui/material";
 import {{cs_name Name}}ListRendering from './{{cml_case Name}}ListRendering';
 import Title from "../../../controls/Title";
 import {useSnackbar} from "notistack";
@@ -96,7 +96,7 @@ export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps>
             contents = renderError();
         } else {
             if (query.isFetching) {
-                contents = <Loading />;
+                contents = <CircularProgress />;
             } else {
 				contents = query.data && query.data.length > 0 ? renderData() : null;
 			}
