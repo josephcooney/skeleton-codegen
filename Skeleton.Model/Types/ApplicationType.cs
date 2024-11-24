@@ -70,7 +70,7 @@ namespace Skeleton.Model
 
         public bool IsHelp => Attributes?.isHelp == true;
 
-        public bool IsFieldLabels => Attributes.isFieldLabels = true; // field labels allow cms-like functionality for fields
+        public bool IsDynamicUiContent => Attributes.isDynamicUiContent = true; // dynamic UI content allows cms-like functionality for fields
         
         public int Rank // not as useful as I was hoping it would be
         {

@@ -16,7 +16,7 @@ namespace {{DefaultNamespace}}.Data.Repository
             var dataSource = dataSourceBuilder.Build();
             builder.RegisterInstance(dataSource);
 
-{{#each IncludedTypes}}
+            {{#each IncludedTypes}}
             builder.RegisterType<{{cs_name Name}}Repository>().AsImplementedInterfaces();
 			{{/each}}
         }

@@ -58,9 +58,9 @@ namespace Skeleton.Model
 
         public bool HasHelpType => HelpType != null;
 
-        public ApplicationType? FieldLabelType => Types.SingleOrDefault(t => t.IsFieldLabels);
+        public ApplicationType? DynamicUiContentType => Types.SingleOrDefault(t => t.IsDynamicUiContent);
 
-        public bool HasFieldLabels => FieldLabelType != null;
+        public bool HasDynamicUiContent => DynamicUiContentType != null;
         
         public Operation? LogOperation => Operations.SingleOrDefault(o => o.IsLog);
         
