@@ -56,6 +56,11 @@ public class PostgresFieldAdapter : IParamterPrototype
                     {
                         return _typeProvider.EscapeSqlName(_prototype.AddManyArrayItemVariableName) + "." + _typeProvider.EscapeSqlName(_field.Name);
                     }
+
+                    if (_field.UnderlyingType.IsLink)
+                    {
+                        return _typeProvider.EscapeSqlName(_prototype.AddManyArrayItemVariableName) + "." + _typeProvider.EscapeSqlName(_field.Name);
+                    }
                     
                     return _typeProvider.EscapeSqlName(_prototype.NewRecordParameterName) + "." + _typeProvider.EscapeSqlName(_field.Name);
                 }
