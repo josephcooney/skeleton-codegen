@@ -323,7 +323,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
         }
     }
 	{{else}}
-        const handleSubmit = async (fields : {{FormDataTypeName}}) : Promise<void> => {
+    const handleSubmit = async (fields : {{FormDataTypeName}}) : Promise<void> => {
         {{#if CurrentOperation.HasCustomType}}
         console.log(fields);
         {{/if}}
@@ -331,7 +331,13 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
 		{{#if CurrentOperation.UsesModel}}
 		    const data = await api.{{cml_case OperationName}}(fields);
         {{else}}
-            const data = await api.{{cml_case OperationName}}({{#each CurrentOperation.UserProvidedParameters}}{{#if IsCustomArrayType}}[fields.{{cml_case Name}}]{{else}}fields.{{cml_case Name}}{{/if}}{{#unless @last}}, {{/unless}}{{/each}}); 
+        {{#each CurrentOperation.UserProvidedParameters}}{{#if IsCustomArrayType}}
+        if (!fields.{{cml_case Name}}){
+            return; // null value - nothing to submit
+        }    
+        {{/if}}
+        {{/each}}
+        const data = await api.{{cml_case OperationName}}({{#each CurrentOperation.UserProvidedParameters}}{{#if IsCustomArrayType}}[fields.{{cml_case Name}}]{{else}}fields.{{cml_case Name}}{{/if}}{{#unless @last}}, {{/unless}}{{/each}}); 
 		{{/if}}
 			{{#if AssociateViaLink}}
 			if (data) {
