@@ -145,49 +145,15 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
             }
         }
 
-        public List<IPseudoField> InsertInputFields
-        {
-            get
-            {
-                var fields = new List<IPseudoField>();
-                if (!UsesCustomInsertType)
-                {
-                    // in this case there should probably only be 1 field.
-                    // If there were more we would be using a custom insert type
-                    fields.AddRange(InsertTypeFields);
-                }
-                if (UserIdField != null)
-                {
-                    fields.Add(UserIdField);
-                }
-                if (CreatedByField != null)
-                {
-                    fields.Add(CreatedByField);
-                }
-
-                if (Domain.LogOperation != null)
-                {
-                    AddLogFields(fields, Domain.LogOperation);
-                }
-                return fields.OrderBy(f => f.Order).ToList();
-            }
-        }
+        
 
         private void AddLogFields(List<IPseudoField> fields, Operation domainLogOperation)
         {
         }
 
         public bool HasInsertInputFields => InsertInputFields.Any();
-
-        public List<IPseudoField> InsertTypeFields
-        {
-            get
-            {
-                var fields = UserEditableFields.Where(f => f.Add).ToList();
-                return fields.OrderBy(f => f.Order).ToList();
-            }
-        }
-
+        
+        
         public List<IPseudoField> DeleteInputFields
         {
             get
@@ -200,7 +166,15 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
                 return fields.OrderBy(f => f.Order).ToList();
             }
         }
-
+        
+        public List<IPseudoField> InsertTypeFields
+        {
+            get
+            {
+                var fields = UserEditableFields.Where(f => f.Add).ToList();
+                return fields.OrderBy(f => f.Order).ToList();
+            }
+        }
 
         public List<IPseudoField> InsertFields
         {
@@ -230,6 +204,34 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
             }
         }
 
+        public List<IPseudoField> InsertInputFields
+        {
+            get
+            {
+                var fields = new List<IPseudoField>();
+                if (!UsesCustomInsertType)
+                {
+                    // in this case there should probably only be 1 field.
+                    // If there were more we would be using a custom insert type
+                    fields.AddRange(InsertTypeFields);
+                }
+                if (UserIdField != null)
+                {
+                    fields.Add(UserIdField);
+                }
+                if (CreatedByField != null)
+                {
+                    fields.Add(CreatedByField);
+                }
+
+                if (Domain.LogOperation != null)
+                {
+                    AddLogFields(fields, Domain.LogOperation);
+                }
+                return fields.OrderBy(f => f.Order).ToList();
+            }
+        }
+        
         public List<IPseudoField> UpdateFields
         {
             get
@@ -250,6 +252,36 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
                     fields.Add(_domain.TypeProvider.CreateFieldAdapter(searchField, this));
                 }
                 return fields.OrderBy(f => f.Order).ToList();
+            }
+        }
+
+        public bool HasLinkingTypes => LinkingTypes.Any();
+        
+        public List<LinkAdapter> LinkingTypes
+        {
+            get
+            {
+                var types = _domain.Types.Where(t =>
+                    t.Fields.Any(f => f.HasReferenceType && f.ReferencesType == _applicationType && !f.IsTrackingUser));
+
+                var linkTypes = new List<LinkAdapter>();
+                foreach (var link in types.Where(t => t.IsLink))
+                {
+                    var otherSideOfLink = link.Fields.Where(f => f.HasReferenceType && f.ReferencesType != _applicationType && !f.ReferencesType.IsSecurityPrincipal).Select(f => f.ReferencesType);
+                    if (otherSideOfLink.Count() > 1)
+                    {
+                        Log.Warning("Looking for links to {TypeName} - Link type {LinkTypeName} links to multiple 'other' things. Templates do not support this.", _applicationType.Name, link.Name); // templates have not been designed for this
+                    }
+                    else
+                    {
+                        if (otherSideOfLink.Any())
+                        {
+                            linkTypes.Add(new LinkAdapter(link, _applicationType, otherSideOfLink.First()));
+                        }
+                    }
+                }
+
+                return linkTypes.OrderBy(l => l.OtherSideOfLink.Name).ToList();
             }
         }
 
