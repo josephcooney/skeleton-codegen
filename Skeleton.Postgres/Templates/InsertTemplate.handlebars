@@ -53,17 +53,18 @@ $$
         {{#if HasLinkingTypes}}
             {{#each LinkingTypes}}
             -- insert links to {{OtherSideOfLink.Name}}
-            /*
             insert into {{{escape_sql LinkType.Name}}} (
             {{#each InsertFields}}
                 {{{escape_sql Name}}}{{#unless @last}},{{/unless}}
             {{/each}}
             )
-            */
+            select
+            {{#each InsertFields}}
+                {{{escape_sql Value}}}{{#if @last}};{{else}},{{/if}}
+            {{/each}}
             
             {{/each}}
         {{/if}}
-
         return new_id;
     END
 $$

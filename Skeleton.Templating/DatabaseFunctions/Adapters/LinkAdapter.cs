@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Skeleton.Model;
 using Skeleton.Model.Operations;
@@ -38,11 +39,6 @@ public class LinkAdapter
             {
                 fields.Add(Domain.TypeProvider.CreateFieldAdapter(createdDateTrackingField, _operationPrototype));
             }
-            var searchField = LinkType.Fields.FirstOrDefault(f => f.IsSearch);
-            if (searchField != null)
-            {
-                fields.Add(Domain.TypeProvider.CreateFieldAdapter(searchField, _operationPrototype));
-            }
             if (CreatedByField != null)
             {
                 fields.Add(CreatedByField);
@@ -56,7 +52,7 @@ public class LinkAdapter
         get
         {
             var list = new List<IPseudoField>();
-            list.AddRange(LinkType.Fields.Where(a => a.IsCallerProvided).Select(a => Domain.TypeProvider.CreateFieldAdapter(a, _operationPrototype)).OrderBy(f => f.Order));
+            list.AddRange(LinkType.Fields.Where(a => a.IsCallerProvided).Select(a => new LinkingFieldAdapter(a, _operationPrototype, Domain.TypeProvider, a.HasReferenceType && a.ReferencesType == CurrentType && !a.ReferencesType.IsSecurityPrincipal)).OrderBy(f => f.Order));
             return list;
         }
     }
@@ -73,4 +69,56 @@ public class LinkAdapter
             return null;
         }
     }
+}
+
+// this is pretty postgres-specific - remains to be seen how we'd do this for SQL server
+public class LinkingFieldAdapter : IParamterPrototype
+{
+    private readonly Field _field;
+    private readonly IOperationPrototype _prototype;
+    private readonly ITypeProvider _typeProvider;
+    private readonly bool _isLinkToCurrentType;
+
+    public LinkingFieldAdapter(Field field, IOperationPrototype prototype, ITypeProvider typeProvider, bool isLinkToCurrentType)
+    {
+        _field = field;
+        _prototype = prototype;
+        _typeProvider = typeProvider;
+        _isLinkToCurrentType = isLinkToCurrentType;
+    }
+
+    public string Name => _field.Name;
+    public string ParentAlias => _prototype.ShortName;
+    public string ProviderTypeName => _field.ProviderTypeName;
+    public bool HasDisplayName => false;
+    public string DisplayName => null;
+    public int Order => _field.Order;
+    public bool IsUuid => _field.ClrType == typeof(Guid);
+    public bool Add => _field.Add;
+    public bool Edit => _field.Edit;
+    public bool IsUserEditable => _field.IsCallerProvided;
+    public bool IsKey => _field.IsKey;
+    public bool IsInt => _field.IsInt;
+    public bool HasSize => _field.HasSize;
+    public int? Size => _field.Size;
+    public Type ClrType => _field.ClrType;
+    public bool IsGenerated => _field.IsGenerated;
+    public bool IsRequired => _field.IsRequired;
+
+    public string Value
+    {
+        get
+        {
+            if (_isLinkToCurrentType)
+            {
+                return "new_id";
+            }
+            else
+            {
+                return $"unnest({_typeProvider.FormatOperationParameterName(_prototype.FunctionName, _field.Name)})";
+            }
+        }
+    }
+
+    public IOperationPrototype Parent => _prototype;
 }
