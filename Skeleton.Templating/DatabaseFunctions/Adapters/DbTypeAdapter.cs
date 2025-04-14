@@ -267,7 +267,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
                 var linkTypes = new List<LinkAdapter>();
                 foreach (var link in types.Where(t => t.IsLink))
                 {
-                    var otherSideOfLink = link.Fields.Where(f => f.HasReferenceType && f.ReferencesType != _applicationType && !f.ReferencesType.IsSecurityPrincipal).Select(f => f.ReferencesType);
+                    var otherSideOfLink = link.Fields.Where(f => f.HasReferenceType && f.ReferencesType != _applicationType && !f.ReferencesType.IsSecurityPrincipal).Select(f => f.ReferencesType).ToList();
                     if (otherSideOfLink.Count() > 1)
                     {
                         Log.Warning("Looking for links to {TypeName} - Link type {LinkTypeName} links to multiple 'other' things. Templates do not support this.", _applicationType.Name, link.Name); // templates have not been designed for this
@@ -276,7 +276,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
                     {
                         if (otherSideOfLink.Any())
                         {
-                            linkTypes.Add(new LinkAdapter(link, _applicationType, otherSideOfLink.First()));
+                            linkTypes.Add(new LinkAdapter(link, _applicationType, otherSideOfLink.First(), this));
                         }
                     }
                 }
