@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Serilog;
 using Skeleton.Model;
 using Skeleton.Templating.Classes.Adapters;
 
@@ -47,9 +48,19 @@ namespace Skeleton.Templating.ReactClient.Adapters
                             // this only handles 1 level of nesting of fields
                             if (field is Field)
                             {
-                                fields.Add(new UserInputFieldModel()
-                                    {Field = field as Field, Name = field.Name, RelativeStatePath = parameter.Name + "."});
-                                
+                                if (IsLinkingItemIdList(field))
+                                {
+                                    var otherSideOfLink = GetOtherSideOfLinkingType(field);
+                                    
+                                    fields.Add(new UserInputFieldModel()
+                                        {IsLinkedItemIds = true, LinkedItemType = otherSideOfLink, Field = field as Field, Name = field.Name, RelativeStatePath = parameter.Name + "."});
+                                    
+                                }
+                                else
+                                {
+                                    fields.Add(new UserInputFieldModel()
+                                        {Field = field as Field, Name = field.Name, RelativeStatePath = parameter.Name + "."});
+                                }
                             }
                             else
                             {
@@ -71,6 +82,51 @@ namespace Skeleton.Templating.ReactClient.Adapters
 
                 return fields;
             }
+        }
+
+        private ApplicationType GetOtherSideOfLinkingType(TypedValue field)
+        {
+            var isArrayOrList = field.ClrType.IsArray || (field.ClrType.IsGenericType && (field.ClrType.GetGenericTypeDefinition() == typeof(List<>)));
+            if (isArrayOrList)
+            {
+                try
+                {
+                    Type itemType = field.ClrType.IsArray
+                        ? field.ClrType.GetElementType()
+                        : field.ClrType.GetGenericArguments()[0];
+
+                    var linkingType = _type.LinkedTypes.Where(t => t.IsLink).Single(t =>
+                        t.Fields.Any(f => f.Name == field.Name && f.ClrType == itemType));
+                    // get the 'other side' of the linking type
+                    return linkingType.Fields.Single(f => f.HasReferenceType && f.ReferencesType != _type && f.ReferencesType != _domain.UserType).ReferencesType;
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Unexpected error getting linking type for field {Field} on type {Type}", field.Name, _type.Name);
+                    return null;
+                }
+            }
+
+            Log.Warning("Unable to find other side of link on field {FieldName} on type {TypeName}", field.Name, _type.Name);
+            return null;
+        }
+
+        private bool IsLinkingItemIdList(TypedValue field)
+        {
+            var isArrayOrList = field.ClrType.IsArray || (field.ClrType.IsGenericType && (field.ClrType.GetGenericTypeDefinition() == typeof(List<>)));
+            if (isArrayOrList)
+            {
+                Type itemType = field.ClrType.IsArray
+                    ? field.ClrType.GetElementType()
+                    : field.ClrType.GetGenericArguments()[0];
+                
+                // check to see if the reference type has a linking type with one of these column ids
+                var linkingTypes = _type.LinkedTypes.Where(t => t.IsLink);
+                var result = linkingTypes.Any(t => t.Fields.Any(f => f.Name == field.Name && f.ClrType == itemType));
+                return result;
+            }
+
+            return false;
         }
 
         public List<UserInputFieldModel> ClientSuppliedFields
@@ -143,5 +199,9 @@ namespace Skeleton.Templating.ReactClient.Adapters
         public bool IsHtml => Field?.IsHtml ?? Parameter.IsHtml;
 
         public bool IsKey => Field?.IsKey ?? Parameter.RelatedTypeField?.IsKey ?? false;
+        
+        public bool IsLinkedItemIds { get; set; }
+        
+        public ApplicationType LinkedItemType { get; set; }
     }
 }

@@ -14,6 +14,7 @@ interface {{cs_name Name}}SelectProps {
     error?: boolean;
     api?: {{ClientApiInterfaceName}} | null;
     label?: string;
+    multiple?: boolean
 }
 
 export const {{cs_name Name}}Select = (props: {{cs_name Name}}SelectProps) => {
@@ -54,7 +55,7 @@ export const {{cs_name Name}}Select = (props: {{cs_name Name}}SelectProps) => {
         const selected = options.find(o => o.value === selectedValue) ?? null;
 		
 		return (
-            <Autocomplete options={options} value={selected} onChange={handleChange} renderInput={(params) => <TextField {...params} label={props.label} onBlur={onBlur} error={props.error} />} disabled={props.readonly} />
+            <Autocomplete options={options} value={selected} onChange={handleChange} multiple={multiple ?? false} renderInput={(params) => <TextField {...params} label={props.label} onBlur={onBlur} error={props.error} />} disabled={props.readonly} />
         );
     }
 

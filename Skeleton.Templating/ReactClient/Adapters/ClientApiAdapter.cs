@@ -13,7 +13,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
     {
         private List<DisplayFieldAdapter> _displayFields;
 
-        private ApplicationType _applicationType;
+        protected ApplicationType _applicationType;
         
         public ClientApiAdapter(ApplicationType type, Domain domain) : base(type, domain)
         {

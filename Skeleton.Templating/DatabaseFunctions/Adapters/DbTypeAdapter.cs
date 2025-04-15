@@ -261,11 +261,8 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         {
             get
             {
-                var types = _domain.Types.Where(t =>
-                    t.Fields.Any(f => f.HasReferenceType && f.ReferencesType == _applicationType && !f.IsTrackingUser));
-
                 var linkTypes = new List<LinkAdapter>();
-                foreach (var link in types.Where(t => t.IsLink))
+                foreach (var link in _applicationType.LinkedTypes.Where(t => t.IsLink))
                 {
                     var otherSideOfLink = link.Fields.Where(f => f.HasReferenceType && f.ReferencesType != _applicationType && !f.ReferencesType.IsSecurityPrincipal).Select(f => f.ReferencesType).ToList();
                     if (otherSideOfLink.Count() > 1)

@@ -79,6 +79,9 @@ namespace Skeleton.Model
 
         public bool Important => Attributes?.important == true;
         public bool Paged => Attributes?.paged == true;
+
+        public List<ApplicationType> LinkedTypes => Domain.Types.Where(t =>
+            t.Fields.Any(f => f.HasReferenceType && f.ReferencesType == this && !f.IsTrackingUser)).ToList();
     }
 
     public enum DeleteType

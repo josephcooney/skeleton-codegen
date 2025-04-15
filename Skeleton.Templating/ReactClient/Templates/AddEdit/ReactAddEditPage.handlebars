@@ -50,7 +50,7 @@ import { {{LinkingType.ClientApiInterfaceName}}, {{LinkingType.ClientApiTypeName
 import { {{cs_name LinkingType.Name}}New } from '../{{kb_case LinkingType.Name}}/{{cs_name LinkingType.Name}}New';
 {{/each}}
 {{/if}}
-{{#each CurrentOperation.ParameterReferenceTypes}}
+{{#each ParameterReferenceTypes}}
 import { {{cs_name Name}}Select } from '../{{kb_case Name}}/{{cml_case Name}}Select';
 {{/each}}
 
@@ -434,6 +434,12 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                                 <ErrorMessage name="{{NameWithPathCamelCase}}" />
                             </FormHelperText>
                             {{else}}
+                                {{#if IsLinkedItemIds}}
+                            <Field id="{{NameWithPathCamelCase}}" name="{{NameWithPathCamelCase}}" component={ {{cs_name LinkedItemType.Name}}Select } multiple={true} value={ {{../CurrentOperation.StatePath}}?.{{NameWithPathSafeCamelCase}} } label="{{hmn Field}}" error={ hasError('{{NameWithPathCamelCase}}', formik)}  />
+                            <FormHelperText error={true}>
+                                <ErrorMessage name="{{NameWithPathCamelCase}}" />
+                            </FormHelperText>    
+                                {{else}}
 								{{#if IsDateTime}}
                                 {{#if IsDate}}<DatePicker {{else}}<DateTimePicker {{/if}}
                                 slotProps={ {
@@ -499,6 +505,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
 									{{/if}}
 									{{/if}}
 								{{/if}}
+                                {{/if}}
 							{{/if}}
                         </Grid>
                         {{/if}}						

@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Skeleton.Model;
+using Skeleton.Templating.Classes;
 
 namespace Skeleton.Templating.ReactClient.Adapters
 {
@@ -29,5 +31,17 @@ namespace Skeleton.Templating.ReactClient.Adapters
         public string FormDataTypeName => _operation.UsesModel ? ModelTypeName : StateTypeName;
 
         public bool HasAnyHtmlFields => _operation.Parameters.Any(p => p.IsHtml) || (_operation.HasCustomType && _operation.CustomType.Fields.Any(f => f != null && f.IsHtml));
+
+        public List<ClassAdapter> ParameterReferenceTypes
+        {
+            get
+            {
+                var baseList = CurrentOperation.ParameterReferenceTypes;
+                
+                // add items via linking types
+                
+                return baseList;
+            }
+        }
     }
 }
