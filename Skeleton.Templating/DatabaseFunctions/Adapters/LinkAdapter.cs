@@ -115,7 +115,7 @@ public class LinkingFieldAdapter : IParamterPrototype
             }
             else
             {
-                return $"unnest({_typeProvider.FormatOperationParameterName(_prototype.FunctionName, _field.Name)})";
+                return $"unnest({_typeProvider.FormatOperationParameterName(_prototype.NewRecordParameterName, _field.Name)})";
             }
         }
     }
