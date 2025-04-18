@@ -30,11 +30,12 @@ export const {{cs_name Name}}Select = (props: {{cs_name Name}}SelectProps) => {
     }, [props.value]);
     
     const handleChange = (event : React.SyntheticEvent, item: any) => {
-        setSelectedValue(item?.value);
-		if (props.onChange) {
-			props.onChange(item?.value, item?.data);		
+        const value = props.multiple ? item?.map((i: { value: any; }) => i.value) : item?.value;
+        setSelectedValue(value);
+        if (props.onChange) {
+            props.onChange(value, item?.data);
         }
-        props.field?.onChange({target: { value: item?.value, name: props.field.name }});
+        props.field?.onChange({target: { value: value, name: props.field.name }});
     }
 
 	const handleInputChange = (inputText: string) => {
@@ -52,7 +53,7 @@ export const {{cs_name Name}}Select = (props: {{cs_name Name}}SelectProps) => {
 		{{else}}
 		const options = data.map(d => ({ value: d.id, label: {{#each LinkingFields}}d.{{cml_case Name}}{{#unless @last}} + " - " + {{/unless}}{{/each}}, data: d }));
 		{{/if}}
-        const selected = options.find(o => o.value === selectedValue) ?? null;
+        const selected = props.multiple ? options.filter(o => selectedValue?.indexOf(o.value) > -1) ?? [] : options.find(o => o.value === selectedValue) ?? null;
 		
 		return (
             <Autocomplete options={options} value={selected} onChange={handleChange} multiple={props.multiple ?? false} renderInput={(params) => <TextField {...params} label={props.label} onBlur={onBlur} error={props.error} />} disabled={props.readonly} />
