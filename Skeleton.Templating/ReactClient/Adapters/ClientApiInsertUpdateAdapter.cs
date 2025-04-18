@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Serilog;
 using Skeleton.Model;
 using Skeleton.Templating.Classes;
 
@@ -37,8 +38,23 @@ namespace Skeleton.Templating.ReactClient.Adapters
             get
             {
                 var baseList = CurrentOperation.ParameterReferenceTypes;
-                
-                // add items via linking types
+
+                var linkingTypes = _applicationType.LinkedTypes.Where(t => t.IsLink);
+                foreach (var link in linkingTypes)
+                {
+                    var otherSideOfLink = link.Fields.Where(f => f.HasReferenceType && f.ReferencesType != _type && !f.ReferencesType.IsSecurityPrincipal).Select(f => f.ReferencesType).ToList();
+                    if (otherSideOfLink.Count() > 1)
+                    {
+                        Log.Warning("Looking for links to {TypeName} - Link type {LinkTypeName} links to multiple 'other' things. Templates do not support this.", _type.Name, link.Name); // templates have not been designed for this
+                    }
+                    else
+                    {
+                        if (otherSideOfLink.Any())
+                        {
+                            baseList.Add(new ClassAdapter(otherSideOfLink.First(), _domain));
+                        }
+                    }
+                }
                 
                 return baseList;
             }
