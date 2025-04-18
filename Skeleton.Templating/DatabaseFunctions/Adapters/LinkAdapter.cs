@@ -46,6 +46,9 @@ public class LinkAdapter
             return fields.OrderBy(f => f.Order).ToList();
         }
     }
+
+    // doesn't really handle composite foreign key fields
+    public IPseudoField FieldLinkingToCurrentType => LinkType.Fields.First(f => f.ReferencesType == CurrentType);
     
     public List<IPseudoField> UserEditableFields
     {
@@ -109,14 +112,33 @@ public class LinkingFieldAdapter : IParamterPrototype
     {
         get
         {
-            if (_isLinkToCurrentType)
+            if (_prototype.OperationType == OperationType.Insert)
             {
-                return "new_id";
+                if (_isLinkToCurrentType)
+                {
+                    return "new_id";
+                }
+                else
+                {
+                    return $"unnest({_typeProvider.FormatOperationParameterName(_prototype.NewRecordParameterName, _field.Name)})";
+                }  
             }
-            else
+
+            if (_prototype.OperationType == OperationType.Update)
             {
-                return $"unnest({_typeProvider.FormatOperationParameterName(_prototype.NewRecordParameterName, _field.Name)})";
+                if (_isLinkToCurrentType)
+                {
+                    // should this look at the operation instead?
+                    var idField = _field.ReferencesType.Fields.First(f => f.IsKey).Name;
+                    return _typeProvider.FormatOperationParameterName(_prototype.FunctionName, idField);
+                }
+                else
+                {
+                    return $"unnest({_typeProvider.FormatOperationParameterName(_prototype.FunctionName, _field.Name)})";
+                }
             }
+
+            return null;
         }
     }
 
