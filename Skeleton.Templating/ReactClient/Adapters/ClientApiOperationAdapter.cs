@@ -71,13 +71,21 @@ namespace Skeleton.Templating.ReactClient.Adapters
                     }
                     else
                     {
-                        fields.Add(new UserInputFieldModel{Field = parameter.RelatedTypeField, Name = parameter.Name, Parameter = parameter});
+                        if (parameter.RelatedTypeField == null && IsLinkingItemIdList(parameter))
+                        {
+                            var otherSideOfLink = GetOtherSideOfLinkingType(parameter);
+                            fields.Add(new UserInputFieldModel{Name = parameter.Name, Parameter = parameter, IsLinkedItemIds = true, LinkedItemType = otherSideOfLink});
+                        }
+                        else
+                        {
+                            fields.Add(new UserInputFieldModel{Field = parameter.RelatedTypeField, Name = parameter.Name, Parameter = parameter});
+                        }
                     }
                 }
 
                 if (_op.ChangesData && !_op.CreatesNew)
                 {
-                    return fields.Where(f => !f.IsKey).ToList();
+                    return fields.Where(f => !(f.IsKey && f.Parameter?.RelatedTypeField?.ReferencesType == _type)).ToList();
                 }
 
                 return fields;
@@ -203,5 +211,23 @@ namespace Skeleton.Templating.ReactClient.Adapters
         public bool IsLinkedItemIds { get; set; }
         
         public ApplicationType LinkedItemType { get; set; }
+
+        public string LabelText
+        {
+            get
+            {
+                if (IsLinkedItemIds)
+                {
+                    return $"Related {Util.Pluralize(Util.HumanizeName(LinkedItemType.Name))}";
+                }
+                
+                if (Field != null)
+                {
+                    return Util.HumanizeName(Field);
+                }
+
+                return Util.HumanizeName(Name);
+            }
+        }
     }
 }

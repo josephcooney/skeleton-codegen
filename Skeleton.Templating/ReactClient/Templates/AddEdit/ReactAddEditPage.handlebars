@@ -337,7 +337,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
         }    
         {{/if}}
         {{/each}}
-        const data = await api.{{cml_case OperationName}}({{#each CurrentOperation.UserProvidedParameters}}{{#if IsCustomArrayType}}[fields.{{cml_case Name}}]{{else}}fields.{{cml_case Name}}{{/if}}{{#unless @last}}, {{/unless}}{{/each}}); 
+            const data = await api.{{cml_case OperationName}}({{#each CurrentOperation.UserProvidedParameters}}{{#if IsCustomArrayType}}[fields.{{cml_case Name}}]{{else}}fields.{{cml_case Name}}{{/if}}{{#unless @last}}, {{/unless}}{{/each}}); 
 		{{/if}}
 			{{#if AssociateViaLink}}
 			if (data) {
@@ -429,13 +429,13 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                         {{else}}
                         <Grid item xs={12}>
 							{{#if Field.HasReferenceType}}
-							<Field id="{{NameWithPathCamelCase}}" name="{{NameWithPathCamelCase}}" component={ {{cs_name Field.ReferencesType.Name}}Select } value={ {{../CurrentOperation.StatePath}}?.{{NameWithPathSafeCamelCase}} } label="{{hmn Field}}" error={ hasError('{{NameWithPathCamelCase}}', formik)} {{#unless Field.ReferencesType.IsReferenceData}} readonly={get{{cml_case Name}}() != null} {{/unless}} />
+							<Field id="{{NameWithPathCamelCase}}" name="{{NameWithPathCamelCase}}" component={ {{cs_name Field.ReferencesType.Name}}Select } value={ {{../CurrentOperation.StatePath}}?.{{NameWithPathSafeCamelCase}} } label="{{LabelText}}" error={ hasError('{{NameWithPathCamelCase}}', formik)} {{#unless Field.ReferencesType.IsReferenceData}} readonly={get{{cml_case Name}}() != null} {{/unless}} />
                             <FormHelperText error={true}>
                                 <ErrorMessage name="{{NameWithPathCamelCase}}" />
                             </FormHelperText>
                             {{else}}
                                 {{#if IsLinkedItemIds}}
-                            <Field id="{{NameWithPathCamelCase}}" name="{{NameWithPathCamelCase}}" component={ {{cs_name LinkedItemType.Name}}Select } multiple={true} value={ {{../CurrentOperation.StatePath}}?.{{NameWithPathSafeCamelCase}} } label="{{hmn Field}}" error={ hasError('{{NameWithPathCamelCase}}', formik)}  />
+                            <Field id="{{NameWithPathCamelCase}}" name="{{NameWithPathCamelCase}}" component={ {{cs_name LinkedItemType.Name}}Select } multiple={true} value={ {{../CurrentOperation.StatePath}}?.{{NameWithPathSafeCamelCase}} } label="{{LabelText}}" error={ hasError('{{NameWithPathCamelCase}}', formik)}  />
                             <FormHelperText error={true}>
                                 <ErrorMessage name="{{NameWithPathCamelCase}}" />
                             </FormHelperText>    
@@ -454,7 +454,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                                         actions: ['clear', 'today']
                                     },
                                 } }                                    
-                                label="{{hmn Field}}"
+                                label="{{LabelText}}"
                                 value={ formik.values.{{NameWithPathSafeCamelCase}} }
                                 onChange={(newValue) => {
                                     formik.setFieldValue("{{NameWithPathCamelCase}}", newValue);
@@ -465,7 +465,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                             </FormHelperText>
                                 {{else}}
 									{{#if IsLargeTextContent}}
-                                <TextField minRows={4} maxRows={8} fullWidth id="{{NameWithPathCamelCase}}" name="{{NameWithPathCamelCase}}" value={ formik.values.{{NameWithPathSafeCamelCase}} } onChange={formik.handleChange} onBlur={formik.handleBlur} label="{{hmn Field}}" {{#if Field.IsRequired}}required={true}{{/if}}  type="{{input_type ClrType}}" error={ hasError('{{NameWithPathCamelCase}}', formik)} placeholder="Enter {{hmn Name}}" multiline={true} helperText={ errorMessage('{{NameWithPathCamelCase}}', formik)} />
+                                <TextField minRows={4} maxRows={8} fullWidth id="{{NameWithPathCamelCase}}" name="{{NameWithPathCamelCase}}" value={ formik.values.{{NameWithPathSafeCamelCase}} } onChange={formik.handleChange} onBlur={formik.handleBlur} label="{{LabelText}}" {{#if Field.IsRequired}}required={true}{{/if}}  type="{{input_type ClrType}}" error={ hasError('{{NameWithPathCamelCase}}', formik)} placeholder="Enter {{hmn Name}}" multiline={true} helperText={ errorMessage('{{NameWithPathCamelCase}}', formik)} />
                                     {{else}}
 									{{#if IsFile}}
 								<input hidden type="file" id="{{NameWithPathCamelCase}}" name="{{NameWithPathCamelCase}}" onChange={(event: any) => {
@@ -498,7 +498,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                                                 {{#if IsHtml}}
                                 <RichContentEditor value={ formik.values.{{NameWithPathSafeCamelCase}} } onChange={(val) => formik.setFieldValue("{{NameWithPathCamelCase}}", val)} placeholder={'Enter {{hmn Name}}'} />
 										        {{else}}
-								<TextField id="{{NameWithPathCamelCase}}" fullWidth name="{{NameWithPathCamelCase}}" value={ formik.values.{{NameWithPathSafeCamelCase}} } onChange={formik.handleChange} onBlur={formik.handleBlur} label="{{hmn Field}}" {{#if Field.IsRequired}}required={true}{{/if}}  type="{{input_type ClrType}}" error={ hasError('{{NameWithPathCamelCase}}', formik)} helperText={ errorMessage('{{NameWithPathCamelCase}}', formik)} placeholder="Enter {{hmn Name}}" />                                
+								<TextField id="{{NameWithPathCamelCase}}" fullWidth name="{{NameWithPathCamelCase}}" value={ formik.values.{{NameWithPathSafeCamelCase}} } onChange={formik.handleChange} onBlur={formik.handleBlur} label="{{LabelText}}" {{#if Field.IsRequired}}required={true}{{/if}}  type="{{input_type ClrType}}" error={ hasError('{{NameWithPathCamelCase}}', formik)} helperText={ errorMessage('{{NameWithPathCamelCase}}', formik)} placeholder="Enter {{hmn Name}}" />                                
                                                 {{/if}}
                                             {{/if}}
                                         {{/if}}

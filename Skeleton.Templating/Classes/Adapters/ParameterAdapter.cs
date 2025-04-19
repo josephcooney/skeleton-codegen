@@ -41,7 +41,7 @@ namespace Skeleton.Templating.Classes
             get
             {
                 return _parameter?.Attributes?.userEditable == true || IsCustomType || IsCustomArrayType || (_parameter.RelatedTypeField != null &&
-                                                                       _parameter.RelatedTypeField.IsCallerProvided);
+                                                                       _parameter.RelatedTypeField.IsCallerProvided) || _parameter.RelatedTypeField == null;
             }
         }
 

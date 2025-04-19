@@ -127,26 +127,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
                 return fields;
             }
         }
-
-        public List<IPseudoField> UpdateInputFields
-        {
-            get
-            {
-                var fields = PrimaryKeyFields.Union(UserEditableFields.Where(f => f.Edit)).ToList();
-                if (UserIdField != null)
-                {
-                    fields.Add(UserIdField);
-                }
-                if (ModifiedByField != null)
-                {
-                    fields.Add(ModifiedByField);                    
-                }
-                return fields.OrderBy(f => f.Order).ToList();
-            }
-        }
-
         
-
         private void AddLogFields(List<IPseudoField> fields, Operation domainLogOperation)
         {
         }
@@ -227,6 +208,23 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
                 if (Domain.LogOperation != null)
                 {
                     AddLogFields(fields, Domain.LogOperation);
+                }
+                return fields.OrderBy(f => f.Order).ToList();
+            }
+        }
+        
+        public List<IPseudoField> UpdateInputFields
+        {
+            get
+            {
+                var fields = PrimaryKeyFields.Union(UserEditableFields.Where(f => f.Edit)).ToList();
+                if (UserIdField != null)
+                {
+                    fields.Add(UserIdField);
+                }
+                if (ModifiedByField != null)
+                {
+                    fields.Add(ModifiedByField);                    
                 }
                 return fields.OrderBy(f => f.Order).ToList();
             }

@@ -3,7 +3,10 @@ SET search_path TO {{{escape_sql Namespace}}};
 
 CREATE OR REPLACE FUNCTION {{{escape_sql FunctionName}}} (
 {{#each UpdateInputFields}}
-{{{escape_sql Name}}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}}
+{{{escape_sql Name}}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#if @last}}{{#if @root.HasLinkingTypes}},{{/if}}{{else}},{{/if}}
+{{/each}}
+{{#each LinkingTypes}}
+{{{escape_sql_name LinkingFieldToOtherSide.Name}}} {{{escape_sql_name LinkingFieldToOtherSide.ProviderTypeName}}}[]{{#unless @last}},{{/unless}} -- link to {{OtherSideOfLink.Name}}
 {{/each}}
 ) RETURNS int AS
 $$
@@ -55,10 +58,10 @@ $$
   COST 100;
 
 {{#if UseDbRoleForSecurity}}
-REVOKE ALL ON FUNCTION {{{escape_sql FunctionName}}} ({{#each UpdateInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}} {{/each}}) FROM public;
+REVOKE ALL ON FUNCTION {{{escape_sql FunctionName}}} ({{#each UpdateInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#if @last}}{{#if @root.HasLinkingTypes}},{{/if}}{{else}},{{/if}} {{/each}}{{#each LinkingTypes}}{{{escape_sql_name LinkingFieldToOtherSide.ProviderTypeName}}}[]{{#unless @last}}, {{/unless}}{{/each}}) FROM public;
 
-GRANT EXECUTE ON FUNCTION {{{escape_sql FunctionName}}} ({{#each UpdateInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}} {{/each}}) TO web_app_role;
+GRANT EXECUTE ON FUNCTION {{{escape_sql FunctionName}}} ({{#each UpdateInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#if @last}}{{#if @root.HasLinkingTypes}},{{/if}}{{else}},{{/if}} {{/each}}{{#each LinkingTypes}}{{{escape_sql_name LinkingFieldToOtherSide.ProviderTypeName}}}[]{{#unless @last}}, {{/unless}}{{/each}}) TO web_app_role;
 {{/if}}
 
-COMMENT ON FUNCTION {{{escape_sql FunctionName}}} ({{#each UpdateInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}} {{/each}})
+COMMENT ON FUNCTION {{{escape_sql FunctionName}}} ({{#each UpdateInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#if @last}}{{#if @root.HasLinkingTypes}},{{/if}}{{else}},{{/if}} {{/each}}{{#each LinkingTypes}}{{{escape_sql_name LinkingFieldToOtherSide.ProviderTypeName}}}[]{{#unless @last}}, {{/unless}}{{/each}})
     IS '{"applicationtype":"{{Name}}", "generated":true, "changesData":true, "friendlyName":"Edit", "fullName":"{{FunctionName}}" {{#if NoEditUI}},"ui":false, "api":false {{/if}} }';

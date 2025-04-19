@@ -251,7 +251,15 @@ namespace Skeleton.Templating
                         writer.Write(HumanizeName((Parameter)parameters[0]));
                     }
 
-                    writer.Write(HumanizeName(parameters[0].ToString()));
+                    try
+                    {
+                        writer.Write(HumanizeName(parameters[0].ToString()));
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, "Error humanizing {Parameter}", parameters);
+                        writer.Write("ERROR Unable to humanize");
+                    }
                     return;
                 }
 
