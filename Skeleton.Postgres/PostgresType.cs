@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using NpgsqlTypes;
-using Serilog;
 
 namespace Skeleton.Postgres
 {

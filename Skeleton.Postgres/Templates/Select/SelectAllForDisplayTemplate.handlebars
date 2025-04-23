@@ -22,7 +22,11 @@ $$
         RETURN QUERY
         SELECT
             {{#each DisplayAllFields}}
-            {{ParentAlias}}.{{{escape_sql Name}}}{{#if HasDisplayName}} AS {{{escape_sql DisplayName}}}{{/if}}{{#unless @last}},{{/unless}}
+            {{#if IsLinkingField}}
+            {{{SelectExpression}}}{{#unless @last}},{{/unless}}
+            {{else}}
+            {{ParentAlias}}.{{{escape_sql Name}}}{{#if HasDisplayName}} AS {{{escape_sql DisplayName}}}{{/if}}{{#unless @last}},{{/unless}}                 
+            {{/if}}
             {{/each}}
         FROM {{{escape_sql Name}}} {{ShortName}}
         {{#each RelatedFields}}
