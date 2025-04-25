@@ -8,3 +8,10 @@ CREATE TYPE {{Namespace}}.{{{make_db_name Name "display"}}} AS
     );
 
 COMMENT ON TYPE {{Namespace}}.{{{make_db_name Name "display"}}} IS '{"applicationtype":"{{Name}}", "generated":true}';
+
+{{#each DisplayAllFields}}
+{{#if IsLinkingField}}
+    COMMENT ON COLUMN {{../Namespace}}.{{{make_db_name ../Name "display"}}}.{{{escape_sql Name}}} IS '{"joining_type_link":true}';    
+{{/if}}
+{{/each}}
+    

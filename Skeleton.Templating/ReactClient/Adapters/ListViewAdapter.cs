@@ -50,7 +50,15 @@ namespace Skeleton.Templating.ReactClient.Adapters
                         }
                         else
                         {
-                            displayFields.Add(new DisplayFieldAdapter(field, Util.HumanizeName(field)));
+                            // this could be a list of IDs on a "linking" table in which case we shouldn't display them in the list view
+                            if (field?.Attributes?.joining_type_link == true)
+                            {
+                                Log.Information("Excluding linking field {FieldName} on type {TypeName} from list view", field.Name, _type.Name);
+                            }
+                            else
+                            {
+                                displayFields.Add(new DisplayFieldAdapter(field, Util.HumanizeName(field)));
+                            }
                         }
                     }
                     else

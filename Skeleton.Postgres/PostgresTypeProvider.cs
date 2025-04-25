@@ -306,6 +306,45 @@ namespace Skeleton.Postgres
                     }
                 }
             }
+            
+            // get attributes on fields for result types
+            using (var cn = new NpgsqlConnection(_connectionString))
+            using (var cmd = new NpgsqlCommand(CustomTypeAttributesQuery, cn))
+            {
+                cn.Open();
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var ns = GetField<string>(reader, "schema_name");
+                        var typeName = SanitizeObjectName(GetField<string>(reader, "type_name"));
+                        var fieldName = SanitizeObjectName(GetField<string>(reader, "column_name"));
+                        var attributes = GetField<string>(reader, "comment");
+
+                        var resultType = domain.ResultTypes.SingleOrDefault(rt => rt.Namespace == ns && rt.Name == typeName);
+                        if (resultType == null)
+                        {
+                            Log.Warning("Custom type {TypeName} was found in the database but was not found in the domain", typeName);
+                        }
+                        else
+                        {
+                            var field = resultType.Fields.SingleOrDefault(f => f.Name == fieldName);
+                            if (field == null)
+                            {
+                                Log.Warning("Custom field {FieldName} on type {TypeName} could not be found", fieldName, typeName);
+                            }
+                            else
+                            {
+                                if (!string.IsNullOrEmpty(attributes))
+                                {
+                                    dynamic attribJson = ReadAttributes(attributes, $"{typeName}.{fieldName}");
+                                    field.Attributes = attribJson;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         public void AddGeneratedOperation(string text)
@@ -1921,6 +1960,26 @@ AND KCU1.TABLE_SCHEMA = '{type.Namespace}'
             AND n.nspname <> 'information_schema'
             AND n.nspname !~ '^pg_toast'
         order by obj_name";
+
+        private const string CustomTypeAttributesQuery = @"
+SELECT
+    n.nspname AS schema_name,
+    t.typname AS type_name,
+    a.attname AS column_name,
+    d.description AS comment
+FROM
+    pg_type t
+    JOIN pg_namespace n ON t.typnamespace = n.oid
+    JOIN pg_class c ON c.oid = t.typrelid
+    JOIN pg_attribute a ON a.attrelid = c.oid
+    JOIN pg_description d ON d.objoid = c.oid AND d.objsubid = a.attnum
+WHERE
+    t.typtype = 'c' -- Composite type
+    AND a.attnum > 0 -- Skip system columns
+    AND NOT a.attisdropped -- Skip dropped columns
+ORDER BY
+    n.nspname, t.typname, a.attnum;
+";
         
         private const string IndividualCustomTypeQuery = @"    
         SELECT n.nspname,

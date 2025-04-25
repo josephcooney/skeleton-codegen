@@ -191,6 +191,25 @@ public class PostgresTypeProviderTests : DbTestBase
             DestroyTestDb(testDbInfo.dbName);
         }
     }
+
+    [Fact]
+    public void CanReadAttributesOnCustomTypes()
+    {
+        var testDbInfo = CreateTestDatabase(CustomTypeSchemaScript);
+        try
+        {
+            var provider = new PostgresTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()){NamingConventionSettings = new NamingConventionSettings(){DbNamingConvention = DbNamingConvention.PascalCase}});
+            provider.GetOperations(model);
+            var custType = model.ResultTypes.First();
+            var value = custType.Fields.Single(f => f.Name == "related_id").Attributes.has_custom_attribute == true;
+            Assert.Equal(value, true);
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
     
     private const string TestDbScript = @"
         create table simple_lookup_table (
@@ -350,5 +369,30 @@ COMMENT ON FUNCTION change_task_type ( integer, integer)
 
         COMMENT ON TABLE ""SimpleLookupTable"" IS '{""type"":""reference""}';
     ";
+
+    private const string CustomTypeSchemaScript = @"
+CREATE TABLE item (
+    id uuid,
+    title text
+);
+
+CREATE TYPE custom_type AS 
+    ( 
+        id uuid, 
+        title text, 
+        related_id uuid[] 
+    );
+
+COMMENT ON COLUMN custom_type.related_id IS '{""has_custom_attribute"":true}';
+
+CREATE FUNCTION get_items () returns setof custom_type as $$
+    BEGIN
+    return query select id, title from item;
+    END
+$$ LANGUAGE plpgsql STABLE SECURITY INVOKER;
+
+COMMENT ON FUNCTION get_items ()
+    IS '{""applicationtype"":""item""}';
+";
 
 }

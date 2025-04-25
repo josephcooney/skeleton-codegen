@@ -133,7 +133,6 @@ namespace Skeleton.Templating.ReactClient
             {
                 if (rt.RelatedType == null || domain.FilteredTypes.Contains(rt.RelatedType))
                 {
-                    
                     var listAdapter = new ListViewAdapter(rt.SimpleReturnType, domain, rt.RelatedType);
                     var listPath = GetRelativePathFromTypeName(rt.RelatedType.Name) + "list\\";
                     var nameStart = Util.TypescriptFileName(rt.SimpleReturnType.Name);
