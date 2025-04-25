@@ -104,7 +104,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
                         : field.ClrType.GetGenericArguments()[0];
 
                     var linkingType = _type.LinkedTypes.Where(t => t.IsLink).Single(t =>
-                        t.Fields.Any(f => f.Name == field.Name && f.ClrType == itemType));
+                        t.Fields.Any(f => Util.PluraliseParameterName(f.Name) == field.Name && f.ClrType == itemType));
                     // get the 'other side' of the linking type
                     return linkingType.Fields.Single(f => f.HasReferenceType && f.ReferencesType != _type && f.ReferencesType != _domain.UserType).ReferencesType;
                 }
@@ -130,7 +130,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
                 
                 // check to see if the reference type has a linking type with one of these column ids
                 var linkingTypes = _type.LinkedTypes.Where(t => t.IsLink);
-                var result = linkingTypes.Any(t => t.Fields.Any(f => f.Name == field.Name && f.ClrType == itemType));
+                var result = linkingTypes.Any(t => t.Fields.Any(f => Util.PluraliseParameterName(f.Name) == field.Name && f.ClrType == itemType));
                 return result;
             }
 

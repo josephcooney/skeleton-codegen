@@ -23,7 +23,7 @@ public class LinkingField : IJoiningField
 
     public Field Field => _field;
 
-    public string Name => _field.Name;
+    public string Name => Util.PluraliseParameterName(_field.Name);
 
     public string ParentAlias => _relatedAlias;
     public string ProviderTypeName => $"{_field.ProviderTypeName}[]"; // this is really postgres-specific
@@ -47,5 +47,5 @@ public class LinkingField : IJoiningField
 
     public bool IsLinkingField => true;
 
-    public string SelectExpression => $"array(select {_domain.TypeProvider.EscapeSqlName(_field.Name)} from {_domain.TypeProvider.EscapeSqlName(_field.Type.Name)} where {_domain.TypeProvider.EscapeSqlName(_currentTypeField.Name)} = {_alias}.{_domain.TypeProvider.EscapeSqlName(_currentTypeField.ReferencesTypeField.Name)}) as {_domain.TypeProvider.EscapeSqlName(_field.Name)}";
+    public string SelectExpression => $"array(select {_domain.TypeProvider.EscapeSqlName(_field.Name)} from {_domain.TypeProvider.EscapeSqlName(_field.Type.Name)} where {_domain.TypeProvider.EscapeSqlName(_currentTypeField.Name)} = {_alias}.{_domain.TypeProvider.EscapeSqlName(_currentTypeField.ReferencesTypeField.Name)}) as {_domain.TypeProvider.EscapeSqlName(Name)}";
 }

@@ -661,6 +661,11 @@ namespace Skeleton.Templating
             return suffix;
         }
 
+        public static string PluraliseParameterName(string name)
+        {
+            return name + "s";
+        }
+
         public static string CanonicalizeName(string name)
         {
             return name.ToLowerInvariant().Replace(" ", "").Replace("-", "").Replace("_", "");

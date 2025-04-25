@@ -23,8 +23,15 @@ public class LinkAdapter
 
     public Domain Domain => CurrentType.Domain;
 
-    public Field LinkingFieldToOtherSide => LinkType.Fields.First(f =>
-        f.HasReferenceType && f.ReferencesType != CurrentType && !f.ReferencesType.IsSecurityPrincipal);
+    public IParamterPrototype LinkingFieldToOtherSide
+    {
+        get
+        {
+            var a = LinkType.Fields.First(f =>
+                f.HasReferenceType && f.ReferencesType != CurrentType && !f.ReferencesType.IsSecurityPrincipal);
+            return new LinkingFieldAdapter(a, _operationPrototype, Domain.TypeProvider, a.HasReferenceType && a.ReferencesType == CurrentType && !a.ReferencesType.IsSecurityPrincipal);
+        }
+    }
     
     public List<IPseudoField> InsertFields
     {
@@ -41,7 +48,17 @@ public class LinkAdapter
             }
             if (CreatedByField != null)
             {
-                fields.Add(CreatedByField);
+                if (_operationPrototype.OperationType == OperationType.Update)
+                {
+                    // we need to handle "created by" specially here...it is the created by for the LINK
+                    // but we need to use the "modified by" user who is calling the update
+                    var field = CreatedByField;
+                    // field.Value = TODO // todo - need a way to quickly override this
+                }
+                else
+                {
+                    fields.Add(CreatedByField);
+                }    
             }
             return fields.OrderBy(f => f.Order).ToList();
         }
@@ -90,7 +107,9 @@ public class LinkingFieldAdapter : IParamterPrototype
         _isLinkToCurrentType = isLinkToCurrentType;
     }
 
-    public string Name => _field.Name;
+    public Field Field => _field;
+    
+    public string Name => Util.PluraliseParameterName(_field.Name);
     public string ParentAlias => _prototype.ShortName;
     public string ProviderTypeName => _field.ProviderTypeName;
     public bool HasDisplayName => false;
@@ -108,6 +127,8 @@ public class LinkingFieldAdapter : IParamterPrototype
     public bool IsGenerated => _field.IsGenerated;
     public bool IsRequired => _field.IsRequired;
 
+    public bool IsLinkingField => true;
+
     public string Value
     {
         get
@@ -120,7 +141,7 @@ public class LinkingFieldAdapter : IParamterPrototype
                 }
                 else
                 {
-                    return $"unnest({_typeProvider.FormatOperationParameterName(_prototype.NewRecordParameterName, _field.Name)})";
+                    return $"unnest({_typeProvider.FormatOperationParameterName(_prototype.NewRecordParameterName, Name)})";
                 }  
             }
 
@@ -134,7 +155,7 @@ public class LinkingFieldAdapter : IParamterPrototype
                 }
                 else
                 {
-                    return $"unnest({_typeProvider.FormatOperationParameterName(_prototype.FunctionName, _field.Name)})";
+                    return $"unnest({_typeProvider.FormatOperationParameterName(_prototype.FunctionName, Name)})";
                 }
             }
 

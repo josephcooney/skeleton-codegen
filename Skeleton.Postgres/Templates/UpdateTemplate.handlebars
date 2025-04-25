@@ -39,7 +39,11 @@ $$
                 -- insert links to {{OtherSideOfLink.Name}}
                 insert into {{{escape_sql LinkType.Name}}} (
                 {{#each InsertFields}}
+                    {{#if IsLinkingField}}
+                    {{{escape_sql Field.Name}}}{{#unless @last}},{{/unless}}
+                    {{else}}
                     {{{escape_sql Name}}}{{#unless @last}},{{/unless}}
+                    {{/if}}
                 {{/each}}
                 )
                 select
