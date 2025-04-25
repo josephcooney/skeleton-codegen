@@ -65,7 +65,8 @@ namespace Skeleton.Templating.Classes.Adapters
 
         public virtual List<ParameterAdapter> UserEditableParameters
         {
-            get { return UserProvidedParameters.Where(p => p.UserEditable).OrderBy(p => p.RelatedTypeField?.Rank).ToList(); }
+            // Int.MaxValue moves related type fields to the bottom of the list
+            get { return UserProvidedParameters.Where(p => p.UserEditable).OrderBy(p => p.RelatedTypeField != null ? p.RelatedTypeField?.Rank : Int32.MaxValue).ToList(); }
         }
 
         public bool ChangesOrCreatesData => _op.ChangesOrCreatesData;
