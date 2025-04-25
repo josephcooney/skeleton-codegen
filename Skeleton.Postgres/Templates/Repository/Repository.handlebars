@@ -3,6 +3,7 @@ using Npgsql;
 using System;
 using System.Data;
 using System.Data.Common;
+using Serilog;
 using NpgsqlTypes;
 using {{DomainNamespace}}; 
 {{#if HasCustomResultType}}
@@ -70,6 +71,7 @@ namespace {{Namespace}}.Data.Repository
             }
             catch (NpgsqlException ex)
             {
+                Log.Error(ex, "Upexpected error calling {OperationName}", "{{{escape_quotes SqlName}}}");
                 var generalException = TranslateException(ex);
                 throw generalException;
             }
@@ -119,6 +121,7 @@ namespace {{Namespace}}.Data.Repository
             }
             catch (NpgsqlException ex)
             {
+                Log.Error(ex, "Upexpected error calling {OperationName}", "{{{escape_quotes SqlName}}}");
                 var generalException = TranslateException(ex);
                 throw generalException;
             }
