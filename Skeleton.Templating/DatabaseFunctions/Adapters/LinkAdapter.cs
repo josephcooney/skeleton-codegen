@@ -33,7 +33,7 @@ public class LinkAdapter
         }
     }
     
-    public List<IPseudoField> InsertFields
+    public List<IParamterPrototype> InsertFields
     {
         get
         {
@@ -52,13 +52,13 @@ public class LinkAdapter
                 {
                     // we need to handle "created by" specially here...it is the created by for the LINK
                     // but we need to use the "modified by" user who is calling the update
-                    var field = CreatedByField;
-                    // field.Value = TODO // todo - need a way to quickly override this
+                    var adapedCreatedByField = new LinkingFieldModifiedByAdapter(CreatedByField, ModifiedByField, _operationPrototype);
+                    fields.Add(adapedCreatedByField);
                 }
                 else
                 {
                     fields.Add(CreatedByField);
-                }    
+                }
             }
             return fields.OrderBy(f => f.Order).ToList();
         }
@@ -67,11 +67,11 @@ public class LinkAdapter
     // doesn't really handle composite foreign key fields
     public IPseudoField FieldLinkingToCurrentType => LinkType.Fields.First(f => f.ReferencesType == CurrentType);
     
-    public List<IPseudoField> UserEditableFields
+    public List<IParamterPrototype> UserEditableFields
     {
         get
         {
-            var list = new List<IPseudoField>();
+            var list = new List<IParamterPrototype>();
             list.AddRange(LinkType.Fields.Where(a => a.IsCallerProvided).Select(a => new LinkingFieldAdapter(a, _operationPrototype, Domain.TypeProvider, a.HasReferenceType && a.ReferencesType == CurrentType && !a.ReferencesType.IsSecurityPrincipal)).OrderBy(f => f.Order));
             return list;
         }
@@ -89,6 +89,55 @@ public class LinkAdapter
             return null;
         }
     }
+
+    public IParamterPrototype ModifiedByField
+    {
+        get
+        {
+            var field = LinkType.Fields.FirstOrDefault(f => f.IsTrackingUser && Domain.NamingConvention.IsModifiedByFieldName(f.Name));
+            if (field != null)
+            {
+                return Domain.TypeProvider.CreateFieldAdapter(field, _operationPrototype);
+            }
+            return null;
+        }
+    }
+}
+
+public class LinkingFieldModifiedByAdapter : IParamterPrototype
+{
+    private readonly IParamterPrototype _field;
+    private readonly IParamterPrototype _modifiedField;
+    private readonly IOperationPrototype _prototype;
+
+    public LinkingFieldModifiedByAdapter(IParamterPrototype field, IParamterPrototype modifiedField, IOperationPrototype prototype)
+    {
+        _field = field;
+        _modifiedField = modifiedField;
+        _prototype = prototype;
+    }
+
+    public string Name => _field.Name;
+    public string ParentAlias => _field.ParentAlias;
+    public string ProviderTypeName => _field.ParentAlias;
+    public bool HasDisplayName => _field.HasDisplayName;
+    public string DisplayName => _field.DisplayName;
+    public int Order => _field.Order;
+    public bool IsUuid => _field.IsUuid;
+    public bool Add => _field.Add;
+    public bool Edit => _field.Edit;
+    public bool IsUserEditable => _field.IsUserEditable;
+    public bool IsKey => _field.IsKey;
+    public bool IsInt => _field.IsInt;
+    public bool HasSize => _field.HasSize;
+    public int? Size => _field.Size;
+    public Type ClrType => _field.ClrType;
+    public bool IsGenerated => _field.IsGenerated;
+    public bool IsRequired => _field.IsRequired;
+
+    public string Value => _modifiedField.Value;
+    
+    public IOperationPrototype Parent => _prototype;
 }
 
 // this is pretty postgres-specific - remains to be seen how we'd do this for SQL server
