@@ -7,9 +7,9 @@ import {useQuery} from "@tanstack/react-query";
 import {defaultCacheDuration, queryCall} from "../../api";
 
 interface {{cs_name Name}}SelectProps {
-    value : {{get_ts_type IdentityField.ClrType}} | null;
+    value : {{get_ts_type IdentityField.ClrType}} | {{get_ts_type IdentityField.ClrType}}[] | null;
     readonly: boolean;
-    onChange(value: {{get_ts_type IdentityField.ClrType}} | null, item: {{cs_name SelectAllType.Name}} | null) : void;
+    onChange(value: {{get_ts_type IdentityField.ClrType}} | {{get_ts_type IdentityField.ClrType}}[] | null, item: {{cs_name SelectAllType.Name}} | null) : void;
     field?: any;
     error?: boolean;
     api?: {{ClientApiInterfaceName}} | null;
@@ -19,7 +19,7 @@ interface {{cs_name Name}}SelectProps {
 
 export const {{cs_name Name}}Select = (props: {{cs_name Name}}SelectProps) => {
     const api : {{ClientApiInterfaceName}} = props.api ?? new {{ClientApiTypeName}}();
-    const [selectedValue, setSelectedValue] = useState<{{get_ts_type IdentityField.ClrType}} | null>(props.value);
+    const [selectedValue, setSelectedValue] = useState<{{get_ts_type IdentityField.ClrType}} | {{get_ts_type IdentityField.ClrType}}[] | null>(props.value);
     const selectQuery = useQuery<{{cs_name SelectAllType.Name}}[]>({queryKey: {{cs_name Name}}ApiClientQueryKeys.selectAllForDisplay(),
         staleTime: defaultCacheDuration,
         queryFn: async () => await api.selectAllForDisplay(),
@@ -53,7 +53,13 @@ export const {{cs_name Name}}Select = (props: {{cs_name Name}}SelectProps) => {
 		{{else}}
 		const options = data.map(d => ({ value: d.id, label: {{#each LinkingFields}}d.{{cml_case Name}}{{#unless @last}} + " - " + {{/unless}}{{/each}}, data: d }));
 		{{/if}}
-        const selected = props.multiple ? options.filter(o => selectedValue?.indexOf(o.value) > -1) ?? [] : options.find(o => o.value === selectedValue) ?? null;
+        const selected = props.multiple ? options.filter(o => {
+            if (Array.isArray(selectedValue)) {
+                const selected = selectedValue?.indexOf(o.value);
+                return selected != undefined && selected > -1;
+            }
+            return false;
+        }) ?? [] : options.find(o => o.value === selectedValue) ?? null;
 		
 		return (
             <Autocomplete options={options} value={selected} onChange={handleChange} multiple={props.multiple ?? false} renderInput={(params) => <TextField {...params} label={props.label} onBlur={onBlur} error={props.error} />} disabled={props.readonly} />
@@ -61,7 +67,7 @@ export const {{cs_name Name}}Select = (props: {{cs_name Name}}SelectProps) => {
     }
 
     const render = () => {
-		var contents = null;
+		let contents = null;
         if (selectQuery.error) {
             contents = <span>Error</span>
         } else {
