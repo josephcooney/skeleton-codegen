@@ -322,11 +322,7 @@ namespace Skeleton.Postgres
                         var attributes = GetField<string>(reader, "comment");
 
                         var resultType = domain.ResultTypes.SingleOrDefault(rt => rt.Namespace == ns && rt.Name == typeName);
-                        if (resultType == null)
-                        {
-                            Log.Warning("Custom type {TypeName} was found in the database but was not found in the domain", typeName);
-                        }
-                        else
+                        if (resultType != null)
                         {
                             var field = resultType.Fields.SingleOrDefault(f => f.Name == fieldName);
                             if (field == null)

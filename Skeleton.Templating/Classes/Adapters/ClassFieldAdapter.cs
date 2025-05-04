@@ -18,9 +18,6 @@ namespace Skeleton.Templating.Classes
             IsKey = field.IsKey;
             ProviderTypeName = field.ProviderTypeName;
         }
-        
-        public bool IsReferenceField => ReferencesType != null;
-
     }
 
     public class DisplayFieldAdapter : ClassFieldAdapter

@@ -435,7 +435,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                             </FormHelperText>
                             {{else}}
                                 {{#if IsLinkedItemIds}}
-                            <Field id="{{NameWithPathCamelCase}}" name="{{NameWithPathCamelCase}}" component={ {{cs_name LinkedItemType.Name}}Select } multiple={true} value={ {{../CurrentOperation.StatePath}}?.{{NameWithPathSafeCamelCase}} } label="{{LabelText}}" error={ hasError('{{NameWithPathCamelCase}}', formik)}  />
+                            <Field id="{{NameWithPathCamelCase}}" name="{{NameWithPathCamelCase}}" component={ {{cs_name LinkedItemType.Name}}Select } multiple={true} value={ {{../CurrentOperation.StatePath}}?.{{NameWithPathSafeCamelCase}} } filter={ {{#each ../CurrentOperation.EditableLinkingFields}} get{{cml_case Name}}() != null ? '{{Name}}' : {{#if @last}} undefined{{/if}}{{/each}} } filterId={ {{#each ../CurrentOperation.EditableLinkingFields}} get{{cml_case Name}}() ?? {{#if @last}} undefined{{/if}}{{/each}} } label="{{LabelText}}" error={ hasError('{{NameWithPathCamelCase}}', formik)}  />
                             <FormHelperText error={true}>
                                 <ErrorMessage name="{{NameWithPathCamelCase}}" />
                             </FormHelperText>    
