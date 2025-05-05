@@ -160,8 +160,15 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
             return qry.{{cml_case Name}};
         {{/if}}
         }
-    
+        {{#if ../IsUpdate}}
+        {{#if  ReferencesType.IsContextType}}
+        return state.data.{{cml_case Name}};
+        {{else}}
         return null;
+        {{/if}}
+        {{else}}
+        return null;
+        {{/if}}
     }
 {{/each}}
 
