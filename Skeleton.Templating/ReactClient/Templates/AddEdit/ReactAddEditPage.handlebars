@@ -46,12 +46,13 @@ import { {{cs_name SelectAllType.Name}} } from './{{cs_name SelectAllType.Name}}
 // linking with other types    
 import { linkedItem } from '../../linked-items';
 {{#each LinkedDetails}}
-import { {{LinkingType.ClientApiInterfaceName}}, {{LinkingType.ClientApiTypeName}} } from '../{{kb_case LinkingType.Name}}/{{cml_case LinkingType.Name}}ApiClient';
+import { {{LinkingType.ClientApiInterfaceName}}, {{LinkingType.ClientApiTypeName}}, {{LinkingType.ClientApiTypeName}}QueryKeys } from '../{{kb_case LinkingType.Name}}/{{cml_case LinkingType.Name}}ApiClient';
 import { {{cs_name LinkingType.Name}}New } from '../{{kb_case LinkingType.Name}}/{{cs_name LinkingType.Name}}New';
 {{/each}}
 {{/if}}
 {{#each ParameterReferenceTypes}}
 import { {{cs_name Name}}Select } from '../{{kb_case Name}}/{{cml_case Name}}Select';
+import { {{cs_name Name}}ApiClientQueryKeys } from '../{{kb_case Name}}/{{cml_case Name}}ApiClient';
 {{/each}}
 
 export interface {{StateTypeName}} {
@@ -287,6 +288,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                 const {{cml_case LinkingType.Name}}Client = props.{{cml_case LinkingType.Name}}Client ?? new {{LinkingType.ClientApiTypeName}}();
                 const {{cml_case LinkingType.Name}}ToAdd: {{cs_name LinkingType.Name}}New = { {{cml_case LinkingTypeIdField.Name}}: linked[1] as {{get_ts_type LinkingTypeIdField.ClrType}}, {{cml_case CurrentTypeIdField.Name}}: id as {{get_ts_type CurrentTypeIdField.ClrType}} };
                 {{cml_case LinkingType.Name}}Client.insert([{{cml_case LinkingType.Name}}ToAdd]);
+                {{cs_name LinkingType.Name}}ApiClientQueryKeys.invalidateAll(queryClient);
             }
             {{/each}}
         }		
@@ -295,6 +297,9 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
 
     const invalidateCaches = () => {
         {{ClientApiTypeName}}QueryKeys.invalidateAll(queryClient);
+{{#each ParameterReferenceTypes}}
+        {{cs_name Name}}ApiClientQueryKeys.invalidateAll(queryClient);
+{{/each}}
     }
 
 	{{#if IsAttachment}}
