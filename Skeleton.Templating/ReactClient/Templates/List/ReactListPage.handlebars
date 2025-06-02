@@ -8,7 +8,7 @@ import {useTheme} from "@mui/material/styles";
 
 // other libraries
 import { useNavigate } from 'react-router-dom';
-
+import { usePlan } from "../../plan/PlanContext"; // FIXME
 import { {{cs_name Name}} } from '../{{cs_name Name}}';
 import { {{cs_name Name}}Row } from './{{cml_case Name}}Row';
 import { {{cs_name Name}}Header } from './{{cml_case Name}}Header';
@@ -55,6 +55,10 @@ export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps>
     const navigate = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
     const theme = useTheme();
+
+    // clear plan
+    const plan = usePlan();
+    plan.setPlanId(undefined);
 
     {{#if HasMultipleKeys}}
     function makeKey(item: {{cs_name Name}}) : string {
