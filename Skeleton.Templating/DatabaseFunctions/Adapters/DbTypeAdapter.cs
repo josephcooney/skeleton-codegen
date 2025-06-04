@@ -293,9 +293,22 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         {
             get
             {
-                var fragments = new List<string>() { _applicationType.Name };
-                fragments.AddRange(_operation);
-                return _domain.NamingConvention.CreateNameFromFragments(fragments);
+                try
+                {
+                    if (_operation == null)
+                    {
+                        return null;
+                    }
+                    
+                    var fragments = new List<string>() { _applicationType.Name };
+                    fragments.AddRange(_operation);
+                    return _domain.NamingConvention.CreateNameFromFragments(fragments);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Error getting name for function {ApplicationTypeName} and Operation {OperationName}", _applicationType?.Name, _operation);
+                    throw;
+                }
             }
         }
         

@@ -533,6 +533,11 @@ namespace Skeleton.Postgres
         public bool GenerateCustomTypes => true;
         public string FormatOperationParameterName(string operationName, string name)
         {
+            if (string.IsNullOrEmpty(operationName))
+            {
+                return EscapeSqlName(name);
+            }
+
             return EscapeSqlName(operationName) + "." + EscapeSqlName(name);
         }
 
