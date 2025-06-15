@@ -364,7 +364,8 @@ namespace Skeleton.Templating.Classes.Adapters
             get
             {
                 var referenceTypes = UserProvidedParameters
-                    .Where(p => p.RelatedTypeField?.ReferencesType != null)
+                    .Where(p => p.RelatedTypeField?.ReferencesType != null 
+                                && p.RelatedTypeField.ReferencesType != _type) // ignore things that relate to themselves
                     .Select(p => p.RelatedTypeField.ReferencesType).ToList();
 
                 foreach (var parameter in Parameters)
@@ -373,7 +374,7 @@ namespace Skeleton.Templating.Classes.Adapters
                     {
                         foreach (var field in parameter.CustomType.Fields)
                         {
-                            if (field.ReferencesType != null)
+                            if (field.ReferencesType != null && field.ReferencesType != _type) // ignore references back to self again here
                             {
                                 referenceTypes.Add(field.ReferencesType);
                             }
@@ -546,8 +547,13 @@ namespace Skeleton.Templating.Classes.Adapters
                 try
                 {
                     // this doesn't support multiple custom result types as parameters
-                    var customParam = Parameters.Single(p => p.IsCustomTypeOrCustomArray);
-                    return new ClientCustomTypeModel(customParam.CustomType);
+                    var customParam = Parameters.SingleOrDefault(p => p.IsCustomTypeOrCustomArray);
+                    if (customParam != null)
+                    {
+                        return new ClientCustomTypeModel(customParam.CustomType);
+                    }
+
+                    return null;
                 }
                 catch (Exception ex)
                 {

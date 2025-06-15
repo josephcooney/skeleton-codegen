@@ -33,6 +33,8 @@ namespace Skeleton.Templating.ReactClient.Adapters
             }
         }
 
+        public bool HasEditableLinkingFields => EditableLinkingFields.Any();
+
         public string StatePath => UsesModel ? "state.data" : "state";
 
         public List<UserInputFieldModel> UserInputFields {
