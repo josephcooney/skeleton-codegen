@@ -100,7 +100,7 @@ export class {{ClientApiTypeName}} implements {{ClientApiInterfaceName}} {
 	{{else}}
 	public async {{cml_case BareName}}({{#each UserProvidedParameters}}{{cml_case Name}} : {{ResolvedTypescriptType}} | null {{#unless @last}}, {{/unless}}{{/each}}) : Promise<{{TypeScriptReturn}}>  { 
     {{#if ProvideDataByUri}}
-        const uri = `api/{{kb_case ../Name}}/{{cs_name BareName}}?{{#each UserProvidedParameters}}{{cml_case Name}}=${({{cml_case Name}})}{{#unless @last}}&{{/unless}}{{/each}}`;
+        const uri = `api/{{kb_case ../Name}}/{{cs_name BareName}}?{{#each UserProvidedParameters}}{{cml_case Name}}={{#if IsDateTime}}${({{cml_case Name}}?.toISOString())}{{else}}${({{cml_case Name}})}{{/if}}{{#unless @last}}&{{/unless}}{{/each}}`;
     {{else}}
         const uri = 'api/{{kb_case ../Name}}/{{cs_name BareName}}';
     {{/if}}
