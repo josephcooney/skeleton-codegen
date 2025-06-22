@@ -4,9 +4,9 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using NpgsqlTypes;
 
-namespace {{Namespace}}.Data.Model 
+namespace {{Namespace}}.Data.Model
 {
-	public class {{cs_name Name}} 
+	public class {{cs_name Name}}
 	{
     {{#if GenerateConstructor}}
         public {{cs_name Name}}({{#each NonExcludedFields}}{{format_clr_type ClrType}} {{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}})
@@ -20,7 +20,7 @@ namespace {{Namespace}}.Data.Model
 
         [DisplayName("{{hmn}}")]{{#if HasSize}}[MaxLength({{Size}})]{{/if}}{{#if IsRequired}}[Required]{{/if}}
         [PgName("{{Name}}")]
-        public {{format_clr_type ClrType}} {{cs_name Name}} {get; set;}
+        public {{format_clr_type ClrType}} {{cs_name Name}} { get; set; }
 	{{/each}}
 	}
 }
