@@ -25,6 +25,9 @@ import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 
 // sub-components for {{cs_name Name}} 
 import { {{cs_name Name}} } from './{{cs_name Name}}';
+{{#if ReferencesSelf}}
+import { {{cs_name Name}}Select } from './{{cml_case Name}}Select';
+{{/if}}
 import { {{ClientApiInterfaceName}}, {{ClientApiTypeName}}, {{ClientApiTypeName}}QueryKeys } from './{{cml_case Name}}ApiClient';
 import { {{cs_name Name}}Validate } from './{{cml_case Name}}Validate';
 import {{cs_name Name}}{{OperationNameFriendly}}Rendering from './{{cml_case Name}}{{OperationNameFriendly}}Rendering';

@@ -59,5 +59,8 @@ namespace Skeleton.Templating.ReactClient.Adapters
                 return baseList;
             }
         }
+
+        public bool ReferencesSelf =>
+            _type.Fields.Any(f => f.RelatedTypeField != null && f.RelatedTypeField.ReferencesType == _type);
     }
 }
