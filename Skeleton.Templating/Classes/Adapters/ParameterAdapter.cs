@@ -150,7 +150,7 @@ namespace Skeleton.Templating.Classes
             {
                 if (IsCustomTypeOrCustomArray)
                 {
-                    return new ClientCustomTypeModel(CustomType);
+                    return new ClientCustomTypeModel(CustomType, IsCustomArrayType);
                 }
 
                 return null;

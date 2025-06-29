@@ -541,7 +541,7 @@ namespace Skeleton.Templating.Classes.Adapters
             {
                 if (UsesModel)
                 {
-                    return new ClientCustomTypeModel(this, _domain);
+                    return new ClientCustomTypeModel(this, _domain, false); // not sure if this is always NOT a custom array type?
                 }
 
                 try
@@ -550,7 +550,7 @@ namespace Skeleton.Templating.Classes.Adapters
                     var customParam = Parameters.SingleOrDefault(p => p.IsCustomTypeOrCustomArray);
                     if (customParam != null)
                     {
-                        return new ClientCustomTypeModel(customParam.CustomType);
+                        return new ClientCustomTypeModel(customParam.CustomType, customParam.IsCustomArrayType);
                     }
 
                     return null;

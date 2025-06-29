@@ -9,7 +9,7 @@ namespace Skeleton.Templating.Classes.Adapters
         private Domain _domain;
         private string _namespace;
         
-        public ClientCustomTypeModel(OperationAdapter operation, Domain domain)
+        public ClientCustomTypeModel(OperationAdapter operation, Domain domain, bool isCustomArray)
         {
             Name = operation.Name + NamingConventions.ModelClassNameSuffix;
             DartFileName = Util.SnakeCase(operation.Name + "_" + NamingConventions.ModelClassNameSuffix);
@@ -17,15 +17,17 @@ namespace Skeleton.Templating.Classes.Adapters
             Fields.AddRange(operation.UserProvidedParameters.Where(p => p.RelatedTypeField == null)); // this is to handle parameters that don't match anything on the underlying type
             _domain = domain;
             _namespace = operation.Namespace;
+            IsCustomArray = isCustomArray;
         }
 
-        public ClientCustomTypeModel(ResultType resultType)
+        public ClientCustomTypeModel(ResultType resultType, bool isCustomArray)
         {
             Name = resultType.Name;
             DartFileName = Util.SnakeCase(resultType.Name);
             Fields = resultType.Fields.Where(f => f.IsUserEditable).Cast<TypedValue>().ToList();
             _domain = resultType.Domain;
             _namespace = resultType.Namespace;
+            IsCustomArray = isCustomArray;
         }
         
         public string Name { get;  }
@@ -46,5 +48,7 @@ namespace Skeleton.Templating.Classes.Adapters
                 return _namespace;
             }
         }
+        
+        public bool IsCustomArray { get; private set; }
     }
 }
