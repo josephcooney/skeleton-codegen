@@ -290,7 +290,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
             if (linked[0] == "{{Name}}") {
                 const {{cml_case LinkingType.Name}}Client = props.{{cml_case LinkingType.Name}}Client ?? new {{LinkingType.ClientApiTypeName}}();
                 const {{cml_case LinkingType.Name}}ToAdd: {{cs_name LinkingType.Name}}New = { {{cml_case LinkingTypeIdField.Name}}: linked[1] as {{get_ts_type LinkingTypeIdField.ClrType}}, {{cml_case CurrentTypeIdField.Name}}: id as {{get_ts_type CurrentTypeIdField.ClrType}} };
-                {{cml_case LinkingType.Name}}Client.insert({{cml_case LinkingType.Name}}ToAdd);
+                {{cml_case LinkingType.Name}}Client.insert([{{cml_case LinkingType.Name}}ToAdd]);
                 {{cs_name LinkingType.Name}}ApiClientQueryKeys.invalidateAll(queryClient);
             }
             {{/each}}
