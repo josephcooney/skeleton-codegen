@@ -20,7 +20,7 @@ import { {{cs_name Name}} } from './{{cs_name Name}}'
 
 export interface {{ClientApiInterfaceName}} {
 {{#each ApiOperations}}
-    {{#if UsesModel}}
+    {{#if HasCustomType}}
         {{cml_case BareName}}(model : {{#if ../IsAttachment}}FormData{{else}}{{cs_name CustomType.Name}} | null{{/if}}) : Promise<{{TypeScriptReturn}}>;
     {{else}}
         {{cml_case BareName}}({{#each UserProvidedParameters}}{{cml_case Name}} : {{ResolvedTypescriptType}} | null {{#unless @last}}, {{/unless}}{{/each}}) : Promise<{{TypeScriptReturn}}>;
@@ -31,7 +31,7 @@ export interface {{ClientApiInterfaceName}} {
 export const {{ClientApiTypeName}}QueryKeys = {
 {{#each ApiOperations}}
     {{#unless ChangesData}}
-        {{#if UsesModel}}
+        {{#if HasCustomType}}
     {{cml_case BareName}}: (model : {{#if ../IsAttachment}}FormData{{else}}{{cs_name CustomType.Name}} | null{{/if}}) => ["{{cml_case Name}}", model] as const,
         {{else}}
     {{cml_case BareName}}: ({{#each UserProvidedParameters}}{{cml_case Name}} : {{ResolvedTypescriptType}} | null {{#unless @last}}, {{/unless}}{{/each}}) => ["{{cml_case Name}}"{{#each UserProvidedParameters}}, {{cml_case Name}}{{/each}}] as const,
@@ -50,14 +50,14 @@ export const {{ClientApiTypeName}}QueryKeys = {
 export class {{ClientApiTypeName}} implements {{ClientApiInterfaceName}} {
 
 	{{#each ApiOperations}}
-	{{#if UsesModel}}
+	{{#if HasCustomType}}
 	public async {{cml_case BareName}}(model : {{#if ../IsAttachment}}FormData{{else}}{{cs_name CustomType.Name}} | null{{/if}}) : Promise<{{TypeScriptReturn}}>  {
 		const uri = 'api/{{kb_case ../Name}}/{{cs_name BareName}}';
 		console.log("calling {{Name}} on " + uri);
 		{{#if ../IsAttachment}}
 		const result = await postForm<{{TypeScriptReturn}}>(uri, model);
 		{{else}}
-		var result = await {{ts_fix_http HttpMethod}}<{{TypeScriptReturn}}>(uri, model);
+		const result = await {{ts_fix_http HttpMethod}}<{{TypeScriptReturn}}>(uri, model);
 		{{/if}}
 		{{#if IsStructuredResult}}
 		{{#if ResultHasAnyDateFields}}
