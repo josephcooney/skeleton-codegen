@@ -18,7 +18,8 @@ namespace {{Namespace}}.Data.Model
     {{/if}}
 	{{#each Fields}}
 
-        [DisplayName("{{hmn}}")]{{#if HasSize}}[MaxLength({{Size}})]{{/if}}{{#if IsRequired}}[Required]{{/if}}
+        {{#if IsRequired}}[Required]{{/if}}
+        [DisplayName("{{hmn}}")]{{#if HasSize}}[MaxLength({{Size}})]{{/if}}
         [PgName("{{Name}}")]
         public {{format_clr_type ClrType}} {{cs_name Name}} { get; set; }
 	{{/each}}
