@@ -47,7 +47,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
                         }
                     }
 
-                    foreach (var linkedType in _applicationType.LinkedTypes.Where(t => t.IsLink))
+                    foreach (var linkedType in _applicationType.LinkedTypes.Where(t => t.IsLink).OrderBy(t => t.Name))
                     {
                         try
                         {

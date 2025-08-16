@@ -57,7 +57,7 @@ namespace Skeleton.Postgres
                 ["macaddr"] = typeof(PhysicalAddress),
                 ["tsquery"] = typeof(NpgsqlTsQuery),
                 ["tsvector"] = typeof(NpgsqlTsVector),
-                [date] = typeof(DateTime),
+                [date] = typeof(DateOnly),
                 ["interval"] = typeof(TimeSpan),
                 ["timestamp"] = typeof(DateTime),
                 ["timestamp without time zone"] = typeof(DateTime),

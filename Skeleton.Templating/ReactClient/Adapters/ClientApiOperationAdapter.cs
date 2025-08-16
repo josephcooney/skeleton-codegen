@@ -194,6 +194,8 @@ namespace Skeleton.Templating.ReactClient.Adapters
 
         public bool IsDate => Field?.IsDate ?? Parameter.IsDate;
 
+        public bool IsDateOrDateTime => Field?.IsDateOrDateTime ?? Parameter.IsDateOrDateTime;
+
         public bool IsDateTime => Field?.IsDateTime ?? Parameter.IsDateTime;
 
         public bool IsLargeTextContent => Field?.IsLargeTextContent ?? Parameter.IsLargeTextContent;

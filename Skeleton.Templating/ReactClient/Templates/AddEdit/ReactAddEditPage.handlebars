@@ -455,7 +455,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                                 <ErrorMessage name="{{NameWithPathCamelCase}}" />
                             </FormHelperText>    
                                 {{else}}
-								{{#if IsDateTime}}
+								{{#if IsDateOrDateTime}}
                                 {{#if IsDate}}<DatePicker {{else}}<DateTimePicker {{/if}}
                                 slotProps={ {
                                     textField: {

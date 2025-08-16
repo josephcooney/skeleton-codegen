@@ -21,7 +21,7 @@ public class PostgresTypeProviderTests : DbTestBase
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
             var lookupType = model.Types.SingleOrDefault(t => t.Name == "simple_lookup_table");
             lookupType.ShouldNotBeNull();
-            lookupType.Fields.Count.ShouldBe(5);
+            lookupType.Fields.Count.ShouldBe(6);
             
             // check id field
             var idField = lookupType.GetFieldByName("id");
@@ -64,6 +64,12 @@ public class PostgresTypeProviderTests : DbTestBase
             modifiedField.IsRequired.ShouldBeFalse();
             modifiedField.IsGenerated.ShouldBeFalse();
             modifiedField.ClrType.ShouldBe(typeof(DateTime?));
+            
+            // check target date field
+            var targetDate = lookupType.GetFieldByName("target_date");
+            targetDate.ShouldNotBeNull();
+            targetDate.IsRequired.ShouldBeFalse();
+            targetDate.ClrType.ShouldBe(typeof(DateOnly?));
 
         }
         finally
@@ -224,7 +230,8 @@ public class PostgresTypeProviderTests : DbTestBase
             name text not null,
             value numeric default 0,
             created timestamp not null,
-            modified timestamp
+            modified timestamp,
+            target_date date
         );
     ";
 
@@ -234,7 +241,8 @@ public class PostgresTypeProviderTests : DbTestBase
             name text not null,
             value numeric default 0,
             created timestamp not null,
-            modified timestamp
+            modified timestamp,
+            target_date date
         );
     ";
     

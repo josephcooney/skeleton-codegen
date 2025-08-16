@@ -135,7 +135,7 @@ namespace Skeleton.Postgres
                                     var order = int.Parse(fieldRow["ColumnOrdinal"].ToString());
                                     var providerTypeName = fieldRow["DataTypeName"].ToString();
                                     var size = int.Parse(fieldRow["ColumnSize"].ToString());
-                                    var clrType = (System.Type)fieldRow["DataType"];
+                                    var clrType = new PostgresType(providerTypeName).ClrType;
 
                                     // AllowDbNull doesn't seem to be accurate for postgres
                                     // IsIdentity also doesn't seem accurate, however it does accord with what information_schema.columns contains for that table 
