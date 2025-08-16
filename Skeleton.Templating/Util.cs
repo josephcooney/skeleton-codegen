@@ -701,7 +701,8 @@ namespace Skeleton.Templating
                 [typeof(void)] = "void",
                 [typeof(DateTime)] = "Date",
                 [typeof(byte[])] = "File",
-                [typeof(Guid)] = "string"
+                [typeof(Guid)] = "string",
+                [typeof(DateOnly)] = "Date",
             };
 
             _inputTypes = new Dictionary<Type, string>()
