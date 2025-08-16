@@ -34,8 +34,8 @@ export const {{cs_name Name}}Row : FunctionComponent<{{cs_name Name}}RowProps> =
                                 {{#if IsLinkingFieldWithDetails}}
                             <TableCell><Link to={ { pathname:'/{{kb_case LinkingField.ReferencesType.Name}}/detail/' + s.{{cml_case LinkingField.Name}} } }> { s.{{cml_case Name}} }</Link></TableCell>
                                 {{else}}
-							        {{#if IsDateTime}}
-							<TableCell><DateTimeDisplay date={s.{{cml_case Name}} } /></TableCell>
+							        {{#if IsDateOrDateTime}}
+							<TableCell><DateTimeDisplay date={s.{{cml_case Name}} } showTime={ {{#if IsDate}}false{{else}}true{{/if}} } /></TableCell>
 							        {{else}}
 							            {{#if IsBoolean}}
 							<TableCell>{ s.{{cml_case Name}} ? 'Yes' : 'No' }</TableCell>

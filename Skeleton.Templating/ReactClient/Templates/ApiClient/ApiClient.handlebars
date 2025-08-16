@@ -69,7 +69,7 @@ export class {{ClientApiTypeName}} implements {{ClientApiInterfaceName}} {
         {{/if}}
                 {{#each SimpleReturnType.Fields}}
                 {{#unless IsExcludedFromResults}}
-				{{#if IsDateTime}}
+				{{#if IsDateOrDateTime}}
 				{{#if IsRequired}}
 				d.{{cml_case Name}} = fixJsonDate(d.{{cml_case Name}});
 				{{else}}
@@ -120,7 +120,7 @@ export class {{ClientApiTypeName}} implements {{ClientApiInterfaceName}} {
         {{/if}}
                 {{#each SimpleReturnType.Fields}}
                 {{#unless IsExcludedFromResults}}
-				{{#if IsDateTime}}
+				{{#if IsDateOrDateTime}}
 				{{#if IsRequired}}
 				d.{{cml_case Name}} = fixJsonDate(d.{{cml_case Name}});
 				{{else}}
