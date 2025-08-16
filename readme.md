@@ -213,3 +213,7 @@ If there are features you think are essential which we don't support please send
 - modifying the generated code. As mentioned above you can edit the generated code and opt out of re-generating it by removing the comment at the top of the file.
 - modifying the templates
 - modifying base classes or libraries that are used by generated code
+
+## Troubleshooting
+- Don't use generated types like foo_display from "custom"-written functions, the functions will be cascade-deleted when the generated types are dropped.
+- 

@@ -232,6 +232,7 @@ namespace Skeleton.Postgres
                                 var resultType = reader["result_type"].ToString();
 
                                 var op = new Operation {Name = name, Namespace = ns};
+                                Log.Debug("Reading operation {OperationName}", name);
                                 var description = GetField<string>(reader, "description");
 
                                 PopulateOperationAttributes(op, description);

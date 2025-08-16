@@ -21,7 +21,7 @@ public class PostgresTypeProviderTests : DbTestBase
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
             var lookupType = model.Types.SingleOrDefault(t => t.Name == "simple_lookup_table");
             lookupType.ShouldNotBeNull();
-            lookupType.Fields.Count.ShouldBe(4);
+            lookupType.Fields.Count.ShouldBe(5);
             
             // check id field
             var idField = lookupType.GetFieldByName("id");
@@ -39,6 +39,12 @@ public class PostgresTypeProviderTests : DbTestBase
             nameField.IsRequired.ShouldBeTrue();
             nameField.IsGenerated.ShouldBeFalse();
             nameField.ClrType.ShouldBe(typeof(string));
+            
+            // check value field
+            var valuefield = lookupType.GetFieldByName("value");
+            valuefield.ShouldNotBeNull();
+            valuefield.IsKey.ShouldBeFalse();
+            valuefield.IsRequired.ShouldBeFalse();
             
             // check created field
             var createdField = lookupType.GetFieldByName("created");
@@ -215,6 +221,7 @@ public class PostgresTypeProviderTests : DbTestBase
         create table simple_lookup_table (
             id serial primary key not null,
             name text not null,
+            value numeric,
             created timestamp not null,
             modified timestamp
         );
@@ -224,6 +231,7 @@ public class PostgresTypeProviderTests : DbTestBase
         create table simple_lookup_table (
             id int generated always as identity primary key not null,
             name text not null,
+            value numeric,
             created timestamp not null,
             modified timestamp
         );
