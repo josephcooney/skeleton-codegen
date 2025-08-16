@@ -144,9 +144,10 @@ namespace Skeleton.Postgres
                                 }
                             }
                         }
-                    
-                        GetAdditionalFieldInfoFromInformationSchema(catalog, ns, name, cn, t);
+
+                        // we have to get PK information before checking other things because whether something is a key or not determines whether we consider it "generated"
                         GetPrimaryKeyInfoFromInformationSchema(catalog, ns, name, cn, t);
+                        GetAdditionalFieldInfoFromInformationSchema(catalog, ns, name, cn, t);
                         GetUniqueConstraintsFromInformationSchema(catalog, ns, name, cn, t);
 
                         types.Add(t);
@@ -1701,9 +1702,9 @@ namespace Skeleton.Postgres
                         else
                         {
                             field.IsRequired = !isNullable;
-                            
+                            field.HasDefault = !string.IsNullOrEmpty(colDefault);
                             // nextval is the syntax for use of sequences
-                            if (isGenerated || !string.IsNullOrEmpty(colDefault) || identityGeneration == always)
+                            if ((field.IsKey || field.IsSearch) && (isGenerated || !string.IsNullOrEmpty(colDefault) || identityGeneration == always))
                             {
                                 field.IsGenerated = true;
                             }

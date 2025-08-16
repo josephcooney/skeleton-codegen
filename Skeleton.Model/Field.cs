@@ -45,6 +45,8 @@ namespace Skeleton.Model
 
         public bool IsKey { get; set; }
         
+        public bool HasDefault { get; set; }
+        
         public bool HasDisplayName => false;
 
         private bool _isGenerated;

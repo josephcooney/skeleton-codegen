@@ -45,6 +45,7 @@ public class PostgresTypeProviderTests : DbTestBase
             valuefield.ShouldNotBeNull();
             valuefield.IsKey.ShouldBeFalse();
             valuefield.IsRequired.ShouldBeFalse();
+            valuefield.IsGenerated.ShouldBeFalse();
             
             // check created field
             var createdField = lookupType.GetFieldByName("created");
@@ -221,7 +222,7 @@ public class PostgresTypeProviderTests : DbTestBase
         create table simple_lookup_table (
             id serial primary key not null,
             name text not null,
-            value numeric,
+            value numeric default 0,
             created timestamp not null,
             modified timestamp
         );
@@ -231,7 +232,7 @@ public class PostgresTypeProviderTests : DbTestBase
         create table simple_lookup_table (
             id int generated always as identity primary key not null,
             name text not null,
-            value numeric,
+            value numeric default 0,
             created timestamp not null,
             modified timestamp
         );
