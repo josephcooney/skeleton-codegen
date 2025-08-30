@@ -63,9 +63,9 @@ export class {{ClientApiTypeName}} implements {{ClientApiInterfaceName}} {
 		{{#if ResultHasAnyDateFields}}
 		if (result.parsedBody) {
         {{#if SingleResult}}
-            let d = result.parsedBody;
+            const d = result.parsedBody;
         {{else}}
-            for (let d of result.parsedBody) {
+            for (const d of result.parsedBody) {
         {{/if}}
                 {{#each SimpleReturnType.Fields}}
                 {{#unless IsExcludedFromResults}}
