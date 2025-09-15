@@ -113,17 +113,27 @@ public class PostgresTypeProviderTests : DbTestBase
             var provider = new PostgresTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
             provider.GetOperations(model);
-            model.Operations.Count.ShouldBe(1);
+            model.Operations.Count.ShouldBe(2);
 
-            model.ResultTypes.Count.ShouldBe(1);
-            model.ResultTypes.First().Name.ShouldBe("government_area_new");
-            model.ResultTypes.First().Namespace.ShouldBe("gov");
-            
-            var op = model.Operations.First();
+            model.ResultTypes.Count.ShouldBe(2);
+            var rt1 = model.ResultTypes.First(rt => rt.Name == "government_area_new"); 
+            rt1.Namespace.ShouldBe("gov");
+
+            var rt2 = model.ResultTypes.First(rt => rt.Name == "government_area_summary"); 
+            rt2.Namespace.ShouldBe("gov");
+
+            var op = model.Operations.First(o => o.Name == "government_area_insert");
             op.Parameters.Count.ShouldBe(3);
             var customTypeParam = op.Parameters.Single(p => p.Name == "government_area_to_add");
             customTypeParam.ProviderTypeName.ShouldBe("gov.government_area_new");
             customTypeParam.ClrType.ShouldBe(typeof(ResultType));
+
+            var op2 = model.Operations.Single(o => o.Name == "government_area_select_summaries");
+            op2.Parameters.Count.ShouldBe(0);
+            op2.Returns.ShouldNotBeNull();
+            op2.Returns.SimpleReturnType.Fields.Count.ShouldBe(2);
+            op2.Returns.SimpleReturnType.Fields[0].Name.ShouldBe("name");
+            op2.Returns.SimpleReturnType.Fields[1].Name.ShouldBe("city_town");
         }
         finally
         {
@@ -435,6 +445,22 @@ AS $$
     END
     $$
     ;
+
+create type gov.government_area_summary AS (
+    ""name"" text,
+    city_town text
+);
+
+CREATE OR REPLACE FUNCTION gov.government_area_select_summaries()
+ RETURNS setof gov.government_area_summary
+ LANGUAGE plpgsql
+AS $$
+    BEGIN
+        return query select ""name"", city_town from government_area;  
+    END
+    $$
+;    
+
 ";
     
     public const string DbSchemaWithFunction = @"

@@ -1382,6 +1382,7 @@ namespace Skeleton.Postgres
 
         private OperationReturn GetReturnTypeFromTypeName(Domain domain, Operation operation, string typeName, bool multiple)
         {
+            typeName = SantizeTypeNameFromDifferentSchema(typeName, operation.Namespace);
             var appType = domain.Types.SingleOrDefault(t => t.Name == typeName && t.Namespace == operation.Namespace);
             if (appType != null)
             {
@@ -1445,7 +1446,7 @@ namespace Skeleton.Postgres
             typeName = SantizeTypeNameFromDifferentSchema(typeName, operation.Namespace);
             
             using var cn = new NpgsqlConnection(_connectionString);
-            using var cmd = new NpgsqlCommand(TypeQuery, cn);
+            using var cmd = new NpgsqlCommand(string.Format(TypeQuery, operation.Namespace), cn);
             // TODO - this code assumes the custom type is in the same namespace as the function that returns it, which may not be a valid assumption
             cmd.Parameters.AddWithValue("schemaName", NpgsqlDbType.Text, EscapeSqlName(operation.Namespace));
             cmd.Parameters.AddWithValue("typeName", NpgsqlDbType.Text, EscapeSqlName(typeName));
@@ -2023,7 +2024,9 @@ ORDER BY
 
         // this query comes from here: https://dba.stackexchange.com/a/35510
         private const string TypeQuery =
-            @"WITH types AS (
+            @"
+            set search_path to {0};
+WITH types AS (
     SELECT n.nspname,
             pg_catalog.format_type ( t.oid, NULL ) AS obj_name,
             CASE
