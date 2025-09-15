@@ -116,13 +116,14 @@ public class PostgresTypeProviderTests : DbTestBase
             model.Operations.Count.ShouldBe(1);
 
             model.ResultTypes.Count.ShouldBe(1);
+            model.ResultTypes.First().Name.ShouldBe("government_area_new");
+            model.ResultTypes.First().Namespace.ShouldBe("gov");
             
             var op = model.Operations.First();
             op.Parameters.Count.ShouldBe(3);
             var customTypeParam = op.Parameters.Single(p => p.Name == "government_area_to_add");
             customTypeParam.ProviderTypeName.ShouldBe("gov.government_area_new");
             customTypeParam.ClrType.ShouldBe(typeof(ResultType));
-            model.ResultTypes.Count(t => t.Name == customTypeParam.ProviderTypeName).ShouldBe(1);
         }
         finally
         {

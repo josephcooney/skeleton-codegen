@@ -1442,6 +1442,8 @@ namespace Skeleton.Postgres
 
         private ResultType ReadCustomOperationType(string typeName, Domain domain, Operation operation)
         {
+            typeName = SantizeTypeNameFromDifferentSchema(typeName, operation.Namespace);
+            
             using var cn = new NpgsqlConnection(_connectionString);
             using var cmd = new NpgsqlCommand(TypeQuery, cn);
             // TODO - this code assumes the custom type is in the same namespace as the function that returns it, which may not be a valid assumption
@@ -1485,6 +1487,15 @@ namespace Skeleton.Postgres
 
                 return result;
             }
+        }
+        
+        private string SantizeTypeNameFromDifferentSchema(string name, string ns)
+        {
+            if (name.Contains(".") && name.StartsWith($"{ns}."))
+            {
+                return name.Substring(ns.Length + 1);
+            }
+            return name;
         }
         
         private static Tuple<string, int> ParseTypeAndSize(string providerTypeRaw)
