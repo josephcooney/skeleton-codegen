@@ -51,7 +51,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
                     {
                         try
                         {
-                            var linkToCurrentType = linkedType.Fields.Single(f =>
+                            var linkToCurrentType = linkedType.Fields.Where(f => !f.IsTrackingUser).Single(f =>
                                 f.HasReferenceType && f.ReferencesType == _applicationType);
                             var otherSideOfLink = linkedType.Fields.Where(f =>
                                 f.HasReferenceType && f.ReferencesType != _applicationType &&
