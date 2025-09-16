@@ -17,7 +17,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
         
         public string ModelTypeName => UsesModel ? $"{Util.CSharpNameFromName(_op.Name)}{NamingConventions.ModelClassNameSuffix}" : null;
         
-        public ClientApiAdapter ClientApi => new ClientApiAdapter(_type, _domain);
+        public ClientApiAdapter ClientApi => new ClientApiAdapter(_applicationType, _domain);
         
         public List<Field> EditableLinkingFields
         {
@@ -87,7 +87,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
 
                 if (_op.ChangesData && !_op.CreatesNew)
                 {
-                    return fields.Where(f => !(f.IsKey && f.Parameter?.RelatedTypeField?.ReferencesType == _type)).ToList();
+                    return fields.Where(f => !(f.IsKey && f.Parameter?.RelatedTypeField?.ReferencesType == _applicationType)).ToList();
                 }
 
                 return fields;
@@ -105,19 +105,19 @@ namespace Skeleton.Templating.ReactClient.Adapters
                         ? field.ClrType.GetElementType()
                         : field.ClrType.GetGenericArguments()[0];
 
-                    var linkingType = _type.LinkedTypes.Where(t => t.IsLink).Single(t =>
+                    var linkingType = _applicationType.LinkedTypes.Where(t => t.IsLink).Single(t =>
                         t.Fields.Any(f => Util.PluraliseParameterName(f.Name) == field.Name && f.ClrType == itemType));
                     // get the 'other side' of the linking type
-                    return linkingType.Fields.Single(f => f.HasReferenceType && f.ReferencesType != _type && f.ReferencesType != _domain.UserType).ReferencesType;
+                    return linkingType.Fields.Single(f => f.HasReferenceType && f.ReferencesType != _applicationType && f.ReferencesType != _domain.UserType).ReferencesType;
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, "Unexpected error getting linking type for field {Field} on type {Type}", field.Name, _type.Name);
+                    Log.Error(ex, "Unexpected error getting linking type for field {Field} on type {Type}", field.Name, _applicationType.Name);
                     return null;
                 }
             }
 
-            Log.Warning("Unable to find other side of link on field {FieldName} on type {TypeName}", field.Name, _type.Name);
+            Log.Warning("Unable to find other side of link on field {FieldName} on type {TypeName}", field.Name, _applicationType.Name);
             return null;
         }
 
@@ -131,7 +131,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
                     : field.ClrType.GetGenericArguments()[0];
                 
                 // check to see if the reference type has a linking type with one of these column ids
-                var linkingTypes = _type.LinkedTypes.Where(t => t.IsLink);
+                var linkingTypes = _applicationType.LinkedTypes.Where(t => t.IsLink);
                 var result = linkingTypes.Any(t => t.Fields.Any(f => Util.PluraliseParameterName(f.Name) == field.Name && f.ClrType == itemType));
                 return result;
             }

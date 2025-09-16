@@ -20,7 +20,7 @@ namespace Skeleton.Templating.Classes
             _securityRoles = new SecurityRoles(domain.Settings);
         }
 
-        public string Name => _type.Name;
+        public virtual string Name => _type.Name;
 
         public List<ClassFieldAdapter> Fields => _type.Fields.Select(f => new ClassFieldAdapter(f)).ToList();
         
@@ -44,9 +44,11 @@ namespace Skeleton.Templating.Classes
                     return _domain.DefaultNamespace;
                 }
 
-                return Util.CSharpNameFromName(_type.Namespace);
+                return $"{_domain.DefaultNamespace}.{Util.CSharpNameFromName(_type.Namespace)}";
             }
         }
+
+        public string DefaultNamespace => _domain.DefaultNamespace;
 
         public OperationAdapter InsertOperation
         {
@@ -87,6 +89,8 @@ namespace Skeleton.Templating.Classes
         public List<Field> KeyFields => _type.Fields.Where(a => a.IsKey).ToList();
 
         public bool HasMultipleKeys => KeyFields.Count > 1;
+
+        public bool IsInCustomNamespace => _type.Namespace != _domain.TypeProvider.DefaultNamespace;
 
         public bool CanDelete => _type is ApplicationType && ((ApplicationType)_type).DeleteType != DeleteType.None;
 

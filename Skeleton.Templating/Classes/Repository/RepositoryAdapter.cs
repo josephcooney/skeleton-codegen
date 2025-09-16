@@ -4,19 +4,17 @@ using Skeleton.Model;
 
 namespace Skeleton.Templating.Classes.Repository
 {
-    public class RepositoryAdapter
+    public class RepositoryAdapter : ClassAdapter
     {
-        private readonly Domain _domain;
-
-        public RepositoryAdapter(Domain domain, ApplicationType type)
+        
+        public RepositoryAdapter(Domain domain, ApplicationType type) : base(type, domain)
         {
-            _domain = domain;
             Type = type;
         }
 
         public ApplicationType Type { get; }
 
-        public List<DbOperationAdapter> Operations
+        public new List<DbOperationAdapter> Operations
         {
             get { return _domain.Operations.Where(o => !o.Ignore && o.Attributes?.applicationtype == Type.Name || o.Returns.SimpleReturnType == Type).OrderBy(o => o.Name).Select(o => new DbOperationAdapter(o, _domain, Type)).ToList(); }
         }
@@ -26,39 +24,6 @@ namespace Skeleton.Templating.Classes.Repository
             get
             {
                 return Operations.Where(o => !o.NoResult).Select(o => new ReturnModel(o.Returns, o.ReturnTypeName)).Distinct().ToList();
-            }
-        }
-        
-        public bool HasCustomResultType
-        {
-            get { return _domain.Operations.Any(o => !o.Ignore && o.Returns.SimpleReturnType != null && (o.Returns.SimpleReturnType is ResultType) && !((ResultType)o.Returns.SimpleReturnType).Ignore); }
-        }
-
-        public string Namespace
-        {
-            get
-            {
-                if (!string.IsNullOrEmpty(_domain.DefaultNamespace) && (string.IsNullOrEmpty(Type.Namespace) || Type.Namespace == _domain.TypeProvider.DefaultNamespace))
-                {
-                    return _domain.DefaultNamespace;
-                }
-
-                return Type.Namespace;
-            }
-        }
-
-        public string DomainNamespace
-        {
-            get
-            {
-                if (!string.IsNullOrEmpty(_domain.Settings.DomainNamespace))
-                {
-                    return _domain.Settings.DomainNamespace;
-                }
-                else
-                {
-                    return $"{Util.CSharpNameFromName(Namespace)}.Data.Domain";
-                }
             }
         }
     }

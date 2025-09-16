@@ -9,8 +9,11 @@ using {{DomainNamespace}};
 {{#if HasCustomResultType}}
 using {{Namespace}}.Data.Model;
 {{/if}}
+{{#if IsInCustomNamespace}}
+using {{cs_name DefaultNamespace}}.Data.Repository;
+{{/if}}
 
-namespace {{Namespace}}.Data.Repository 
+namespace {{cs_name Namespace}}.Data.Repository
 {
     public partial interface I{{cs_name Type.Name}}Repository 
     {
