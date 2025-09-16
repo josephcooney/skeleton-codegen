@@ -52,12 +52,12 @@ namespace Skeleton.Templating.Classes
             {
                 if (IsCustomType)
                 {
-                    return Util.CSharpNameFromName(_parameter.ProviderTypeName);
+                    return Util.CSharpNameFromName(SanitizeName(_parameter.ProviderTypeName));
                 }
 
                 if (IsCustomArrayType)
                 {
-                    return $"List<{Util.CSharpNameFromName(_parameter.ProviderTypeName)}>";
+                    return $"List<{Util.CSharpNameFromName(SanitizeName(_parameter.ProviderTypeName))}>";
                 }
                 
                 return Util.FormatClrType(_parameter.ClrType);
@@ -70,7 +70,7 @@ namespace Skeleton.Templating.Classes
             {
                 if (IsCustomType)
                 {
-                    return Util.CSharpNameFromName(_parameter.ProviderTypeName) + NamingConventions.ModelClassNameSuffix;
+                    return Util.CSharpNameFromName(SanitizeName(_parameter.ProviderTypeName)) + NamingConventions.ModelClassNameSuffix;
                 }
                 else
                 {
@@ -85,12 +85,12 @@ namespace Skeleton.Templating.Classes
             {
                 if (IsCustomType)
                 {
-                    return Util.CSharpNameFromName(_parameter.ProviderTypeName);                    
+                    return Util.CSharpNameFromName(SanitizeName(_parameter.ProviderTypeName));                    
                 }
                 
                 if (IsCustomArrayType)
                 {
-                    return $"{Util.CSharpNameFromName(_parameter.ProviderTypeName)}[]";
+                    return $"{Util.CSharpNameFromName(SanitizeName(_parameter.ProviderTypeName))}[]";
                 }
                 
                 return Util.GetTypeScriptTypeForClrType(_parameter.ClrType);
@@ -103,12 +103,12 @@ namespace Skeleton.Templating.Classes
             {
                 if (IsCustomType)
                 {
-                    return Util.CSharpNameFromName(_parameter.ProviderTypeName);                    
+                    return Util.CSharpNameFromName(SanitizeName(_parameter.ProviderTypeName));                    
                 }
                 
                 if (IsCustomArrayType)
                 {
-                    return $"List<{Util.CSharpNameFromName(_parameter.ProviderTypeName)}>";
+                    return $"List<{Util.CSharpNameFromName(SanitizeName(_parameter.ProviderTypeName))}>";
                 }
                 
                 return Util.GetDartTypeForClrType(_parameter.ClrType);
@@ -193,6 +193,18 @@ namespace Skeleton.Templating.Classes
                 
                 return _pagingParameterNames.Contains(Name);
             }  
+        }
+
+        private string SanitizeName(string name)
+        {
+            // handle parameters from non-default domains
+            var ns = _parameter.Operation.Namespace;
+            if (name.Contains(".") && name.StartsWith($"{ns}."))
+            {
+                return name.Substring($"{ns}.".Length);
+            }
+
+            return name;
         }
     }
 }
