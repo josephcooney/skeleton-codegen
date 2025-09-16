@@ -17,7 +17,7 @@ namespace {{DefaultNamespace}}.Data.Repository
             builder.RegisterInstance(dataSource);
 
             {{#each IncludedTypes}}
-            builder.RegisterType<{{cs_name Name}}Repository>().AsImplementedInterfaces();
+            builder.RegisterType<{{#if IsInCustomNamespace}}{{Namespace}}.Data.Repository.{{/if}}{{cs_name Name}}Repository>().AsImplementedInterfaces();
 			{{/each}}
         }
 
@@ -25,7 +25,7 @@ namespace {{DefaultNamespace}}.Data.Repository
         {
             Log.Information("Registering custom Postgres types.");
             {{#each CustomTypes}}
-            builder.MapComposite<{{cs_name Name}}>("{{Name}}");
+                builder.MapComposite<{{#if IsInCustomNamespace}}{{Namespace}}.Data.Model.{{/if}}{{cs_name Name}}>("{{Name}}");
             {{/each}}
         }
 
