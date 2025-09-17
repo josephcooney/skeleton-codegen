@@ -121,7 +121,7 @@ namespace Skeleton.Templating.Classes
             {
                 if (IsCustomTypeOrCustomArray)
                 {
-                    return Util.CSharpNameFromName(_parameter.ProviderTypeName);                    
+                    return Util.CSharpNameFromName(SanitizeName(_parameter.ProviderTypeName));                    
                 }
                 
                 return Util.GetTypeScriptTypeForClrType(_parameter.ClrType);
