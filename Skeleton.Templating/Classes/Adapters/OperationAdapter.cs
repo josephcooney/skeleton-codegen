@@ -369,7 +369,7 @@ namespace Skeleton.Templating.Classes.Adapters
             }
         }
 
-        public bool GenerateUI => _op.GenerateUI;
+        public override bool GenerateUI => _op.GenerateUI;
 
         public bool GenerateApi => _op.GenerateApi;
 

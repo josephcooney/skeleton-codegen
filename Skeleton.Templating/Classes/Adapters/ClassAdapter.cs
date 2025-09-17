@@ -92,6 +92,19 @@ namespace Skeleton.Templating.Classes
 
         public bool IsInCustomNamespace => _type.Namespace != _domain.TypeProvider.DefaultNamespace;
 
+        public virtual bool GenerateUI
+        {
+            get
+            {
+                if (_type is ApplicationType type)
+                {
+                    return type.GenerateUI;
+                }
+
+                return false;
+            }
+        }
+
         public bool CanDelete => _type is ApplicationType && ((ApplicationType)_type).DeleteType != DeleteType.None;
 
         public List<ClassFieldAdapter> UserEditableFields => Fields.Where(f => f.IsCallerProvided).ToList();
