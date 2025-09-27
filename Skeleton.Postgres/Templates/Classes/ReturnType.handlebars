@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using NpgsqlTypes;
+using System.Text.Json.Serialization;
 
 namespace {{Namespace}}.Data.Model
 {
@@ -21,6 +22,9 @@ namespace {{Namespace}}.Data.Model
         {{#if IsRequired}}[Required]{{/if}}
         [DisplayName("{{hmn}}")]{{#if HasSize}}[MaxLength({{Size}})]{{/if}}
         [PgName("{{Name}}")]
+        {{#if IsDate}}
+        [JsonConverter(typeof(Infrastructure.DateOnlyJsonConverter))]    
+        {{/if}}
         public {{format_clr_type ClrType}} {{cs_name Name}} { get; set; }
 	{{/each}}
 	}
