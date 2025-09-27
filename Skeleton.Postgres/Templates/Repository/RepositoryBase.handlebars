@@ -24,6 +24,28 @@ namespace {{DefaultNamespace}}.Data.Repository
 			return (T)reader[fieldName];
 		}
 
+        protected DateOnly GetDateOnlyField(DbDataReader reader, string fieldName)
+        {
+            if (reader[fieldName] == DBNull.Value)
+            {
+                return default(DateOnly);
+            }
+        
+            var valueInternal = (DateTime)reader[fieldName];
+            return DateOnly.FromDateTime(valueInternal);
+        }
+    
+        protected DateOnly? GetNullableDateOnlyField(DbDataReader reader, string fieldName)
+        {
+            if (reader[fieldName] == DBNull.Value)
+            {
+                return null;
+            }
+        
+            var valueInternal = (DateTime)reader[fieldName];
+            return DateOnly.FromDateTime(valueInternal);
+        }
+    
         protected virtual void SetParameterValue(object? value, NpgsqlCommand cmd, string name, NpgsqlDbType dbType)
         {
             var parameter = cmd.Parameters.AddWithValue(name, value ?? DBNull.Value);

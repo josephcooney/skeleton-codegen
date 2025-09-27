@@ -162,7 +162,15 @@ namespace {{cs_name Namespace}}.Data.Repository
         private {{{ReturnTypeName}}} Read{{cs_name BareName}}Result(DbDataReader reader)
         {
 			{{#each SimpleReturnType.NonExcludedFields}}
-			var {{cml_case Name}} = GetField<{{format_clr_type ClrType}}>(reader, "{{Name}}");
+                {{#if IsDate}}
+                    {{#if IsRequired}}
+            var {{cml_case Name}} = GetDateOnlyField<{{format_clr_type ClrType}}>(reader, "{{Name}}");
+                    {{else}}
+            var {{cml_case Name}} = GetNullableDateOnlyField(reader, "{{Name}}");
+                    {{/if}}
+                {{else}}
+            var {{cml_case Name}} = GetField<{{format_clr_type ClrType}}>(reader, "{{Name}}");
+                {{/if}}
 			{{/each}}
             var item = new {{{ReturnTypeName}}}({{#each SimpleReturnType.NonExcludedFields}}{{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}});
             return item;
