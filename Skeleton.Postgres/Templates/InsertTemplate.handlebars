@@ -53,7 +53,7 @@ $$
         {{#if HasLinkingTypes}}
             {{#each LinkingTypes}}
             -- insert links to {{OtherSideOfLink.Name}}
-            insert into {{{escape_sql LinkType.Name}}} (
+            insert into {{{escape_sql LinkType.Namespace}}}.{{{escape_sql LinkType.Name}}} (
             {{#each InsertFields}}
                 {{#if IsLinkingField}}
                 {{{escape_sql Field.Name}}}{{#unless @last}},{{/unless}}
