@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
@@ -56,7 +58,7 @@ namespace Skeleton.Flutter
                     var adapter = new ClientApiAdapter(type, domain);
                     if (adapter.Operations.Any())
                     {
-                        var path = _fs.Path.Combine("model\\", Util.SnakeCase(type.Name) + "\\");
+                        var path = _fs.Path.Combine($"model{Path.DirectorySeparatorChar}", Util.SnakeCase(type.Name) + Path.DirectorySeparatorChar);
 
                         foreach (var op in adapter.ApiOperations)
                         {

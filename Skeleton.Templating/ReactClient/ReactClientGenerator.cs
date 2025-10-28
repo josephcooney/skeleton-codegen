@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Skeleton.Model;
@@ -139,7 +140,7 @@ namespace Skeleton.Templating.ReactClient
                     // if this isn't the case the template produces some invalid output - we could fix up the template.  
                     // The need for a parameterless operation is caused by needing to be able to turn it into a react query call
                     // maybe generate a custom "query" type like the validation type where the user needs to provide the query key and query call
-                    var listPath = GetRelativePathFromTypeName(rt.RelatedType.Name) + "list\\";
+                    var listPath = GetRelativePathFromTypeName(rt.RelatedType.Name) + $"list{Path.DirectorySeparatorChar}";
                     var nameStart = Util.TypescriptFileName(rt.SimpleReturnType.Name);
 
                     files.Add(new CodeFile { Name = nameStart + "List.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactListPage), RelativePath = listPath, Template = TemplateNames.ReactListPage});
@@ -208,7 +209,7 @@ namespace Skeleton.Templating.ReactClient
 
         protected string GetRelativePathFromTypeName(string typeName)
         {
-            return "domain\\" + Util.KebabCase(typeName) + "\\";
+            return $"domain{Path.DirectorySeparatorChar}" + Util.KebabCase(typeName) + Path.DirectorySeparatorChar;
         }
     }
 

@@ -54,7 +54,7 @@ namespace Skeleton.Console
                     return _fs.Path.Combine(_settings.RootDirectory, _settings.TestDataDirectory);
                 }
                 
-                return _fs.Path.Combine(_settings.RootDirectory, "Data\\Test");
+                return _fs.Path.Combine(_settings.RootDirectory, $"Data{Path.DirectorySeparatorChar}Test");
             }
         }
 
