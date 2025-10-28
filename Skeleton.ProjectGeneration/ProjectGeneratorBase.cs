@@ -19,7 +19,7 @@ namespace Skeleton.ProjectGeneration
 
         protected void CopyDirectory(string sourceDirectoryName, string targetDirectoryName)
         {
-            var source = _fileSystem.DirectoryInfo.FromDirectoryName(sourceDirectoryName);
+            var source = _fileSystem.DirectoryInfo.New(sourceDirectoryName);
             if (!source.Exists)
             {
                 throw new DirectoryNotFoundException(sourceDirectoryName);
@@ -51,7 +51,7 @@ namespace Skeleton.ProjectGeneration
 
         protected void RecurseDirectory(string directoryName, Action<IFileInfo> fileProcessingFunction, Func<IDirectoryInfo, IDirectoryInfo> directoryProcessingFunction)
         {
-            var source = _fileSystem.DirectoryInfo.FromDirectoryName(directoryName);
+            var source = _fileSystem.DirectoryInfo.New(directoryName);
             if (!source.Exists)
             {
                 throw new DirectoryNotFoundException(directoryName);

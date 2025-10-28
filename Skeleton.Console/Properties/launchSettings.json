@@ -11,7 +11,7 @@
       "commandLineArgs7": "-u -c eisteddfod --del --no-policy -adm bins.admin",
       "commandLineArgs8": "-u -c homer --del --no-policy -x hangfire -x migration --db-squash --react-native",
       "commandLineArgs10": "-u -c pz-timesheet --del --no-policy --no-db-role -x hangfire -x migration",
-      "commandLineArgs": "-u -c redteam --del --no-policy -x migration"
+      "commandLineArgs": "-u -c zealfit --del -x migration -x hangfire"
     }
   }
 }

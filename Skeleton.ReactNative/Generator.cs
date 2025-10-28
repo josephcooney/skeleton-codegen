@@ -97,7 +97,7 @@ public class Generator : ReactClientGenerator
                 if (createListForType)
                 {
                     var listAdapter = new ListViewAdapter(rt.SimpleReturnType, domain, rt.RelatedType);
-                    var listPath = GetRelativePathFromTypeName(rt.RelatedType.Name) + "list\\";
+                    var listPath = GetRelativePathFromTypeName(rt.RelatedType.Name) + "list/";
                     var nameStart = Util.TypescriptFileName(rt.SimpleReturnType.Name);
 
                     files.Add(new CodeFile { Name = nameStart + "ListScreen.tsx", Contents = GenerateFromTemplate(listAdapter, ReactNativeTemplateNames.ListScreen), RelativePath = listPath, Template = ReactNativeTemplateNames.ListScreen});

@@ -81,7 +81,7 @@ namespace Skeleton.Flutter
                         {
                             Name = Util.SnakeCase(type.Name) + "_api_client" + DartFileExtension,
                             Contents = GenerateFromTemplate(adapter, FlutterTemplateNames.ApiClient),
-                            RelativePath = ".\\api", Template = TemplateNames.ApiClient
+                            RelativePath = "./api", Template = TemplateNames.ApiClient
                         };
                         files.Add(apiClientFile);
                     }

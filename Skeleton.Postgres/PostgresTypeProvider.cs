@@ -1219,6 +1219,12 @@ namespace Skeleton.Postgres
 
         private string GetDropOperationCommandText(Operation op)
         {
+            if (op.Parameters != null && op.Parameters.Any())
+            {
+                var parameterNames = string.Join(", ", op.Parameters.Select(p => p.ProviderTypeName));
+                return $"DROP FUNCTION IF EXISTS {op.Namespace}.{GetSqlName(op.Name)} ({parameterNames});";
+            }
+            
             return $"DROP FUNCTION IF EXISTS {op.Namespace}.{GetSqlName(op.Name)};";
         }
         

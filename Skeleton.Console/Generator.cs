@@ -21,7 +21,7 @@ namespace Skeleton.Console
         private readonly Settings _settings;
         private readonly FileWriter _fileWriter;
 
-        private const string DbScriptsRelativePath = ".\\Database\\";
+        private const string DbScriptsRelativePath = "./Database/";
 
         public Generator(IFileSystem fileSystem, Settings settings, FileWriter fileWriter)
         {
@@ -154,8 +154,6 @@ namespace Skeleton.Console
             }
             
             Log.Information("Finished Code Generation");
-            
-            
         }
 
         public List<string> GetRelativeSqlFileNamesForDirectory(string directoryName)

@@ -155,7 +155,7 @@ namespace Skeleton.Templating.DatabaseFunctions
                 {
                     Name = namePrefix + adapter.FunctionName + SqlExtension,
                     Contents = Util.GetCompiledTemplateFromTypeProvider(templateName, adapter.Domain.TypeProvider)(adapter),
-                    RelativePath = ".\\" + adapter.Name + "\\"
+                    RelativePath = "./" + adapter.Name + "/"
                 };
             }
             catch (Exception ex)
