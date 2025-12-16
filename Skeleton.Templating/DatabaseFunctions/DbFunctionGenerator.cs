@@ -52,7 +52,10 @@ namespace Skeleton.Templating.DatabaseFunctions
                         files.Add(GenerateInsertType(type, domain));
                     }
                     
-                    files.Add(GenerateInsertFunction(type, domain));
+                    if (type.Attributes?.noAdd != true)
+                    {
+                        files.Add(GenerateInsertFunction(type, domain));
+                    }
 
                     if (domain.TypeProvider.GenerateCustomTypes)
                     {
