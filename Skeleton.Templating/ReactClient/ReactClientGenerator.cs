@@ -20,7 +20,7 @@ namespace Skeleton.Templating.ReactClient
 
             foreach (var type in domain.FilteredTypes)
             {
-                if (type.GenerateUI)
+                if (type.GenerateClientApi)
                 {
                     var edit = new CodeFile { Name = Util.TypescriptFileName(type.Name) + "ApiClient.ts", Contents = GenerateApiClient(type, domain), RelativePath = GetRelativePathFromTypeName(type.Name), Template = TemplateNames.ApiClient };
                     files.Add(edit);
@@ -39,7 +39,7 @@ namespace Skeleton.Templating.ReactClient
             
             foreach (var type in domain.FilteredTypes)
             {
-                if (type.GenerateUI)
+                if (type.GenerateClientApi)
                 {
                     var adapter = new ClientApiAdapter(type, domain);
                     if (adapter.Operations.Any())

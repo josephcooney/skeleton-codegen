@@ -23,6 +23,8 @@ namespace Skeleton.Model
         
         public bool GenerateUI => GenerateApi && !(Attributes?.ui == false);
 
+        public bool GenerateClientApi => GenerateApi && (!(Attributes?.apiClient == false) || GenerateUI);
+        
         public bool GenerateApi => !Ignore && !(Attributes?.api == false);
         
         public virtual bool Ignore => Attributes?.ignore == true;

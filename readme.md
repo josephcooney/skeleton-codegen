@@ -123,6 +123,7 @@ Attributes are set as a JSON text string 'comment' on the respective database en
 - ignore: true|false - ignores an entity for code-generation purposes. Defaults to false.
 - important: true|false - flags the type as important. Doing this will add it to the 'home' screen for ordinary users.
 - ui: true|false - When set to false suppresses the generation of any UI for this entity. Default to true.
+- apiClient: true|false - generate API client but possibly not visual UI. Defaults to true.
 - api: true|false - When set to false supresses the generation of any controller API for this entity. Default to true. If 'api' is set to false UI generation is also disabled, as if the 'ui' attribute (above) was set to false.
 - isSecurityPrincipal: true|false - flags a type as being the type the app will use for security tracking, and will get from the HttpContext.User. Defaults to false. 
 - isHelp: true|false - flags a type as being help content for the rest of the application. Defaults to false.
@@ -150,6 +151,7 @@ Attributes are set as a JSON text string 'comment' on the respective database en
 - isDelete: true|false - Identifies 'delete' operation. Defaults to false.
 - ui: true|false - When set to false suppresses the generation of any UI for this operation. Default to true.
 - api: true|false - when set to false suppresses the generation of anything relating to this operation at the API layer. Defaults to true;
+- apiClient: true|false - generate API client but possibly not visual UI. Defaults to true.
 - apiHooks: true|false - when set to true custom 'before' and 'after' methods are called prior to the generated API code being called. Defaults to false.
 - single_result: true|false - when set to true it causes the generated repository and API operations to return singular items instead of lists. Defaults to false.
 - fullName: string - used to get around the 63 byte length limit of postgres entities. The pattern of <entity>_<operation> often leads to names greater than 63 characters.
