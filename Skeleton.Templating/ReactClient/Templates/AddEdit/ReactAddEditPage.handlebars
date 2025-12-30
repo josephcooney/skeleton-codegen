@@ -39,6 +39,9 @@ import { {{ModelTypeName}} } from "./{{ModelTypeName}}";
 import { {{ResolvedTypescriptTypeUnderlying}} } from './{{ResolvedTypescriptTypeUnderlying}}'
 {{/if}}
 {{/each}}
+{{#if CurrentOperation.IsCustomResultType}}
+import { {{CurrentOperation.TypeScriptReturn}} } from './{{CurrentOperation.TypeScriptReturn}}';    
+{{/if}}
 {{#if IsUpdate}}
 {{#if HasSelectAllType}}
 import { {{cs_name SelectAllType.Name}} } from './{{cs_name SelectAllType.Name}}';
@@ -356,7 +359,11 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
 		{{/if}}
 			{{#if AssociateViaLink}}
 			if (data) {
+                {{#if CurrentOperation.IsSingular}}
                 createLinkedItemAssociation(data);
+                {{else}}
+                createLinkedItemAssociation(data.{{CurrentOperation.SimpleReturnType.IdentityField.DisplayName}});
+                {{/if}}
             }
 			{{/if}}
             enqueueSnackbar('{{HumanizedName}} saved', {variant: 'success'});

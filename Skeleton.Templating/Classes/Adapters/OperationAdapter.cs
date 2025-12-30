@@ -233,6 +233,8 @@ namespace Skeleton.Templating.Classes.Adapters
         public ParameterAdapter SecurityUserParameter => Parameters.SingleOrDefault(p => p.IsSecurityUser);
         
         public SimpleType SimpleReturnType => _op.Returns?.SimpleReturnType;
+        
+        public bool IsCustomResultType => _op.Returns.ReturnType == ReturnType.CustomType;
 
         public bool NoResult => _op.Returns?.ReturnType == ReturnType.None;
 
