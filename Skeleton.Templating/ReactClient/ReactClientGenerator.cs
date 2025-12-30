@@ -132,7 +132,7 @@ namespace Skeleton.Templating.ReactClient
                 .Distinct()
                 .OrderBy(rt => rt.RelatedType.Name))
             {
-                if (rt.RelatedType == null || domain.FilteredTypes.Contains(rt.RelatedType))
+                if (rt.SimpleReturnType.GenerateUI && (rt.RelatedType == null || domain.FilteredTypes.Contains(rt.RelatedType)))
                 {
                     var listAdapter = new ListViewAdapter(rt.SimpleReturnType, domain, rt.RelatedType);
                     

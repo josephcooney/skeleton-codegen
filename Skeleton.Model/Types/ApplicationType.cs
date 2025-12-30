@@ -36,14 +36,9 @@ namespace Skeleton.Model
                 return DeleteType.None;
             }
         }
-
-        public bool Ignore => Attributes?.ignore == true;
-
+        
         public List<Constraint> Constraints { get; }
 
-        public bool GenerateUI => GenerateApi && !(Attributes?.ui == false);
-
-        public bool GenerateApi => !Ignore && !(Attributes?.api == false);
 
         public bool IsLink
         {

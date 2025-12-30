@@ -16,7 +16,7 @@ namespace Skeleton.Model
         
         public List<Operation> Operations { get; }
 
-        public bool Ignore => Operations.All(op => op.Ignore);
+        public override bool Ignore => Operations.All(op => op.Ignore);
         
         public bool IsCustomType { get; }
 

@@ -20,7 +20,13 @@ namespace Skeleton.Model
         public Domain Domain { get; }
 
         public List<Field> Fields { get; }
+        
+        public bool GenerateUI => GenerateApi && !(Attributes?.ui == false);
 
+        public bool GenerateApi => !Ignore && !(Attributes?.api == false);
+        
+        public virtual bool Ignore => Attributes?.ignore == true;
+        
         public List<Field> NonExcludedFields => Fields.Where(f => !f.IsExcludedFromResults).ToList();
         
         public Field DisplayField
