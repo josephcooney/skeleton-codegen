@@ -231,7 +231,7 @@ namespace Skeleton.Postgres
                             if (!domain.ExcludedSchemas.Contains(ns))
                             {
                                 var resultType = reader["result_type"].ToString();
-
+                                var kind = reader["prokind"].ToString();
                                 var op = new Operation {Name = name, Namespace = ns};
                                 Log.Debug("Reading operation {OperationName}", name);
                                 var description = GetField<string>(reader, "description");
@@ -248,7 +248,7 @@ namespace Skeleton.Postgres
                                     var parameters = reader["argument_types"].ToString();
                                     if (!string.IsNullOrEmpty(parameters))
                                     {
-                                        op.Parameters.AddRange(ReadParameters(parameters, domain, op));
+                                        op.Parameters.AddRange(ReadParameters(parameters, domain, op, kind == "f"));
                                         if (op.RelatedType != null)
                                         {
                                             UpdateParameterNullabilityFromApplicationType(op);
@@ -1389,6 +1389,11 @@ namespace Skeleton.Postgres
         private OperationReturn GetReturnTypeFromTypeName(Domain domain, Operation operation, string typeName, bool multiple)
         {
             typeName = SantizeTypeNameFromDifferentSchema(typeName, operation.Namespace);
+            if (string.IsNullOrEmpty(typeName))
+            {
+                // this could be a procedure that does not return a type
+                return new OperationReturn() { Multiple = false, ReturnType = ReturnType.None };
+            }
             var appType = domain.Types.SingleOrDefault(t => t.Name == typeName && t.Namespace == operation.Namespace);
             if (appType != null)
             {
@@ -1624,13 +1629,13 @@ namespace Skeleton.Postgres
             return domain.FindTypeByFields(fields, operation, false);
         }
         
-        private IEnumerable<Parameter> ReadParameters(string parameters, Domain domain, Operation operation)
+        private IEnumerable<Parameter> ReadParameters(string parameters, Domain domain, Operation operation, bool isFunction)
         {
             var p = new List<Parameter>();
 
             if (parameters.IndexOf(',') < 0)
             {
-                var prm = ReadSingleParameter(parameters, domain, operation);
+                var prm = ReadSingleParameter(parameters, domain, operation, isFunction);
                 prm.Order = 0;
                 p.Add(prm);
             }
@@ -1640,7 +1645,7 @@ namespace Skeleton.Postgres
                 var index = 0;
                 foreach (var s in split)
                 {
-                    var prm = ReadSingleParameter(s.Trim(), domain, operation);
+                    var prm = ReadSingleParameter(s.Trim(), domain, operation, isFunction);
                     prm.Order = index;
                     p.Add(prm);
                     index++;
@@ -1650,8 +1655,13 @@ namespace Skeleton.Postgres
             return p;
         }
 
-        private Parameter ReadSingleParameter(string p, Domain domain, Operation operation)
+        private Parameter ReadSingleParameter(string p, Domain domain, Operation operation, bool isFunction)
         {
+            if (!isFunction && p.StartsWith("IN "))
+            {
+                p = p.Substring(3);
+            }
+            
             var n = GetFieldNameAndType(p);
             var type = n.Type.ClrType;
             if (type == null)

@@ -234,22 +234,30 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         {
             get
             {
-                var fields = UserEditableFields.Where(f => f.Edit).ToList();
-                var updatedDateTrackingField = _applicationType.Fields.FirstOrDefault(a => a.IsModifiedDate);
-                if (updatedDateTrackingField != null)
+                try
                 {
-                    fields.Add(_domain.TypeProvider.CreateFieldAdapter(updatedDateTrackingField, this));
+                    var fields = UserEditableFields.Where(f => f.Edit).ToList();
+                    var updatedDateTrackingField = _applicationType.Fields.FirstOrDefault(a => a.IsModifiedDate);
+                    if (updatedDateTrackingField != null)
+                    {
+                        fields.Add(_domain.TypeProvider.CreateFieldAdapter(updatedDateTrackingField, this));
+                    }
+                    if (ModifiedByField != null)
+                    {
+                        fields.Add(ModifiedByField);
+                    }
+                    var searchField = _applicationType.Fields.FirstOrDefault(f => f.IsSearch);
+                    if (searchField != null)
+                    {
+                        fields.Add(_domain.TypeProvider.CreateFieldAdapter(searchField, this));
+                    }
+                    return fields.OrderBy(f => f.Order).ToList();
                 }
-                if (ModifiedByField != null)
+                catch (Exception ex)
                 {
-                    fields.Add(ModifiedByField);
+                    Log.Error(ex, "Error getting update fields for {ApplicationTypeName}", _applicationType.Name);
+                    throw;
                 }
-                var searchField = _applicationType.Fields.FirstOrDefault(f => f.IsSearch);
-                if (searchField != null)
-                {
-                    fields.Add(_domain.TypeProvider.CreateFieldAdapter(searchField, this));
-                }
-                return fields.OrderBy(f => f.Order).ToList();
             }
         }
 
