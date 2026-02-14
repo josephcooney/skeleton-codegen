@@ -19,8 +19,19 @@ namespace Skeleton.Templating.Classes.Adapters
         
         public OperationAdapter(Operation op, Domain domain, ApplicationType type) : base(type, domain)
         {
-            _op = op ?? throw new ArgumentNullException(nameof(op));
-            _applicationType = type ?? throw new ArgumentNullException(nameof(type));
+            if (op == null)
+            {
+                throw new ArgumentNullException(nameof(op));
+            }
+            
+            if (type == null)
+            {
+                Log.Error("Operation {OperationName} has no application type", op.Name);
+                throw new ArgumentNullException(nameof(type));
+            }
+            
+            _op = op;
+            _applicationType = type;
             
             if (_op.Returns == null)
             {

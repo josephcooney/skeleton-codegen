@@ -148,7 +148,7 @@ namespace Skeleton.Templating.Classes
                 else
                 {
                     var resultType = _type as ResultType;
-                    return resultType.Operations.Select(o => new OperationAdapter(o, _domain, resultType.RelatedType)) // getting the related type feels wierd and hacky here
+                    return resultType.Operations.Select(o => new OperationAdapter(o, _domain, resultType.RelatedType ?? o.RelatedType)) // getting the related type feels wierd and hacky here
                         .ToList();
                 }
             }

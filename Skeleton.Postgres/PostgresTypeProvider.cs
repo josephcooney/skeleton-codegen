@@ -228,7 +228,7 @@ namespace Skeleton.Postgres
                         try
                         {
                             var ns = reader["schema"].ToString();
-                            if (!domain.ExcludedSchemas.Contains(ns))
+                            if (!domain.ExcludedSchemas.Contains(ns) && name?.StartsWith('_') == false) // "system" type functions are usually prefixed with _
                             {
                                 var resultType = reader["result_type"].ToString();
                                 var kind = reader["prokind"].ToString();
@@ -1345,7 +1345,7 @@ namespace Skeleton.Postgres
             {
                 if (!string.IsNullOrEmpty(attributes) && attributes.StartsWith('{'))
                 {
-                    Log.Warning("attribute string {Attributes} was not valid JSON for {ObjectName}", attributes, objectName);
+                    Log.Error("attribute string {Attributes} was not valid JSON for {ObjectName}", attributes, objectName);
                 }
                 return null; // description was not valid JSON
             }
@@ -1528,7 +1528,7 @@ namespace Skeleton.Postgres
 
             if (columns.IndexOf(',') < 0)
             {
-                var nameAndType = GetFieldNameAndType(columns);
+                var nameAndType = GetFieldNameAndType(columns, 0);
                 // TODO - create a simple return type that is an array of whatever this type is
             }
             else
@@ -1539,7 +1539,7 @@ namespace Skeleton.Postgres
                 var index = 0;
                 foreach (var s in split)
                 {
-                    var n = GetFieldNameAndType(s);
+                    var n = GetFieldNameAndType(s, index);
                     fields.Add(new Field(domain)
                     {
                         Name = n.Name, ProviderTypeName = n.Type.Name, ClrType = n.Type.ClrType,
@@ -1662,7 +1662,7 @@ namespace Skeleton.Postgres
                 p = p.Substring(3);
             }
             
-            var n = GetFieldNameAndType(p);
+            var n = GetFieldNameAndType(p, 0);
             var type = n.Type.ClrType;
             if (type == null)
             {
@@ -1693,14 +1693,23 @@ namespace Skeleton.Postgres
             return parameter;
         }
 
-        private NameAndType GetFieldNameAndType(string value)
+        private NameAndType GetFieldNameAndType(string value, int position)
         {
             // TODO - might need to consider quoted parameters (e.g. "parameter name") in the future
             value = value.Trim();
             var space = value.IndexOf(' ');
-            var name = SanitizeFieldName(value.Substring(0, space));
-            var pgType = new PostgresType(SanitizeObjectName(value.Substring(space + 1)));
-            return new NameAndType {Name = name, Type = pgType };
+            if (space < 0)
+            {
+                // for pg functions where the type is specified but not given a name
+                var pgType = new PostgresType(value);
+                return new NameAndType {Name = $"param{position}", Type = pgType };
+            }
+            else
+            {
+                var name = SanitizeFieldName(value.Substring(0, space));
+                var pgType = new PostgresType(SanitizeObjectName(value.Substring(space + 1)));
+                return new NameAndType {Name = name, Type = pgType };
+            }
         }
 
         private static void GetAdditionalFieldInfoFromInformationSchema(string catalog, string ns, string name,
