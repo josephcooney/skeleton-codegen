@@ -43,12 +43,13 @@ public class Generator : ReactClientGenerator
     public List<CodeFile> GenerateComponents(Domain domain)
     {
         var files = new List<CodeFile>();
-        
-        var drawerNav = new CodeFile { Name = "DrawerNav.tsx", Contents = GenerateFromTemplate(new DomainApiAdapter(domain), ReactNativeTemplateNames.DrawerNav) };
-        files.Add(drawerNav);
-        
-        var stackNav = new CodeFile { Name = "StackNav.tsx", Contents = GenerateFromTemplate(new DomainApiAdapter(domain), ReactNativeTemplateNames.StackNav) };
-        files.Add(stackNav);
+
+        // TODO - these are not needed at this stage
+        // var drawerNav = new CodeFile { Name = "DrawerNav.tsx", Contents = GenerateFromTemplate(new DomainApiAdapter(domain), ReactNativeTemplateNames.DrawerNav) };
+        // files.Add(drawerNav);
+        //
+        // var stackNav = new CodeFile { Name = "StackNav.tsx", Contents = GenerateFromTemplate(new DomainApiAdapter(domain), ReactNativeTemplateNames.StackNav) };
+        // files.Add(stackNav);
         
         foreach (var type in domain.FilteredTypes.OrderBy(t => t.Name))
         {
