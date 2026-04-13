@@ -1931,6 +1931,13 @@ AND KCU1.TABLE_SCHEMA = '{type.Namespace}'
                         {
                             prm.UpdateFromField(paramFld);
                         }
+                        else
+                        {
+                            if (prm.ClrType != typeof(string) && prm.ClrType != typeof(ResultType) && !prm.ClrType.IsArray && prm.ClrType != typeof(List<ResultType>))
+                            {
+                                prm.MakeClrTypeNullable();
+                            }
+                        }
                     }
                 }
             }
