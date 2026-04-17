@@ -33,11 +33,11 @@ $$
         {{#if HasLinkingTypes}}
             {{#each LinkingTypes}}
                 -- delete existing related items
-                delete from {{{escape_sql LinkType.Name}}}
+                delete from {{{escape_sql LinkType.Namespace}}}.{{{escape_sql LinkType.Name}}}
                 where {{{escape_sql FieldLinkingToCurrentType.Name}}} = {{{escape_sql ../FunctionName}}}.{{{escape_sql ../PrimaryKeyField.Name}}};
                 
                 -- insert links to {{OtherSideOfLink.Name}}
-                insert into {{{escape_sql LinkType.Name}}} (
+                insert into {{{escape_sql LinkType.Namespace}}}.{{{escape_sql LinkType.Name}}} (
                 {{#each InsertFields}}
                     {{#if IsLinkingField}}
                     {{{escape_sql Field.Name}}}{{#unless @last}},{{/unless}}

@@ -86,8 +86,8 @@ namespace Skeleton.Model
 
         public bool IsSearch => ProviderTypeName == "tsvector" && Name == SearchFieldName; // TODO this is very postgres-specific
 
-        public bool IsExcludedFromResults => IsDelete || IsSearch;
-
+        public bool IsExcludedFromResults => IsDelete || IsSearch || Attributes?.hidden == true;
+        
         public bool HasReferenceType => ReferencesType != null;
         
         public bool IsDateTimeOffset => (ClrType == typeof(DateTimeOffset) || ClrType == typeof(DateTimeOffset?));
