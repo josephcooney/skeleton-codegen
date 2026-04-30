@@ -11,6 +11,7 @@ namespace {{DefaultNamespace}}.Data.Repository
         protected override void Load(ContainerBuilder builder)
         {
             var dataSourceBuilder = new NpgsqlDataSourceBuilder(BuildConnectionString(configuration));
+            RepositoryBase.ConfigureSsl(dataSourceBuilder);
             RegisterCustomTypes(dataSourceBuilder);
             
             var dataSource = dataSourceBuilder.Build();
