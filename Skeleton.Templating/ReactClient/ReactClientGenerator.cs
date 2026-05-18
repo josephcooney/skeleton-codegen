@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Skeleton.Model;
@@ -19,7 +20,7 @@ namespace Skeleton.Templating.ReactClient
 
             foreach (var type in domain.FilteredTypes)
             {
-                if (type.GenerateUI)
+                if (type.GenerateClientApi)
                 {
                     var edit = new CodeFile { Name = Util.TypescriptFileName(type.Name) + "ApiClient.ts", Contents = GenerateApiClient(type, domain), RelativePath = GetRelativePathFromTypeName(type.Name), Template = TemplateNames.ApiClient };
                     files.Add(edit);
@@ -38,7 +39,7 @@ namespace Skeleton.Templating.ReactClient
             
             foreach (var type in domain.FilteredTypes)
             {
-                if (type.GenerateUI)
+                if (type.GenerateClientApi)
                 {
                     var adapter = new ClientApiAdapter(type, domain);
                     if (adapter.Operations.Any())
@@ -131,11 +132,15 @@ namespace Skeleton.Templating.ReactClient
                 .Distinct()
                 .OrderBy(rt => rt.RelatedType.Name))
             {
-                if (rt.RelatedType == null || domain.FilteredTypes.Contains(rt.RelatedType))
+                if (rt.SimpleReturnType.GenerateUI && (rt.RelatedType == null || domain.FilteredTypes.Contains(rt.RelatedType)))
                 {
-                    
                     var listAdapter = new ListViewAdapter(rt.SimpleReturnType, domain, rt.RelatedType);
-                    var listPath = GetRelativePathFromTypeName(rt.RelatedType.Name) + "list\\";
+                    
+                    // right now the list template assumes there is a single parameter-less query that can be used to populate the list
+                    // if this isn't the case the template produces some invalid output - we could fix up the template.  
+                    // The need for a parameterless operation is caused by needing to be able to turn it into a react query call
+                    // maybe generate a custom "query" type like the validation type where the user needs to provide the query key and query call
+                    var listPath = GetRelativePathFromTypeName(rt.RelatedType.Name) + $"list{Path.DirectorySeparatorChar}";
                     var nameStart = Util.TypescriptFileName(rt.SimpleReturnType.Name);
 
                     files.Add(new CodeFile { Name = nameStart + "List.tsx", Contents = GenerateFromTemplate(listAdapter, TemplateNames.ReactListPage), RelativePath = listPath, Template = TemplateNames.ReactListPage});
@@ -204,7 +209,7 @@ namespace Skeleton.Templating.ReactClient
 
         protected string GetRelativePathFromTypeName(string typeName)
         {
-            return "domain\\" + Util.KebabCase(typeName) + "\\";
+            return $"domain{Path.DirectorySeparatorChar}" + Util.KebabCase(typeName) + Path.DirectorySeparatorChar;
         }
     }
 

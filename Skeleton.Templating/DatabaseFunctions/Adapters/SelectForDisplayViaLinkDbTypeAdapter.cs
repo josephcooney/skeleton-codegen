@@ -46,7 +46,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
             get
             {
                 var fields = _linkingType.Fields
-                    .Where(f => f.HasReferenceType && f.ReferencesType != _applicationType &&
+                    .Where(f => !f.IsTrackingUser && f.HasReferenceType && f.ReferencesType != _applicationType &&
                                 !f.ReferencesType.IsSecurityPrincipal).Select(f => _applicationType.Domain.TypeProvider.CreateFieldAdapter(f, this));
                 if (fields.Count() > 1)
                 {

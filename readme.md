@@ -123,12 +123,14 @@ Attributes are set as a JSON text string 'comment' on the respective database en
 - ignore: true|false - ignores an entity for code-generation purposes. Defaults to false.
 - important: true|false - flags the type as important. Doing this will add it to the 'home' screen for ordinary users.
 - ui: true|false - When set to false suppresses the generation of any UI for this entity. Default to true.
+- apiClient: true|false - generate API client but possibly not visual UI. Defaults to true.
 - api: true|false - When set to false supresses the generation of any controller API for this entity. Default to true. If 'api' is set to false UI generation is also disabled, as if the 'ui' attribute (above) was set to false.
 - isSecurityPrincipal: true|false - flags a type as being the type the app will use for security tracking, and will get from the HttpContext.User. Defaults to false. 
 - isHelp: true|false - flags a type as being help content for the rest of the application. Defaults to false.
 - createPolicy: true|false - when set to false no security policy will be created. Default is true.
 - type - 'reference' causes ApplicationType IsReference to return true. Used in the creation of security policies.
 - noAddUI: true|false - suppress creation of add UI for that type. Defaults to false.
+- noAdd: true|false -suppress creation of add operation for that type. Defaults to false.
 - noEditUI: true|false - suppress creation of edit UI for that type. Defaults to false.
 - isAttachment: true|false - when set to true is treated specially as a table for uploading/storing files. Defaults to false.
 - security: an array of roles with the rights that they have. There are 3 built-in 'roles' - 'user' (authenticated users), 'admin' (administrators) and 'anon' (anonymous/unauthenticated users). If no security information is provided then administrators can view, add, edit and delete (if the entity allows it) all entities, authenticated users can view reference data, add data, and edit/delete data they created. Anonymous users cannot do anything. The rights that can be assigned at the entity level are: read, read-all, list, add, edit, edit-all, and delete. The difference between read and read-all is that read allows a type of user to view the items they created, whereas read-all allows them to view all entities of that type. Edit and edit-all are similar. Security is implemented as a combination of row-level security (RLS) policy and attributes on ASPNET controllers. An example security setting that would allow anonymous users read `{"security":{"anon":["read"]}}`
@@ -149,6 +151,7 @@ Attributes are set as a JSON text string 'comment' on the respective database en
 - isDelete: true|false - Identifies 'delete' operation. Defaults to false.
 - ui: true|false - When set to false suppresses the generation of any UI for this operation. Default to true.
 - api: true|false - when set to false suppresses the generation of anything relating to this operation at the API layer. Defaults to true;
+- apiClient: true|false - generate API client but possibly not visual UI. Defaults to true.
 - apiHooks: true|false - when set to true custom 'before' and 'after' methods are called prior to the generated API code being called. Defaults to false.
 - single_result: true|false - when set to true it causes the generated repository and API operations to return singular items instead of lists. Defaults to false.
 - fullName: string - used to get around the 63 byte length limit of postgres entities. The pattern of <entity>_<operation> often leads to names greater than 63 characters.
@@ -213,3 +216,7 @@ If there are features you think are essential which we don't support please send
 - modifying the generated code. As mentioned above you can edit the generated code and opt out of re-generating it by removing the comment at the top of the file.
 - modifying the templates
 - modifying base classes or libraries that are used by generated code
+
+## Troubleshooting
+- Don't use generated types like foo_display from "custom"-written functions, the functions will be cascade-deleted when the generated types are dropped.
+- 

@@ -43,7 +43,43 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 
                         if (fld.ReferencesType != null)
                         {
-                            TraverseRelatedFields(_fields, fld, this.ShortName);
+                            TraverseRelatedFields(_fields, fld, ShortName);
+                        }
+                    }
+
+                    foreach (var linkedType in _applicationType.LinkedTypes.Where(t => t.IsLink).OrderBy(t => t.Name))
+                    {
+                        try
+                        {
+                            var linkToCurrentType = linkedType.Fields.Where(f => !f.IsTrackingUser).Single(f =>
+                                f.HasReferenceType && f.ReferencesType == _applicationType);
+                            var otherSideOfLink = linkedType.Fields.Where(f =>
+                                f.HasReferenceType && f.ReferencesType != _applicationType &&
+                                !f.ReferencesType.IsSecurityPrincipal).ToList();
+                            if (otherSideOfLink.Count() > 1)
+                            {
+                                Log.Warning(
+                                    "Looking for links to {TypeName} - Link type {LinkTypeName} links to multiple 'other' things. Templates do not support this.",
+                                    _applicationType.Name,
+                                    linkedType.Name); // templates have not been designed for this
+                            }
+                            else
+                            {
+                                if (otherSideOfLink.Any())
+                                {
+                                    var link = otherSideOfLink.First();
+
+                                    // here we actually need an alias for _applicationType - the "main" type that is being operated on
+                                    var alias = GetAliasForLinkingField(_applicationType.Fields.First());
+
+                                    _fields.Add(new LinkingField(link, linkToCurrentType, ShortName, alias));
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error(ex, "Unexpected error getting DisplayAllFields for {TypeName}", linkedType.Name);
+                            throw;
                         }
                     }
                 }
@@ -52,7 +88,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
             }
         }
 
-        public List<IJoiningField> RelatedFields => _fields.Where(f => f is IJoiningField).Cast<IJoiningField>().ToList();
+        public List<IJoiningField> RelatedFields => _fields.Where(f => f is IJoiningField && !(f is LinkingField)).Cast<IJoiningField>().ToList();
 
         protected string CreateAliasForLinkingField(Field field)
         {

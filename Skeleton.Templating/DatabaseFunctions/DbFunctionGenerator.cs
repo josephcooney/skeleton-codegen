@@ -52,7 +52,10 @@ namespace Skeleton.Templating.DatabaseFunctions
                         files.Add(GenerateInsertType(type, domain));
                     }
                     
-                    files.Add(GenerateInsertFunction(type, domain));
+                    if (type.Attributes?.noAdd != true)
+                    {
+                        files.Add(GenerateInsertFunction(type, domain));
+                    }
 
                     if (domain.TypeProvider.GenerateCustomTypes)
                     {
@@ -121,25 +124,22 @@ namespace Skeleton.Templating.DatabaseFunctions
                         files.Add(GenerateSearchFunction(type, domain));
                     }
 
-                    if (!type.IsSecurityPrincipal)
+                    // find all the link types that reference this type
+                    var linkTypesReferencingCurrentType = domain.FilteredTypes.Where(t => t.IsLink && t.Fields.Any(f => f.HasReferenceType && f.ReferencesType == type && !f.IsTrackingUser));
+                    if (linkTypesReferencingCurrentType.Any())
                     {
-                        // find all the link types that reference this type
-                        var linkTypesReferencingCurrentType = domain.FilteredTypes.Where(t => t.IsLink && t.Fields.Any(f => f.HasReferenceType && f.ReferencesType == type));
-                        if (linkTypesReferencingCurrentType.Any())
+                        foreach (var linkingType in linkTypesReferencingCurrentType)
                         {
-                            foreach (var linkingType in linkTypesReferencingCurrentType)
+                            var linkAdapter = new SelectForDisplayViaLinkDbTypeAdapter(type, SelectAllForDisplayFunctionName, linkingType, domain);
+                            if (linkAdapter.LinkingTypeField != null && linkAdapter.LinkTypeOtherField != null)
                             {
-                                var linkAdapter = new SelectForDisplayViaLinkDbTypeAdapter(type, SelectAllForDisplayFunctionName, linkingType, domain);
-                                if (linkAdapter.LinkingTypeField != null && linkAdapter.LinkTypeOtherField != null)
-                                {
-                                    files.Add(GenerateTemplateFromAdapter(linkAdapter, "SelectAllForDisplayViaLinkTemplate"));
+                                files.Add(GenerateTemplateFromAdapter(linkAdapter, "SelectAllForDisplayViaLinkTemplate"));
                                     
-                                    if (type.Paged)
-                                    {
-                                        var pagedLinkAdapter = new SelectPagedForDisplayViaLinkDbTypeAdapter(type,
-                                            SelectAllForDisplayFunctionName, linkingType, domain);
-                                        files.Add(GenerateTemplateFromAdapter(pagedLinkAdapter, "SelectPagedForDisplayViaLink"));
-                                    }
+                                if (type.Paged)
+                                {
+                                    var pagedLinkAdapter = new SelectPagedForDisplayViaLinkDbTypeAdapter(type,
+                                        SelectAllForDisplayFunctionName, linkingType, domain);
+                                    files.Add(GenerateTemplateFromAdapter(pagedLinkAdapter, "SelectPagedForDisplayViaLink"));
                                 }
                             }
                         }
@@ -158,7 +158,7 @@ namespace Skeleton.Templating.DatabaseFunctions
                 {
                     Name = namePrefix + adapter.FunctionName + SqlExtension,
                     Contents = Util.GetCompiledTemplateFromTypeProvider(templateName, adapter.Domain.TypeProvider)(adapter),
-                    RelativePath = ".\\" + adapter.Name + "\\"
+                    RelativePath = "./" + adapter.Name + "/"
                 };
             }
             catch (Exception ex)

@@ -7,7 +7,7 @@ using Serilog;
 
 namespace Skeleton.Templating.Classes.Adapters
 {
-    public class OperationAdapter
+    public class OperationAdapter : ClassAdapter
     {
         public const string HttpPostOperation = "Post";
         public const string HttpGetOperation = "Get";
@@ -15,18 +15,24 @@ namespace Skeleton.Templating.Classes.Adapters
         public const string HttpPutOperation = "Put";
 
         protected readonly Operation _op;
-        protected readonly Domain _domain;
-        protected readonly ApplicationType _type;
-        protected readonly SecurityRoles _securityRoles;
+        protected readonly ApplicationType _applicationType;
         
-        public OperationAdapter(Operation op, Domain domain, ApplicationType type)
+        public OperationAdapter(Operation op, Domain domain, ApplicationType type) : base(type, domain)
         {
-            _op = op ?? throw new ArgumentNullException(nameof(op));
-            _domain = domain ?? throw new ArgumentNullException(nameof(domain));
-            _type = type ?? throw new ArgumentNullException(nameof(type));
-
-            _securityRoles = new SecurityRoles(domain.Settings);
-
+            if (op == null)
+            {
+                throw new ArgumentNullException(nameof(op));
+            }
+            
+            if (type == null)
+            {
+                Log.Error("Operation {OperationName} has no application type", op.Name);
+                throw new ArgumentNullException(nameof(type));
+            }
+            
+            _op = op;
+            _applicationType = type;
+            
             if (_op.Returns == null)
             {
                 Log.Error("Operation {OperationName} has no return type", _op.Name);
@@ -35,25 +41,12 @@ namespace Skeleton.Templating.Classes.Adapters
 
         public Operation UnderlyingOperation => _op;
         
-        public string Name => _op.Name;
+        public override string Name => _op.Name;
 
         public string BareName => _op.BareName;
 
-        public ApplicationType RelatedType => _type;
-
-        public string Namespace
-        {
-            get
-            {
-                if (!string.IsNullOrEmpty(_domain.DefaultNamespace) && (string.IsNullOrEmpty(_op.Namespace) || _op.Namespace == _domain.TypeProvider.DefaultNamespace))
-                {
-                    return _domain.DefaultNamespace;
-                }
-
-                return _op.Namespace;
-            }
-        }
-
+        public ApplicationType RelatedType => _applicationType;
+        
         public bool HasParameters => _op.Parameters.Any();
 
         public List<ParameterAdapter> Parameters => _op.Parameters.Select(p => new ParameterAdapter(_domain, p)).ToList();
@@ -65,7 +58,8 @@ namespace Skeleton.Templating.Classes.Adapters
 
         public virtual List<ParameterAdapter> UserEditableParameters
         {
-            get { return UserProvidedParameters.Where(p => p.UserEditable).OrderBy(p => p.RelatedTypeField?.Rank).ToList(); }
+            // Int.MaxValue moves related type fields to the bottom of the list
+            get { return UserProvidedParameters.Where(p => p.UserEditable).OrderBy(p => p.RelatedTypeField != null ? p.RelatedTypeField?.Rank : Int32.MaxValue).ToList(); }
         }
 
         public bool ChangesOrCreatesData => _op.ChangesOrCreatesData;
@@ -250,6 +244,8 @@ namespace Skeleton.Templating.Classes.Adapters
         public ParameterAdapter SecurityUserParameter => Parameters.SingleOrDefault(p => p.IsSecurityUser);
         
         public SimpleType SimpleReturnType => _op.Returns?.SimpleReturnType;
+        
+        public bool IsCustomResultType => _op.Returns.ReturnType == ReturnType.CustomType;
 
         public bool NoResult => _op.Returns?.ReturnType == ReturnType.None;
 
@@ -363,7 +359,8 @@ namespace Skeleton.Templating.Classes.Adapters
             get
             {
                 var referenceTypes = UserProvidedParameters
-                    .Where(p => p.RelatedTypeField?.ReferencesType != null)
+                    .Where(p => p.RelatedTypeField?.ReferencesType != null 
+                                && p.RelatedTypeField.ReferencesType != _applicationType) // ignore things that relate to themselves
                     .Select(p => p.RelatedTypeField.ReferencesType).ToList();
 
                 foreach (var parameter in Parameters)
@@ -372,7 +369,7 @@ namespace Skeleton.Templating.Classes.Adapters
                     {
                         foreach (var field in parameter.CustomType.Fields)
                         {
-                            if (field.ReferencesType != null)
+                            if (field.ReferencesType != null && field.ReferencesType != _applicationType) // ignore references back to self again here
                             {
                                 referenceTypes.Add(field.ReferencesType);
                             }
@@ -385,7 +382,7 @@ namespace Skeleton.Templating.Classes.Adapters
             }
         }
 
-        public bool GenerateUI => _op.GenerateUI;
+        public override bool GenerateUI => _op.GenerateUI;
 
         public bool GenerateApi => _op.GenerateApi;
 
@@ -422,7 +419,7 @@ namespace Skeleton.Templating.Classes.Adapters
                     return true;
                 }
                 
-                var anon = _type.Attributes?.security?.anon;
+                var anon = _applicationType.Attributes?.security?.anon;
 
                 if (_op.CreatesNew)
                 {
@@ -457,7 +454,7 @@ namespace Skeleton.Templating.Classes.Adapters
         {
             get
             {
-                var user = _type.Attributes?.security?.user;
+                var user = _applicationType.Attributes?.security?.user;
 
                 if (_op.CreatesNew)
                 {
@@ -530,7 +527,7 @@ namespace Skeleton.Templating.Classes.Adapters
 
         public bool ApiHooks
         {
-            get { return _op.Attributes?.apiHooks == true || _type.Attributes?.apiHooks == "all" || _type.Attributes?.apiHooks == "modify" && (_op.ChangesData || _op.CreatesNew); }
+            get { return _op.Attributes?.apiHooks == true || _applicationType.Attributes?.apiHooks == "all" || _applicationType.Attributes?.apiHooks == "modify" && (_op.ChangesData || _op.CreatesNew); }
         }
         
         public ClientCustomTypeModel CustomType
@@ -539,14 +536,19 @@ namespace Skeleton.Templating.Classes.Adapters
             {
                 if (UsesModel)
                 {
-                    return new ClientCustomTypeModel(this, _domain);
+                    return new ClientCustomTypeModel(this, _domain, false); // not sure if this is always NOT a custom array type?
                 }
 
                 try
                 {
                     // this doesn't support multiple custom result types as parameters
-                    var customParam = Parameters.Single(p => p.IsCustomTypeOrCustomArray);
-                    return new ClientCustomTypeModel(customParam.CustomType);
+                    var customParam = Parameters.SingleOrDefault(p => p.IsCustomTypeOrCustomArray);
+                    if (customParam != null)
+                    {
+                        return new ClientCustomTypeModel(customParam.CustomType, customParam.IsCustomArrayType);
+                    }
+
+                    return null;
                 }
                 catch (Exception ex)
                 {
@@ -571,7 +573,5 @@ namespace Skeleton.Templating.Classes.Adapters
                 return Parameters.Where(p => _op.IsPaged && p.IsPagingParameter).ToList();
             }
         }
-        
-        public SecurityRoles SecurityRoles => _securityRoles;
     }
 }

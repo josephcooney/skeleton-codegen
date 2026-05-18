@@ -5,7 +5,10 @@ DROP TYPE IF EXISTS {{{escape_sql NewTypeName}}} CASCADE;
 
 CREATE TYPE {{{escape_sql NewTypeName}}} AS
 ({{#each InsertTypeFields}}
-    {{{escape_sql Name}}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}}{{/each}}
+    {{{escape_sql Name}}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#if @last}}{{#if @root.HasLinkingTypes}},{{/if}}{{else}},{{/if}}{{/each}}
+    {{#each LinkingTypes}}
+    {{{escape_sql_name LinkingFieldToOtherSide.Name}}} {{{escape_sql_name LinkingFieldToOtherSide.ProviderTypeName}}}[]{{#unless @last}},{{/unless}} -- link to {{OtherSideOfLink.Name}} 
+    {{/each}}
 );
 
 COMMENT ON TYPE {{{escape_sql NewTypeName}}} IS '{"applicationtype":"{{Name}}", "generated":true }';

@@ -26,8 +26,8 @@ export const {{cs_name Name}}ListItem = (props: {{cs_name Name}}ListItemProps) :
             },]} 
             onPress={navToDetail}>
             {{#each ListFields}}
-                {{#if IsDateTime}}
-                <DateTimeDisplay date={ props.item.{{cml_case Name}} } showTime={true} />
+                {{#if IsDateOrDateTime}}
+                    <DateTimeDisplay date={ props.item.{{cml_case Name}} } showTime={ {{#if IsDate}}false{{else}}true{{/if}} } />
                 {{else}}
                 <Text>{ props.item.{{cml_case Name}} }</Text>
                 {{/if}}

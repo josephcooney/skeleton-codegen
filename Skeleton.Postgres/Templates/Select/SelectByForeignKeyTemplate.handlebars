@@ -8,9 +8,8 @@ CREATE OR REPLACE FUNCTION {{{escape_sql FunctionName}}} (
 {{{escape_sql Name}}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}}
 {{/each}}
 )
-RETURNS {{#unless ReturnsSingle}}SETOF {{/unless}}{{{ResultTypeName}}} AS
+RETURNS SETOF {{{ResultTypeName}}} AS
 $$
-{{#if ReturnsSingle}}DECLARE result {{{ResultTypeName}}};{{/if}}
     BEGIN
 
     {{#if Domain.HasUserType}}
@@ -19,7 +18,7 @@ $$
         END IF;
     {{/if}}
 
-        {{#unless ReturnsSingle}}RETURN QUERY{{/unless}}
+        RETURN QUERY
         SELECT
             {{#each Fields}}
             {{{escape_sql Parent.Name}}}.{{{escape_sql Name}}}{{#unless @last}},{{/unless}}
@@ -27,12 +26,11 @@ $$
         FROM {{{escape_sql Name}}}
         WHERE 
         {{#each SelectFields}}
-        {{{escape_sql Parent.Name}}}.{{{escape_sql Name}}} = {{{escape_sql Parent.FunctionName}}}.{{{escape_sql Name}}} {{#unless @last}}AND{{/unless}}{{#unless ../SoftDelete}}{{#if ../ReturnsSingle}} into result{{/if}};{{/unless}}
+        {{{escape_sql Parent.Name}}}.{{{escape_sql Name}}} = {{{escape_sql Parent.FunctionName}}}.{{{escape_sql Name}}} {{#unless @last}}AND{{/unless}}{{#unless ../SoftDelete}};{{/unless}}
         {{/each}}
 		{{#if SoftDelete}}
-        AND deleted_date is NULL {{#if ReturnsSingle}} into result{{/if}};
+        AND deleted_date is NULL;
         {{/if}}
-        {{#if ReturnsSingle}}RETURN result;{{/if}}
     END
 $$
   LANGUAGE plpgsql STABLE SECURITY INVOKER

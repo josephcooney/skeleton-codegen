@@ -12,8 +12,18 @@ namespace {{DefaultNamespace}}.Data.Repository
 {
     public class RepositoryBase (NpgsqlDataSource dataSource)
     {
-		private static byte[] _keyFileBytes;
-		private static object _keyFileSync = new object();
+        private static byte[]? _keyFileBytes;
+        private static readonly object _keyFileSync = new object();
+
+        public static void ConfigureSsl(NpgsqlDataSourceBuilder builder)
+        {
+            builder.UseSslClientAuthenticationOptionsCallback(options =>
+            {
+                options.ClientCertificates ??= new X509CertificateCollection();
+                ClientCertificateValidationCallback(options.ClientCertificates);
+                options.RemoteCertificateValidationCallback = ServerCertificateValidationCallback;
+            });
+        }
 
 		protected virtual T GetField<T>(DbDataReader reader, string fieldName)
 		{
@@ -24,6 +34,28 @@ namespace {{DefaultNamespace}}.Data.Repository
 			return (T)reader[fieldName];
 		}
 
+        protected DateOnly GetDateOnlyField(DbDataReader reader, string fieldName)
+        {
+            if (reader[fieldName] == DBNull.Value)
+            {
+                return default(DateOnly);
+            }
+        
+            var valueInternal = (DateTime)reader[fieldName];
+            return DateOnly.FromDateTime(valueInternal);
+        }
+    
+        protected DateOnly? GetNullableDateOnlyField(DbDataReader reader, string fieldName)
+        {
+            if (reader[fieldName] == DBNull.Value)
+            {
+                return null;
+            }
+        
+            var valueInternal = (DateTime)reader[fieldName];
+            return DateOnly.FromDateTime(valueInternal);
+        }
+    
         protected virtual void SetParameterValue(object? value, NpgsqlCommand cmd, string name, NpgsqlDbType dbType)
         {
             var parameter = cmd.Parameters.AddWithValue(name, value ?? DBNull.Value);
@@ -35,7 +67,7 @@ namespace {{DefaultNamespace}}.Data.Repository
 			// http://bartlettpublishing.com/site/bartpub/blog/3/entry/350
             // http://blog.lostpropertyhq.com/postgres-full-text-search-is-good-enough/
 			var searchText = value.ToString();
-		    if (searchText.IndexOf(' ') > 0)
+		    if (!string.IsNullOrEmpty(searchText) && searchText.IndexOf(' ') > 0)
             {
                 var parts = searchText.Split(' ');
                 searchText = "";
@@ -58,26 +90,10 @@ namespace {{DefaultNamespace}}.Data.Repository
 
 		protected NpgsqlConnection CreateConnection()
         {
-            var connection = dataSource.CreateConnection();
-            connection.ProvideClientCertificatesCallback = ClientCertificateValidationCallback;
-            connection.UserCertificateValidationCallback = ServerCertificateValidationCallback;
-            return connection;
+            return dataSource.CreateConnection();
         }
 
-        protected NpgsqlConnection CreateConnection(string connectionString)
-        {
-            var connection = new NpgsqlConnection(connectionString);
-            connection.ProvideClientCertificatesCallback = ClientCertificateValidationCallback;
-            connection.UserCertificateValidationCallback = ServerCertificateValidationCallback;
-            return connection;
-        }
-
-        protected string BuildConnectionString(IConfiguration configuration)
-        {
-            return configuration.GetConnectionString("DefaultConnection") + configuration.GetValue<string>("UserPassword") + ";";
-        }
-
-		public static bool ServerCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslpolicyerrors)
+        public static bool ServerCertificateValidationCallback(object sender, X509Certificate? certificate, X509Chain? chain, SslPolicyErrors sslPolicyErrors)
         {
             // blanket accept whatever the server sent
             return true;

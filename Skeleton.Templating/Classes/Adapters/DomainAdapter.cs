@@ -13,9 +13,9 @@ namespace Skeleton.Templating.Classes
             _domain = domain;
         }
 
-        public List<ApplicationType> IncludedTypes => _domain.Types.Where(a => !a.Ignore).OrderBy(t => t.Name).ToList();
+        public List<ClassAdapter> IncludedTypes => _domain.Types.Where(a => !a.Ignore).OrderBy(t => t.Name).Select(t => new ClassAdapter(t, _domain)).ToList();
 
-        public List<ResultType> CustomTypes => _domain.ResultTypes.Where(rt => rt.IsCustomType).ToList();
+        public List<ClassAdapter> CustomTypes => _domain.ResultTypes.Where(rt => rt.IsCustomType).Select(rt => new ClassAdapter(rt, _domain)).ToList();
 
         public string DefaultNamespace => _domain.DefaultNamespace;
     }

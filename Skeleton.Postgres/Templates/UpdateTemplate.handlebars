@@ -3,7 +3,10 @@ SET search_path TO {{{escape_sql Namespace}}};
 
 CREATE OR REPLACE FUNCTION {{{escape_sql FunctionName}}} (
 {{#each UpdateInputFields}}
-{{{escape_sql Name}}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}}
+{{{escape_sql Name}}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#if @last}}{{#if @root.HasLinkingTypes}},{{/if}}{{else}},{{/if}}
+{{/each}}
+{{#each LinkingTypes}}
+{{{escape_sql_name LinkingFieldToOtherSide.Name}}} {{{escape_sql_name LinkingFieldToOtherSide.ProviderTypeName}}}[]{{#unless @last}},{{/unless}} -- link to {{OtherSideOfLink.Name}}
 {{/each}}
 ) RETURNS int AS
 $$
@@ -26,6 +29,30 @@ $$
             {{{escape_sql Parent.Name}}}.{{{escape_sql Name}}} = {{{escape_sql Parent.FunctionName}}}.{{{escape_sql Name}}}{{#unless @last}} AND{{/unless}}{{/each}}{{#if SoftDelete}} AND deleted_date is NULL{{/if}};
 
         get diagnostics update_count = row_count;
+
+        {{#if HasLinkingTypes}}
+            {{#each LinkingTypes}}
+                -- delete existing related items
+                delete from {{{escape_sql LinkType.Namespace}}}.{{{escape_sql LinkType.Name}}}
+                where {{{escape_sql FieldLinkingToCurrentType.Name}}} = {{{escape_sql ../FunctionName}}}.{{{escape_sql ../PrimaryKeyField.Name}}};
+                
+                -- insert links to {{OtherSideOfLink.Name}}
+                insert into {{{escape_sql LinkType.Namespace}}}.{{{escape_sql LinkType.Name}}} (
+                {{#each InsertFields}}
+                    {{#if IsLinkingField}}
+                    {{{escape_sql Field.Name}}}{{#unless @last}},{{/unless}}
+                    {{else}}
+                    {{{escape_sql Name}}}{{#unless @last}},{{/unless}}
+                    {{/if}}
+                {{/each}}
+                )
+                select
+                {{#each InsertFields}}
+                    {{{escape_sql Value}}}{{#if @last}};{{else}},{{/if}}
+                {{/each}}
+        
+            {{/each}}
+        {{/if}}
         
         return update_count;
         
@@ -35,10 +62,10 @@ $$
   COST 100;
 
 {{#if UseDbRoleForSecurity}}
-REVOKE ALL ON FUNCTION {{{escape_sql FunctionName}}} ({{#each UpdateInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}} {{/each}}) FROM public;
+REVOKE ALL ON FUNCTION {{{escape_sql FunctionName}}} ({{#each UpdateInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#if @last}}{{#if @root.HasLinkingTypes}},{{/if}}{{else}},{{/if}} {{/each}}{{#each LinkingTypes}}{{{escape_sql_name LinkingFieldToOtherSide.ProviderTypeName}}}[]{{#unless @last}}, {{/unless}}{{/each}}) FROM public;
 
-GRANT EXECUTE ON FUNCTION {{{escape_sql FunctionName}}} ({{#each UpdateInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}} {{/each}}) TO web_app_role;
+GRANT EXECUTE ON FUNCTION {{{escape_sql FunctionName}}} ({{#each UpdateInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#if @last}}{{#if @root.HasLinkingTypes}},{{/if}}{{else}},{{/if}} {{/each}}{{#each LinkingTypes}}{{{escape_sql_name LinkingFieldToOtherSide.ProviderTypeName}}}[]{{#unless @last}}, {{/unless}}{{/each}}) TO web_app_role;
 {{/if}}
 
-COMMENT ON FUNCTION {{{escape_sql FunctionName}}} ({{#each UpdateInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#unless @last}},{{/unless}} {{/each}})
+COMMENT ON FUNCTION {{{escape_sql FunctionName}}} ({{#each UpdateInputFields}} {{{escape_sql_name ProviderTypeName}}}{{#if HasSize}}({{Size}}){{/if}}{{#if @last}}{{#if @root.HasLinkingTypes}},{{/if}}{{else}},{{/if}} {{/each}}{{#each LinkingTypes}}{{{escape_sql_name LinkingFieldToOtherSide.ProviderTypeName}}}[]{{#unless @last}}, {{/unless}}{{/each}})
     IS '{"applicationtype":"{{Name}}", "generated":true, "changesData":true, "friendlyName":"Edit", "fullName":"{{FunctionName}}" {{#if NoEditUI}},"ui":false, "api":false {{/if}} }';

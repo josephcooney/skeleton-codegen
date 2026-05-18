@@ -1,0 +1,216 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Skeleton.Model;
+using Skeleton.Model.Operations;
+
+namespace Skeleton.Templating.DatabaseFunctions.Adapters;
+
+public class LinkAdapter
+{
+    private readonly IOperationPrototype _operationPrototype;
+
+    public LinkAdapter(ApplicationType linkType, ApplicationType currentType, ApplicationType otherSide, IOperationPrototype operationPrototype)
+    {
+        _operationPrototype = operationPrototype;
+        LinkType = linkType;
+        OtherSideOfLink = otherSide;
+        CurrentType = currentType;
+    }
+    public ApplicationType CurrentType { get; private set; }
+    public ApplicationType LinkType { get; private set; }
+    public ApplicationType OtherSideOfLink { get; private set; }
+
+    public Domain Domain => CurrentType.Domain;
+
+    public IParamterPrototype LinkingFieldToOtherSide
+    {
+        get
+        {
+            var a = LinkType.Fields.First(f =>
+                f.HasReferenceType && f.ReferencesType != CurrentType && !f.ReferencesType.IsSecurityPrincipal);
+            return new LinkingFieldAdapter(a, _operationPrototype, Domain.TypeProvider, a.HasReferenceType && a.ReferencesType == CurrentType && !a.ReferencesType.IsSecurityPrincipal);
+        }
+    }
+    
+    public List<IParamterPrototype> InsertFields
+    {
+        get
+        {
+            var fields  = UserEditableFields.Where(f => f.Add).ToList();
+            // we assume for linking tables the PK field is auto-generated, either a sequence or default value of uuid_generate_v4, 
+            // so we don't need to add them here
+                
+            var createdDateTrackingField = LinkType.Fields.FirstOrDefault(a => a.IsCreatedDate);
+            if (createdDateTrackingField != null)
+            {
+                fields.Add(Domain.TypeProvider.CreateFieldAdapter(createdDateTrackingField, _operationPrototype));
+            }
+            if (CreatedByField != null)
+            {
+                if (_operationPrototype.OperationType == OperationType.Update)
+                {
+                    // we need to handle "created by" specially here...it is the created by for the LINK
+                    // but we need to use the "modified by" user who is calling the update
+                    var adapedCreatedByField = new LinkingFieldModifiedByAdapter(CreatedByField, ModifiedByField, _operationPrototype);
+                    fields.Add(adapedCreatedByField);
+                }
+                else
+                {
+                    fields.Add(CreatedByField);
+                }
+            }
+            return fields.OrderBy(f => f.Order).ToList();
+        }
+    }
+
+    // doesn't really handle composite foreign key fields
+    public IPseudoField FieldLinkingToCurrentType => LinkType.Fields.First(f => f.ReferencesType == CurrentType);
+    
+    public List<IParamterPrototype> UserEditableFields
+    {
+        get
+        {
+            var list = new List<IParamterPrototype>();
+            list.AddRange(LinkType.Fields.Where(a => a.IsCallerProvided).Select(a => new LinkingFieldAdapter(a, _operationPrototype, Domain.TypeProvider, a.HasReferenceType && a.ReferencesType == CurrentType && !a.ReferencesType.IsSecurityPrincipal)).OrderBy(f => f.Order));
+            return list;
+        }
+    }
+    
+    public IParamterPrototype CreatedByField
+    {
+        get
+        {
+            var field = LinkType.Fields.FirstOrDefault(f => f.IsTrackingUser && Domain.NamingConvention.IsCreatedByFieldName(f.Name));
+            if (field != null)
+            {
+                return Domain.TypeProvider.CreateFieldAdapter(field, _operationPrototype);
+            }
+            return null;
+        }
+    }
+
+    public IParamterPrototype ModifiedByField
+    {
+        get
+        {
+            var field = LinkType.Fields.FirstOrDefault(f => f.IsTrackingUser && Domain.NamingConvention.IsModifiedByFieldName(f.Name));
+            if (field != null)
+            {
+                return Domain.TypeProvider.CreateFieldAdapter(field, _operationPrototype);
+            }
+            return null;
+        }
+    }
+}
+
+public class LinkingFieldModifiedByAdapter : IParamterPrototype
+{
+    private readonly IParamterPrototype _field;
+    private readonly IParamterPrototype _modifiedField;
+    private readonly IOperationPrototype _prototype;
+
+    public LinkingFieldModifiedByAdapter(IParamterPrototype field, IParamterPrototype modifiedField, IOperationPrototype prototype)
+    {
+        _field = field;
+        _modifiedField = modifiedField;
+        _prototype = prototype;
+    }
+
+    public string Name => _field.Name;
+    public string ParentAlias => _field.ParentAlias;
+    public string ProviderTypeName => _field.ParentAlias;
+    public bool HasDisplayName => _field.HasDisplayName;
+    public string DisplayName => _field.DisplayName;
+    public int Order => _field.Order;
+    public bool IsUuid => _field.IsUuid;
+    public bool Add => _field.Add;
+    public bool Edit => _field.Edit;
+    public bool IsUserEditable => _field.IsUserEditable;
+    public bool IsKey => _field.IsKey;
+    public bool IsInt => _field.IsInt;
+    public bool HasSize => _field.HasSize;
+    public int? Size => _field.Size;
+    public Type ClrType => _field.ClrType;
+    public bool IsGenerated => _field.IsGenerated;
+    public bool IsRequired => _field.IsRequired;
+
+    public string Value => _modifiedField.Value;
+    
+    public IOperationPrototype Parent => _prototype;
+}
+
+// this is pretty postgres-specific - remains to be seen how we'd do this for SQL server
+public class LinkingFieldAdapter : IParamterPrototype
+{
+    private readonly Field _field;
+    private readonly IOperationPrototype _prototype;
+    private readonly ITypeProvider _typeProvider;
+    private readonly bool _isLinkToCurrentType;
+
+    public LinkingFieldAdapter(Field field, IOperationPrototype prototype, ITypeProvider typeProvider, bool isLinkToCurrentType)
+    {
+        _field = field;
+        _prototype = prototype;
+        _typeProvider = typeProvider;
+        _isLinkToCurrentType = isLinkToCurrentType;
+    }
+
+    public Field Field => _field;
+    
+    public string Name => Util.PluraliseParameterName(_field.Name);
+    public string ParentAlias => _prototype.ShortName;
+    public string ProviderTypeName => _field.ProviderTypeName;
+    public bool HasDisplayName => false;
+    public string DisplayName => null;
+    public int Order => _field.Order;
+    public bool IsUuid => _field.ClrType == typeof(Guid);
+    public bool Add => _field.Add;
+    public bool Edit => _field.Edit;
+    public bool IsUserEditable => _field.IsCallerProvided;
+    public bool IsKey => _field.IsKey;
+    public bool IsInt => _field.IsInt;
+    public bool HasSize => _field.HasSize;
+    public int? Size => _field.Size;
+    public Type ClrType => _field.ClrType;
+    public bool IsGenerated => _field.IsGenerated;
+    public bool IsRequired => _field.IsRequired;
+
+    public bool IsLinkingField => true;
+
+    public string Value
+    {
+        get
+        {
+            if (_prototype.OperationType == OperationType.Insert)
+            {
+                if (_isLinkToCurrentType)
+                {
+                    return "new_id";
+                }
+                else
+                {
+                    return $"unnest({_typeProvider.FormatOperationParameterName(_prototype.NewRecordParameterName, Name)})";
+                }  
+            }
+
+            if (_prototype.OperationType == OperationType.Update)
+            {
+                if (_isLinkToCurrentType)
+                {
+                    // should this look at the operation instead?
+                    var idField = _field.ReferencesType.Fields.First(f => f.IsKey).Name;
+                    return _typeProvider.FormatOperationParameterName(_prototype.FunctionName, idField);
+                }
+                else
+                {
+                    return $"unnest({_typeProvider.FormatOperationParameterName(_prototype.FunctionName, Name)})";
+                }
+            }
+
+            return null;
+        }
+    }
+
+    public IOperationPrototype Parent => _prototype;
+}

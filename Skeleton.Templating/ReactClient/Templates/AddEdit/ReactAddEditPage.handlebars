@@ -15,7 +15,8 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import {useSnackbar} from "notistack";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-{{#if IsUpdate}}import { Loading } from '../../controls/loading';{{/if}}
+import { Content } from "../../controls/DynamicContent";
+{{#if IsUpdate}}import { CircularProgress } from "@mui/material";{{/if}}
 {{#if HasAnyHtmlFields}}import RichContentEditor from "../../controls/RichTextEditor";{{/if}}
 {{#if HasHelp}}
 import { useHelp } from '../../help';
@@ -24,6 +25,9 @@ import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 
 // sub-components for {{cs_name Name}} 
 import { {{cs_name Name}} } from './{{cs_name Name}}';
+{{#if ReferencesSelf}}
+import { {{cs_name Name}}Select } from './{{cml_case Name}}Select';
+{{/if}}
 import { {{ClientApiInterfaceName}}, {{ClientApiTypeName}}, {{ClientApiTypeName}}QueryKeys } from './{{cml_case Name}}ApiClient';
 import { {{cs_name Name}}Validate } from './{{cml_case Name}}Validate';
 import {{cs_name Name}}{{OperationNameFriendly}}Rendering from './{{cml_case Name}}{{OperationNameFriendly}}Rendering';
@@ -35,6 +39,9 @@ import { {{ModelTypeName}} } from "./{{ModelTypeName}}";
 import { {{ResolvedTypescriptTypeUnderlying}} } from './{{ResolvedTypescriptTypeUnderlying}}'
 {{/if}}
 {{/each}}
+{{#if CurrentOperation.IsCustomResultType}}
+import { {{CurrentOperation.TypeScriptReturn}} } from './{{CurrentOperation.TypeScriptReturn}}';    
+{{/if}}
 {{#if IsUpdate}}
 {{#if HasSelectAllType}}
 import { {{cs_name SelectAllType.Name}} } from './{{cs_name SelectAllType.Name}}';
@@ -45,12 +52,13 @@ import { {{cs_name SelectAllType.Name}} } from './{{cs_name SelectAllType.Name}}
 // linking with other types    
 import { linkedItem } from '../../linked-items';
 {{#each LinkedDetails}}
-import { {{LinkingType.ClientApiInterfaceName}}, {{LinkingType.ClientApiTypeName}} } from '../{{kb_case LinkingType.Name}}/{{cml_case LinkingType.Name}}ApiClient';
+import { {{LinkingType.ClientApiInterfaceName}}, {{LinkingType.ClientApiTypeName}}, {{LinkingType.ClientApiTypeName}}QueryKeys } from '../{{kb_case LinkingType.Name}}/{{cml_case LinkingType.Name}}ApiClient';
 import { {{cs_name LinkingType.Name}}New } from '../{{kb_case LinkingType.Name}}/{{cs_name LinkingType.Name}}New';
 {{/each}}
 {{/if}}
-{{#each CurrentOperation.ParameterReferenceTypes}}
+{{#each ParameterReferenceTypes}}
 import { {{cs_name Name}}Select } from '../{{kb_case Name}}/{{cml_case Name}}Select';
+import { {{cs_name Name}}ApiClientQueryKeys } from '../{{kb_case Name}}/{{cml_case Name}}ApiClient';
 {{/each}}
 
 export interface {{StateTypeName}} {
@@ -148,7 +156,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
             {{#if IsInt}}
                 return +locationState.linkedId;
             {{else}}
-                return locationState.linkedId;
+                return locationState.linkedId.toString();
             {{/if}}
         }
         const qry: any = queryString.default.parse(location.search);
@@ -159,8 +167,15 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
             return qry.{{cml_case Name}};
         {{/if}}
         }
-    
+        {{#if ../IsUpdate}}
+        {{#if  ReferencesType.IsContextType}}
+        return state.data.{{cml_case Name}};
+        {{else}}
         return null;
+        {{/if}}
+        {{else}}
+        return null;
+        {{/if}}
     }
 {{/each}}
 
@@ -266,7 +281,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
     {{#if AssociateViaLink}}
 	const createLinkedItemAssociation = (id: number | string) => {
 		// creation via location from a link, or via linkedId and linkedType properties
-        var linked : [string, number | string] | null = null;
+        let linked : [string, number | string] | null = null;
         if (props.linkedId && props.linkedType){
             linked = [props.linkedType, props.linkedId];
         } else {
@@ -276,9 +291,10 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
         if (linked) {
             {{#each LinkedDetails}}
             if (linked[0] == "{{Name}}") {
-                var {{cml_case LinkingType.Name}}Client = props.{{cml_case LinkingType.Name}}Client ?? new {{LinkingType.ClientApiTypeName}}();
-                var {{cml_case LinkingType.Name}}ToAdd: {{cs_name LinkingType.Name}}New = { {{cml_case LinkingTypeIdField.Name}}: linked[1] as {{get_ts_type LinkingTypeIdField.ClrType}}, {{cml_case CurrentTypeIdField.Name}}: id as {{get_ts_type CurrentTypeIdField.ClrType}} };
-                {{cml_case LinkingType.Name}}Client.insert({{cml_case LinkingType.Name}}ToAdd);
+                const {{cml_case LinkingType.Name}}Client = props.{{cml_case LinkingType.Name}}Client ?? new {{LinkingType.ClientApiTypeName}}();
+                const {{cml_case LinkingType.Name}}ToAdd: {{cs_name LinkingType.Name}}New = { {{cml_case LinkingTypeIdField.Name}}: linked[1] as {{get_ts_type LinkingTypeIdField.ClrType}}, {{cml_case CurrentTypeIdField.Name}}: id as {{get_ts_type CurrentTypeIdField.ClrType}} };
+                {{cml_case LinkingType.Name}}Client.insert([{{cml_case LinkingType.Name}}ToAdd]);
+                {{cs_name LinkingType.Name}}ApiClientQueryKeys.invalidateAll(queryClient);
             }
             {{/each}}
         }		
@@ -287,6 +303,9 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
 
     const invalidateCaches = () => {
         {{ClientApiTypeName}}QueryKeys.invalidateAll(queryClient);
+{{#each ParameterReferenceTypes}}
+        {{cs_name Name}}ApiClientQueryKeys.invalidateAll(queryClient);
+{{/each}}
     }
 
 	{{#if IsAttachment}}
@@ -322,7 +341,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
         }
     }
 	{{else}}
-        const handleSubmit = async (fields : {{FormDataTypeName}}) : Promise<void> => {
+    const handleSubmit = async (fields : {{FormDataTypeName}}) : Promise<void> => {
         {{#if CurrentOperation.HasCustomType}}
         console.log(fields);
         {{/if}}
@@ -330,11 +349,21 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
 		{{#if CurrentOperation.UsesModel}}
 		    const data = await api.{{cml_case OperationName}}(fields);
         {{else}}
+        {{#each CurrentOperation.UserProvidedParameters}}{{#if IsCustomArrayType}}
+        if (!fields.{{cml_case Name}}){
+            return; // null value - nothing to submit
+        }    
+        {{/if}}
+        {{/each}}
             const data = await api.{{cml_case OperationName}}({{#each CurrentOperation.UserProvidedParameters}}{{#if IsCustomArrayType}}[fields.{{cml_case Name}}]{{else}}fields.{{cml_case Name}}{{/if}}{{#unless @last}}, {{/unless}}{{/each}}); 
 		{{/if}}
 			{{#if AssociateViaLink}}
 			if (data) {
+                {{#if CurrentOperation.IsSingular}}
                 createLinkedItemAssociation(data);
+                {{else}}
+                createLinkedItemAssociation(data.{{CurrentOperation.SimpleReturnType.IdentityField.DisplayName}});
+                {{/if}}
             }
 			{{/if}}
             enqueueSnackbar('{{HumanizedName}} saved', {variant: 'success'});
@@ -379,7 +408,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
             return customTitle;
         }
 
-        return <Title>{{OperationNameFriendly}} {{hmn Name}}{helpButton}</Title>;            
+        return <Title><Content contentId='{{cs_name Name}}_{{OperationNameFriendly}}_Title'>{{OperationNameFriendly}} {{hmn Name}}</Content>{helpButton}</Title>;            
     {{else}}
         if (props.title){
             return <Title>{props.title}</Title>;
@@ -390,7 +419,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
             return customTitle;
         }
 
-        return <Title>{{OperationNameFriendly}} {{hmn Name}}</Title>;
+        return <Title><Content contentId='{{cs_name Name}}_{{OperationNameFriendly}}_Title'>{{OperationNameFriendly}} {{hmn Name}}</Content></Title>;
     {{/if}}
     }
 
@@ -403,7 +432,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
             {formik => (
 			<div>
                 {renderTitle()}
-				{{#if IsUpdate}} { state.loading ? <Loading /> : null } {{/if}}
+				{{#if IsUpdate}} { state.loading ? <CircularProgress /> : null } {{/if}}
 				{ state.error ? <ErrorControl message={state.message ? state.message : ""} /> : null }
                 <Form autoComplete="off">
                     <Grid container spacing={2}>
@@ -422,12 +451,18 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                         {{else}}
                         <Grid item xs={12}>
 							{{#if Field.HasReferenceType}}
-							<Field id="{{NameWithPathCamelCase}}" name="{{NameWithPathCamelCase}}" component={ {{cs_name Field.ReferencesType.Name}}Select } value={ {{../CurrentOperation.StatePath}}?.{{NameWithPathSafeCamelCase}} } label="{{hmn Field}}" error={ hasError('{{NameWithPathCamelCase}}', formik)} {{#unless Field.ReferencesType.IsReferenceData}} readonly={get{{cml_case Name}}() != null} {{/unless}} />
+							<Field id="{{NameWithPathCamelCase}}" name="{{NameWithPathCamelCase}}" component={ {{cs_name Field.ReferencesType.Name}}Select } value={ {{../CurrentOperation.StatePath}}?.{{NameWithPathSafeCamelCase}} } label="{{LabelText}}" error={ hasError('{{NameWithPathCamelCase}}', formik)} {{#unless Field.ReferencesType.IsReferenceData}} readonly={get{{cml_case Name}}() != null} {{/unless}} />
                             <FormHelperText error={true}>
                                 <ErrorMessage name="{{NameWithPathCamelCase}}" />
                             </FormHelperText>
                             {{else}}
-								{{#if IsDateTime}}
+                                {{#if IsLinkedItemIds}}
+                            <Field id="{{NameWithPathCamelCase}}" name="{{NameWithPathCamelCase}}" component={ {{cs_name LinkedItemType.Name}}Select } multiple={true} value={ {{../CurrentOperation.StatePath}}?.{{NameWithPathSafeCamelCase}} } {{#if HasEditableLinkingFields}} filter={ {{#each ../CurrentOperation.EditableLinkingFields}} get{{cml_case Name}}() != null ? '{{Name}}' : {{#if @last}} undefined{{/if}}{{/each}} } filterId={ {{#each ../CurrentOperation.EditableLinkingFields}} get{{cml_case Name}}() ?? {{#if @last}} undefined{{/if}}{{/each}} } {{/if}} label="{{LabelText}}" error={ hasError('{{NameWithPathCamelCase}}', formik)}  />
+                            <FormHelperText error={true}>
+                                <ErrorMessage name="{{NameWithPathCamelCase}}" />
+                            </FormHelperText>    
+                                {{else}}
+								{{#if IsDateOrDateTime}}
                                 {{#if IsDate}}<DatePicker {{else}}<DateTimePicker {{/if}}
                                 slotProps={ {
                                     textField: {
@@ -441,7 +476,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                                         actions: ['clear', 'today']
                                     },
                                 } }                                    
-                                label="{{hmn Field}}"
+                                label="{{LabelText}}"
                                 value={ formik.values.{{NameWithPathSafeCamelCase}} }
                                 onChange={(newValue) => {
                                     formik.setFieldValue("{{NameWithPathCamelCase}}", newValue);
@@ -452,7 +487,7 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                             </FormHelperText>
                                 {{else}}
 									{{#if IsLargeTextContent}}
-                                <TextField minRows={4} maxRows={8} fullWidth id="{{NameWithPathCamelCase}}" name="{{NameWithPathCamelCase}}" value={ formik.values.{{NameWithPathSafeCamelCase}} } onChange={formik.handleChange} onBlur={formik.handleBlur} label="{{hmn Field}}" {{#if Field.IsRequired}}required={true}{{/if}}  type="{{input_type ClrType}}" error={ hasError('{{NameWithPathCamelCase}}', formik)} placeholder="Enter {{hmn Name}}" multiline={true} helperText={ errorMessage('{{NameWithPathCamelCase}}', formik)} />
+                                <TextField minRows={4} maxRows={8} fullWidth id="{{NameWithPathCamelCase}}" name="{{NameWithPathCamelCase}}" value={ formik.values.{{NameWithPathSafeCamelCase}} } onChange={formik.handleChange} onBlur={formik.handleBlur} label="{{LabelText}}" {{#if Field.IsRequired}}required={true}{{/if}}  type="{{input_type ClrType}}" error={ hasError('{{NameWithPathCamelCase}}', formik)} placeholder="Enter {{hmn Name}}" multiline={true} helperText={ errorMessage('{{NameWithPathCamelCase}}', formik)} />
                                     {{else}}
 									{{#if IsFile}}
 								<input hidden type="file" id="{{NameWithPathCamelCase}}" name="{{NameWithPathCamelCase}}" onChange={(event: any) => {
@@ -485,13 +520,14 @@ export const {{cs_name Name}}{{OperationNameFriendly}} = (props: {{cs_name Name}
                                                 {{#if IsHtml}}
                                 <RichContentEditor value={ formik.values.{{NameWithPathSafeCamelCase}} } onChange={(val) => formik.setFieldValue("{{NameWithPathCamelCase}}", val)} placeholder={'Enter {{hmn Name}}'} />
 										        {{else}}
-								<TextField id="{{NameWithPathCamelCase}}" fullWidth name="{{NameWithPathCamelCase}}" value={ formik.values.{{NameWithPathSafeCamelCase}} } onChange={formik.handleChange} onBlur={formik.handleBlur} label="{{hmn Field}}" {{#if Field.IsRequired}}required={true}{{/if}}  type="{{input_type ClrType}}" error={ hasError('{{NameWithPathCamelCase}}', formik)} helperText={ errorMessage('{{NameWithPathCamelCase}}', formik)} placeholder="Enter {{hmn Name}}" />                                
+								<TextField id="{{NameWithPathCamelCase}}" fullWidth name="{{NameWithPathCamelCase}}" value={ formik.values.{{NameWithPathSafeCamelCase}} } onChange={formik.handleChange} onBlur={formik.handleBlur} label="{{LabelText}}" {{#if Field.IsRequired}}required={true}{{/if}}  type="{{input_type ClrType}}" error={ hasError('{{NameWithPathCamelCase}}', formik)} helperText={ errorMessage('{{NameWithPathCamelCase}}', formik)} placeholder="Enter {{hmn Name}}" />                                
                                                 {{/if}}
                                             {{/if}}
                                         {{/if}}
 									{{/if}}
 									{{/if}}
 								{{/if}}
+                                {{/if}}
 							{{/if}}
                         </Grid>
                         {{/if}}						

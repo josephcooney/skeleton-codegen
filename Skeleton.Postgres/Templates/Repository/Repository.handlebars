@@ -3,14 +3,17 @@ using Npgsql;
 using System;
 using System.Data;
 using System.Data.Common;
+using Serilog;
 using NpgsqlTypes;
 using {{DomainNamespace}}; 
 {{#if HasCustomResultType}}
-using {{Namespace}}.Data.Model; 
-using {{Namespace}}.Data.Model; 
+using {{Namespace}}.Data.Model;
+{{/if}}
+{{#if IsInCustomNamespace}}
+using {{cs_name DefaultNamespace}}.Data.Repository;
 {{/if}}
 
-namespace {{Namespace}}.Data.Repository 
+namespace {{cs_name Namespace}}.Data.Repository
 {
     public partial interface I{{cs_name Type.Name}}Repository 
     {
@@ -71,6 +74,7 @@ namespace {{Namespace}}.Data.Repository
             }
             catch (NpgsqlException ex)
             {
+                Log.Error(ex, "Upexpected error calling {OperationName}", "{{{escape_quotes SqlName}}}");
                 var generalException = TranslateException(ex);
                 throw generalException;
             }
@@ -120,6 +124,7 @@ namespace {{Namespace}}.Data.Repository
             }
             catch (NpgsqlException ex)
             {
+                Log.Error(ex, "Upexpected error calling {OperationName}", "{{{escape_quotes SqlName}}}");
                 var generalException = TranslateException(ex);
                 throw generalException;
             }
@@ -144,11 +149,7 @@ namespace {{Namespace}}.Data.Repository
                 {{#if IsCustomTypeOrCustomArray}}
             cmd.Parameters.Add(new NpgsqlParameter{ParameterName = "{{Name}}", Value = {{cml_case Name}} });
                 {{else}}
-                    {{#if IsNullable}}
-            SetParameterValue({{cml_case Name}}, cmd, "{{Name}}", NpgsqlDbType.{{db_type_to_cs ProviderTypeName}});
-                    {{else}}
-            cmd.Parameters.AddWithValue("{{Name}}", NpgsqlDbType.{{db_type_to_cs ProviderTypeName}}, {{cml_case Name}});
-                    {{/if}}
+            cmd.Parameters.Add(new NpgsqlParameter<{{{ResolvedClrType}}}>("{{Name}}", {{cml_case Name}}));
                 {{/if}}
 			{{/if}}
 			{{/each}}
@@ -161,7 +162,15 @@ namespace {{Namespace}}.Data.Repository
         private {{{ReturnTypeName}}} Read{{cs_name BareName}}Result(DbDataReader reader)
         {
 			{{#each SimpleReturnType.NonExcludedFields}}
-			var {{cml_case Name}} = GetField<{{format_clr_type ClrType}}>(reader, "{{Name}}");
+                {{#if IsDate}}
+                    {{#if IsRequired}}
+            var {{cml_case Name}} = GetDateOnlyField<{{format_clr_type ClrType}}>(reader, "{{Name}}");
+                    {{else}}
+            var {{cml_case Name}} = GetNullableDateOnlyField(reader, "{{Name}}");
+                    {{/if}}
+                {{else}}
+            var {{cml_case Name}} = GetField<{{format_clr_type ClrType}}>(reader, "{{Name}}");
+                {{/if}}
 			{{/each}}
             var item = new {{{ReturnTypeName}}}({{#each SimpleReturnType.NonExcludedFields}}{{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}});
             return item;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Serilog;
 using Skeleton.Model;
 using Skeleton.Templating.Classes.Adapters;
 
@@ -16,7 +17,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
         
         public string ModelTypeName => UsesModel ? $"{Util.CSharpNameFromName(_op.Name)}{NamingConventions.ModelClassNameSuffix}" : null;
         
-        public ClientApiAdapter ClientApi => new ClientApiAdapter(_type, _domain);
+        public ClientApiAdapter ClientApi => new ClientApiAdapter(_applicationType, _domain);
         
         public List<Field> EditableLinkingFields
         {
@@ -31,6 +32,8 @@ namespace Skeleton.Templating.ReactClient.Adapters
                 return fields;
             }
         }
+
+        public bool HasEditableLinkingFields => EditableLinkingFields.Any();
 
         public string StatePath => UsesModel ? "state.data" : "state";
 
@@ -47,9 +50,19 @@ namespace Skeleton.Templating.ReactClient.Adapters
                             // this only handles 1 level of nesting of fields
                             if (field is Field)
                             {
-                                fields.Add(new UserInputFieldModel()
-                                    {Field = field as Field, Name = field.Name, RelativeStatePath = parameter.Name + "."});
-                                
+                                if (IsLinkingItemIdList(field))
+                                {
+                                    var otherSideOfLink = GetOtherSideOfLinkingType(field);
+                                    
+                                    fields.Add(new UserInputFieldModel()
+                                        {IsLinkedItemIds = true, LinkedItemType = otherSideOfLink, Field = field as Field, Name = field.Name, RelativeStatePath = parameter.Name + "."});
+                                    
+                                }
+                                else
+                                {
+                                    fields.Add(new UserInputFieldModel()
+                                        {Field = field as Field, Name = field.Name, RelativeStatePath = parameter.Name + "."});
+                                }
                             }
                             else
                             {
@@ -60,17 +73,70 @@ namespace Skeleton.Templating.ReactClient.Adapters
                     }
                     else
                     {
-                        fields.Add(new UserInputFieldModel{Field = parameter.RelatedTypeField, Name = parameter.Name, Parameter = parameter});
+                        if (parameter.RelatedTypeField == null && IsLinkingItemIdList(parameter))
+                        {
+                            var otherSideOfLink = GetOtherSideOfLinkingType(parameter);
+                            fields.Add(new UserInputFieldModel{Name = parameter.Name, Parameter = parameter, IsLinkedItemIds = true, LinkedItemType = otherSideOfLink});
+                        }
+                        else
+                        {
+                            fields.Add(new UserInputFieldModel{Field = parameter.RelatedTypeField, Name = parameter.Name, Parameter = parameter});
+                        }
                     }
                 }
 
                 if (_op.ChangesData && !_op.CreatesNew)
                 {
-                    return fields.Where(f => !f.IsKey).ToList();
+                    return fields.Where(f => !(f.IsKey && f.Parameter?.RelatedTypeField?.ReferencesType == _applicationType)).ToList();
                 }
 
                 return fields;
             }
+        }
+
+        private ApplicationType GetOtherSideOfLinkingType(TypedValue field)
+        {
+            var isArrayOrList = field.ClrType.IsArray || (field.ClrType.IsGenericType && (field.ClrType.GetGenericTypeDefinition() == typeof(List<>)));
+            if (isArrayOrList)
+            {
+                try
+                {
+                    Type itemType = field.ClrType.IsArray
+                        ? field.ClrType.GetElementType()
+                        : field.ClrType.GetGenericArguments()[0];
+
+                    var linkingType = _applicationType.LinkedTypes.Where(t => t.IsLink).Single(t =>
+                        t.Fields.Any(f => Util.PluraliseParameterName(f.Name) == field.Name && f.ClrType == itemType));
+                    // get the 'other side' of the linking type
+                    return linkingType.Fields.Single(f => f.HasReferenceType && f.ReferencesType != _applicationType && f.ReferencesType != _domain.UserType).ReferencesType;
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Unexpected error getting linking type for field {Field} on type {Type}", field.Name, _applicationType.Name);
+                    return null;
+                }
+            }
+
+            Log.Warning("Unable to find other side of link on field {FieldName} on type {TypeName}", field.Name, _applicationType.Name);
+            return null;
+        }
+
+        private bool IsLinkingItemIdList(TypedValue field)
+        {
+            var isArrayOrList = field.ClrType.IsArray || (field.ClrType.IsGenericType && (field.ClrType.GetGenericTypeDefinition() == typeof(List<>)));
+            if (isArrayOrList)
+            {
+                Type itemType = field.ClrType.IsArray
+                    ? field.ClrType.GetElementType()
+                    : field.ClrType.GetGenericArguments()[0];
+                
+                // check to see if the reference type has a linking type with one of these column ids
+                var linkingTypes = _applicationType.LinkedTypes.Where(t => t.IsLink);
+                var result = linkingTypes.Any(t => t.Fields.Any(f => Util.PluraliseParameterName(f.Name) == field.Name && f.ClrType == itemType));
+                return result;
+            }
+
+            return false;
         }
 
         public List<UserInputFieldModel> ClientSuppliedFields
@@ -128,6 +194,8 @@ namespace Skeleton.Templating.ReactClient.Adapters
 
         public bool IsDate => Field?.IsDate ?? Parameter.IsDate;
 
+        public bool IsDateOrDateTime => Field?.IsDateOrDateTime ?? Parameter.IsDateOrDateTime;
+
         public bool IsDateTime => Field?.IsDateTime ?? Parameter.IsDateTime;
 
         public bool IsLargeTextContent => Field?.IsLargeTextContent ?? Parameter.IsLargeTextContent;
@@ -143,5 +211,27 @@ namespace Skeleton.Templating.ReactClient.Adapters
         public bool IsHtml => Field?.IsHtml ?? Parameter.IsHtml;
 
         public bool IsKey => Field?.IsKey ?? Parameter.RelatedTypeField?.IsKey ?? false;
+        
+        public bool IsLinkedItemIds { get; set; }
+        
+        public ApplicationType LinkedItemType { get; set; }
+
+        public string LabelText
+        {
+            get
+            {
+                if (IsLinkedItemIds)
+                {
+                    return $"Related {Util.Pluralize(Util.HumanizeName(LinkedItemType.Name))}";
+                }
+                
+                if (Field != null)
+                {
+                    return Util.HumanizeName(Field);
+                }
+
+                return Util.HumanizeName(Name);
+            }
+        }
     }
 }

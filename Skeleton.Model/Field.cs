@@ -45,6 +45,8 @@ namespace Skeleton.Model
 
         public bool IsKey { get; set; }
         
+        public bool HasDefault { get; set; }
+        
         public bool HasDisplayName => false;
 
         private bool _isGenerated;
@@ -84,8 +86,8 @@ namespace Skeleton.Model
 
         public bool IsSearch => ProviderTypeName == "tsvector" && Name == SearchFieldName; // TODO this is very postgres-specific
 
-        public bool IsExcludedFromResults => IsDelete || IsSearch;
-
+        public bool IsExcludedFromResults => IsDelete || IsSearch || Attributes?.hidden == true;
+        
         public bool HasReferenceType => ReferencesType != null;
         
         public bool IsDateTimeOffset => (ClrType == typeof(DateTimeOffset) || ClrType == typeof(DateTimeOffset?));

@@ -251,7 +251,15 @@ namespace Skeleton.Templating
                         writer.Write(HumanizeName((Parameter)parameters[0]));
                     }
 
-                    writer.Write(HumanizeName(parameters[0].ToString()));
+                    try
+                    {
+                        writer.Write(HumanizeName(parameters[0].ToString()));
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, "Error humanizing {Parameter}", parameters);
+                        writer.Write("ERROR Unable to humanize");
+                    }
                     return;
                 }
 
@@ -653,6 +661,11 @@ namespace Skeleton.Templating
             return suffix;
         }
 
+        public static string PluraliseParameterName(string name)
+        {
+            return name + "s";
+        }
+
         public static string CanonicalizeName(string name)
         {
             return name.ToLowerInvariant().Replace(" ", "").Replace("-", "").Replace("_", "");
@@ -688,6 +701,8 @@ namespace Skeleton.Templating
                 [typeof(void)] = "void",
                 [typeof(DateTime)] = "Date",
                 [typeof(byte[])] = "File",
+                [typeof(Guid)] = "string",
+                [typeof(DateOnly)] = "Date",
             };
 
             _inputTypes = new Dictionary<Type, string>()

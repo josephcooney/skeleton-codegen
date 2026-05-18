@@ -9,17 +9,19 @@ namespace Skeleton.Postgres.Tests;
 
 public class PostgresTypeProviderTests : DbTestBase
 {
-    [Fact]
-    public void CanBuildBasicDomain()
+    [Theory]
+    [InlineData(TestDbScript)]
+    [InlineData(TestDbScriptWithIdentityCol)]
+    public void CanBuildBasicDomain(string scriptName)
     {
-        var testDbInfo = CreateTestDatabase(TestDbScript);
+        var testDbInfo = CreateTestDatabase(scriptName);
         try
         {
             var provider = new PostgresTypeProvider(testDbInfo.connectionString);
             var model = provider.GetDomain(new Settings(new MockFileSystem()));
             var lookupType = model.Types.SingleOrDefault(t => t.Name == "simple_lookup_table");
             lookupType.ShouldNotBeNull();
-            lookupType.Fields.Count.ShouldBe(4);
+            lookupType.Fields.Count.ShouldBe(6);
             
             // check id field
             var idField = lookupType.GetFieldByName("id");
@@ -38,6 +40,13 @@ public class PostgresTypeProviderTests : DbTestBase
             nameField.IsGenerated.ShouldBeFalse();
             nameField.ClrType.ShouldBe(typeof(string));
             
+            // check value field
+            var valuefield = lookupType.GetFieldByName("value");
+            valuefield.ShouldNotBeNull();
+            valuefield.IsKey.ShouldBeFalse();
+            valuefield.IsRequired.ShouldBeFalse();
+            valuefield.IsGenerated.ShouldBeFalse();
+            
             // check created field
             var createdField = lookupType.GetFieldByName("created");
             createdField.ShouldNotBeNull();
@@ -55,6 +64,12 @@ public class PostgresTypeProviderTests : DbTestBase
             modifiedField.IsRequired.ShouldBeFalse();
             modifiedField.IsGenerated.ShouldBeFalse();
             modifiedField.ClrType.ShouldBe(typeof(DateTime?));
+            
+            // check target date field
+            var targetDate = lookupType.GetFieldByName("target_date");
+            targetDate.ShouldNotBeNull();
+            targetDate.IsRequired.ShouldBeFalse();
+            targetDate.ClrType.ShouldBe(typeof(DateOnly?));
 
         }
         finally
@@ -82,6 +97,43 @@ public class PostgresTypeProviderTests : DbTestBase
             customTypeParam.ProviderTypeName.ShouldBe("government_area_new");
             customTypeParam.ClrType.ShouldBe(typeof(ResultType));
             model.ResultTypes.Count(t => t.Name == customTypeParam.ProviderTypeName).ShouldBe(1);
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
+
+    [Fact]
+    public void CanReadTypeInformationForMultipeSchemas()
+    {
+        var testDbInfo = CreateTestDatabase(TestDatbaseMultiSchema);
+        try
+        {
+            var provider = new PostgresTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()));
+            provider.GetOperations(model);
+            model.Operations.Count.ShouldBe(2);
+
+            model.ResultTypes.Count.ShouldBe(2);
+            var rt1 = model.ResultTypes.First(rt => rt.Name == "government_area_new"); 
+            rt1.Namespace.ShouldBe("gov");
+
+            var rt2 = model.ResultTypes.First(rt => rt.Name == "government_area_summary"); 
+            rt2.Namespace.ShouldBe("gov");
+
+            var op = model.Operations.First(o => o.Name == "government_area_insert");
+            op.Parameters.Count.ShouldBe(3);
+            var customTypeParam = op.Parameters.Single(p => p.Name == "government_area_to_add");
+            customTypeParam.ProviderTypeName.ShouldBe("gov.government_area_new");
+            customTypeParam.ClrType.ShouldBe(typeof(ResultType));
+
+            var op2 = model.Operations.Single(o => o.Name == "government_area_select_summaries");
+            op2.Parameters.Count.ShouldBe(0);
+            op2.Returns.ShouldNotBeNull();
+            op2.Returns.SimpleReturnType.Fields.Count.ShouldBe(2);
+            op2.Returns.SimpleReturnType.Fields[0].Name.ShouldBe("name");
+            op2.Returns.SimpleReturnType.Fields[1].Name.ShouldBe("city_town");
         }
         finally
         {
@@ -189,19 +241,52 @@ public class PostgresTypeProviderTests : DbTestBase
             DestroyTestDb(testDbInfo.dbName);
         }
     }
+
+    [Fact]
+    public void CanReadAttributesOnCustomTypes()
+    {
+        var testDbInfo = CreateTestDatabase(CustomTypeSchemaScript);
+        try
+        {
+            var provider = new PostgresTypeProvider(testDbInfo.connectionString);
+            var model = provider.GetDomain(new Settings(new MockFileSystem()){NamingConventionSettings = new NamingConventionSettings(){DbNamingConvention = DbNamingConvention.PascalCase}});
+            provider.GetOperations(model);
+            var custType = model.ResultTypes.First();
+            var value = custType.Fields.Single(f => f.Name == "related_id").Attributes.has_custom_attribute == true;
+            Assert.Equal(value, true);
+        }
+        finally
+        {
+            DestroyTestDb(testDbInfo.dbName);
+        }
+    }
     
     private const string TestDbScript = @"
         create table simple_lookup_table (
             id serial primary key not null,
             name text not null,
+            value numeric default 0,
             created timestamp not null,
-            modified timestamp
+            modified timestamp,
+            target_date date
+        );
+    ";
+
+    private const string TestDbScriptWithIdentityCol = @"
+        create table simple_lookup_table (
+            id int generated always as identity primary key not null,
+            name text not null,
+            value numeric default 0,
+            created timestamp not null,
+            modified timestamp,
+            target_date date
         );
     ";
     
     private const string TestDbScriptWithGuid = @"
+        CREATE EXTENSION IF NOT EXISTS ""uuid-ossp"";
         create table simple_lookup_table (
-            id uuid primary key not null,
+            id uuid primary key not null DEFAULT uuid_generate_v4(),
             name text not null,
             created timestamp not null,
             modified timestamp
@@ -284,6 +369,100 @@ AS $$
     ;
 ";
 
+    public const string TestDatbaseMultiSchema = @"
+    CREATE TABLE ""user"" (
+        id serial primary key NOT NULL,
+        ""name"" text NULL,
+        is_system bool NOT NULL,
+        user_name text NOT NULL,
+        created timestamp with time zone not null NOT NULL,
+        created_by int NOT NULL references ""user""(id),
+        CONSTRAINT user_name_unique UNIQUE (user_name)
+    );
+
+    create schema gov;
+
+    create table gov.government_area (
+         id serial primary key not null,
+         name text not null,
+         color char(7),
+         city_town text not null,
+         state varchar(100) not null,
+         country varchar(100) not null,
+         created_by int not null references public.""user""(id),
+        created timestamp with time zone not null,
+        modified_by int references public.""user""(id),
+        modified timestamp with time zone
+    );
+
+    CREATE TYPE gov.government_area_new AS (
+	    ""name"" text,
+        logo_id int4,
+        olor bpchar(7),
+        city_town text,
+        state varchar(100),
+        country varchar(100)
+    );
+
+CREATE OR REPLACE FUNCTION gov.government_area_insert(security_user_id_param integer, created_by integer, government_area_to_add gov.government_area_new)
+ RETURNS integer
+ LANGUAGE plpgsql
+AS $$
+    DECLARE new_id integer;
+
+    BEGIN
+
+        IF (security_user_id_param is not null) THEN
+		    perform set_config('app.user_id', security_user_id_param::text, true);
+        END IF;
+
+        insert into government_area (
+            id,
+            ""name"",
+            logo_id,
+            color,
+            city_town,
+            ""state"",
+            country,
+            created_by,
+            created
+        )
+        VALUES
+        (
+            DEFAULT,
+            government_area_to_add.name,
+            government_area_to_add.logo_id,
+            government_area_to_add.color,
+            government_area_to_add.city_town,
+            government_area_to_add.state,
+            government_area_to_add.country,
+            government_area_insert.created_by,
+            clock_timestamp()
+        );
+
+        new_id = currval(pg_get_serial_sequence('government_area', 'id'));
+        return new_id;
+    END
+    $$
+    ;
+
+create type gov.government_area_summary AS (
+    ""name"" text,
+    city_town text
+);
+
+CREATE OR REPLACE FUNCTION gov.government_area_select_summaries()
+ RETURNS setof gov.government_area_summary
+ LANGUAGE plpgsql
+AS $$
+    BEGIN
+        return query select ""name"", city_town from government_area;  
+    END
+    $$
+;    
+
+";
+    
     public const string DbSchemaWithFunction = @"
 
 create table task_type (
@@ -338,5 +517,30 @@ COMMENT ON FUNCTION change_task_type ( integer, integer)
 
         COMMENT ON TABLE ""SimpleLookupTable"" IS '{""type"":""reference""}';
     ";
+
+    private const string CustomTypeSchemaScript = @"
+CREATE TABLE item (
+    id uuid,
+    title text
+);
+
+CREATE TYPE custom_type AS 
+    ( 
+        id uuid, 
+        title text, 
+        related_id uuid[] 
+    );
+
+COMMENT ON COLUMN custom_type.related_id IS '{""has_custom_attribute"":true}';
+
+CREATE FUNCTION get_items () returns setof custom_type as $$
+    BEGIN
+    return query select id, title from item;
+    END
+$$ LANGUAGE plpgsql STABLE SECURITY INVOKER;
+
+COMMENT ON FUNCTION get_items ()
+    IS '{""applicationtype"":""item""}';
+";
 
 }

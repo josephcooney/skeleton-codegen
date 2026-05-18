@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace {{Namespace}}.Data.Domain 
 {
-	public class {{cs_name Name}} 
+	public partial class {{cs_name Name}} 
 	{
         public {{cs_name Name}}({{#each NonExcludedFields}}{{format_clr_type ClrType}} {{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}})
         {

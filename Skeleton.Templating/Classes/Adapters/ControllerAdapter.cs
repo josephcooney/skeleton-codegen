@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Skeleton.Model;
-using Skeleton.Templating.Classes.WebApi;
 
 namespace Skeleton.Templating.Classes.Adapters
 {

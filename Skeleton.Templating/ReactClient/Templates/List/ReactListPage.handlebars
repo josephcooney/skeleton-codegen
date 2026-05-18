@@ -14,14 +14,14 @@ import { {{cs_name Name}}Row } from './{{cml_case Name}}Row';
 import { {{cs_name Name}}Header } from './{{cml_case Name}}Header';
 import { {{UnderlyingType.ClientApiInterfaceName}}, {{UnderlyingType.ClientApiTypeName}}, {{cs_name UnderlyingType.Name}}ApiClientQueryKeys } from '../{{cml_case UnderlyingType.Name}}ApiClient';
 import {defaultCacheDuration, queryCall} from "../../../api";
-import { Loading } from '../../../controls/loading';
+import { CircularProgress } from "@mui/material";
 import {{cs_name Name}}ListRendering from './{{cml_case Name}}ListRendering';
 import Title from "../../../controls/Title";
 import {useSnackbar} from "notistack";
 import {StyledTable} from "../../../controls/styled-table";
 import {useQuery} from "@tanstack/react-query";
 {{#if UnderlyingType.IsReferenceData}}
-import { UserConsumer, isAdmin } from '../../../api-authorization/UserContext';
+import authService from '../../../api-authorization/AuthorizeService';
 {{/if}}
 
 interface {{cs_name Name}}ListProps {
@@ -96,7 +96,7 @@ export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps>
             contents = renderError();
         } else {
             if (query.isFetching) {
-                contents = <Loading />;
+                contents = <CircularProgress />;
             } else {
 				contents = query.data && query.data.length > 0 ? renderData() : null;
 			}
@@ -113,14 +113,11 @@ export const {{cs_name Name}}List : FunctionComponent<{{cs_name Name}}ListProps>
                 {props.hideAddButton ? null :
                     (
                     {{#if UnderlyingType.IsReferenceData}}
-                        <UserConsumer>
-                            {userProps => {
-                            return isAdmin(userProps) ? (<Grid container direction="column" alignItems="flex-end" style={buttonRowStyle}>
+                        authService.isAdmin() && (<Grid container direction="column" alignItems="flex-end" style={buttonRowStyle}>
                             <Fab onClick={onAddClick} size="medium" color="secondary" aria-label="add {{UnderlyingType.HumanizedName}}">
                                 <AddIcon />
                             </Fab>
-                        </Grid>) : null;} }
-                        </UserConsumer>
+                        </Grid>)
                     {{else}}
                         <Grid container direction="column" alignItems="flex-end" style={buttonRowStyle}>
                             <Fab onClick={onAddClick} size="medium" color="secondary" aria-label="add {{UnderlyingType.HumanizedName}}">

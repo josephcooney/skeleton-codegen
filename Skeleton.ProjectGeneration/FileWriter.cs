@@ -27,7 +27,7 @@ namespace Skeleton.ProjectGeneration
         public void ApplyCSharpFiles(List<CodeFile> files, string directoryName)
         {
             ApplyCodeFiles(files, directoryName, null);
-            FormatFiles(files, directoryName);
+            //FormatFiles(files, directoryName);
         }
 
         private void FormatFiles(List<CodeFile> files, string directoryName)

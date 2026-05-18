@@ -7,7 +7,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { {{cs_name DetailType.Name}} } from './{{cs_name DetailType.Name}}';
 import { {{ClientApiTypeName}}, {{ClientApiInterfaceName}}, {{cs_name Name}}ApiClientQueryKeys } from './{{cml_case Name}}ApiClient';
 import { {{cs_name Name}}DetailDisplay } from './{{ts_file_name Name}}DetailDisplay';
-import { Loading } from '../../controls/loading';
+import { CircularProgress } from "@mui/material";
 import { ErrorControl } from '../../controls/error-control';
 import DateTimeDisplay from '../../controls/DateTimeDisplay';
 import Thumbnail from '../../controls/thumbnail';
@@ -15,6 +15,7 @@ import Title from "../../controls/Title";
 import {useSnackbar} from "notistack";
 import {defaultCacheDuration, queryCall} from "../../api";
 import {useQuery} from "@tanstack/react-query";
+import {FadeIn } from '../../controls/FadeIn';
 {{#each RelatedDetails}}
 import { {{ClientApiTypeName}}, {{ClientApiInterfaceName}}, {{cs_name Name}}ApiClientQueryKeys } from '../{{kb_case Name}}/{{cml_case Name}}ApiClient';
 import { {{cs_name SelectAllType.Name}} } from '../{{kb_case Name}}/{{cs_name SelectAllType.Name}}';
@@ -109,7 +110,7 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : Rea
             contents = render{{cs_name Name}}Detail({{cml_case Name}}Query.data);
         }
         else {
-            contents = <Loading />;
+            contents = <CircularProgress />;
         }
     }
 
@@ -122,7 +123,7 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : Rea
         {{cml_case Name}}Contents = <ErrorControl message={"unable to load {{hmn Name}}."}></ErrorControl>;
     } else {
         if ({{cml_case Name}}Query.isFetching){
-            {{cml_case Name}}Contents = <Loading />;			
+            {{cml_case Name}}Contents = <CircularProgress />;			
         }
         else {
             {{cml_case Name}}Contents = <{{cs_name SelectAllType.Name}}List data={ {{cml_case Name}}Query.data } dataProvided={true} linkedType='{{../Name}}' linkedId={ {{cml_case ../Name}}Query.data ? {{cml_case ../Name}}Query.data.id : null} />;		
@@ -133,7 +134,7 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : Rea
 
     if ({{cml_case Name}}Query.data) {
         return (
-        <div style={ {width: '100%'} }>
+        <FadeIn>
             {{#if DisplayField}}
             <Title>{ {{cml_case Name}}Query.data.{{cml_case DisplayField.Name}} }</Title>
             {{else}}
@@ -146,12 +147,12 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : Rea
             { {{cml_case Name}}Contents }
             </div>
             {{/each}}
-        </div>
+        </FadeIn>
         );
     }
     else {
         return (
-        <div style={ {width: '100%'} }>
+        <FadeIn>
             <Title>{{HumanizedName}}</Title>
             {contents}
             {{#each RelatedDetails}}
@@ -159,7 +160,7 @@ export const {{cs_name Name}}Detail = (props: {{cs_name Name}}DetailProps) : Rea
             { {{cml_case Name}}Contents }
             </div>
             {{/each}}
-        </div>			
+        </FadeIn>			
         );
     }
 }

@@ -28,6 +28,8 @@ public abstract class TypedValue
     public bool IsDateTime => (ClrType == typeof(DateTime) || ClrType == typeof(DateTime?));
     
     public bool IsDate => _domain.TypeProvider.IsDateOnly(ProviderTypeName);
+
+    public bool IsDateOrDateTime => IsDate || IsDateTime;
     
     public abstract bool IsLargeTextContent { get; }
     

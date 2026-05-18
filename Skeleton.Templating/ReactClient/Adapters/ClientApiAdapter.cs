@@ -13,7 +13,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
     {
         private List<DisplayFieldAdapter> _displayFields;
 
-        private ApplicationType _applicationType;
+        protected ApplicationType _applicationType;
         
         public ClientApiAdapter(ApplicationType type, Domain domain) : base(type, domain)
         {
@@ -137,7 +137,7 @@ namespace Skeleton.Templating.ReactClient.Adapters
 
         public bool HasHtmlFields => DisplayFields.Any(f => f.IsHtml);
 
-        public List<Field> LinkingFields
+        public List<Field> LinkingFieldsDisplay
         {
             get
             {
@@ -155,6 +155,13 @@ namespace Skeleton.Templating.ReactClient.Adapters
             }
         }
 
+        public List<Field> FilterFields => _type.Fields.Where(f => f.HasReferenceType && !f.IsTrackingUser && !f.ReferencesType.IsReferenceData).ToList();
+
+        public bool HasFilterFields => FilterFields.Count != 0;
+
+        public List<string> FilterFieldTypes =>
+            FilterFields.Select(f => Util.GetTypeScriptTypeForClrType(f.ClrType)).ToList();
+        
         public bool IsReferenceData => ((ApplicationType) _type).IsReferenceData;
 
         public bool IsAttachmentWithThumbnail => ((ApplicationType) _type).IsAttachment && _type.Fields.Any(f => f.IsAttachmentThumbnail);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Serilog;
 using Skeleton.Model;
 using Skeleton.Templating.Classes.Adapters;
 using Skeleton.Templating.DatabaseFunctions.Adapters.Fields;
@@ -41,7 +42,7 @@ namespace Skeleton.Templating.Classes
             get
             {
                 return _parameter?.Attributes?.userEditable == true || IsCustomType || IsCustomArrayType || (_parameter.RelatedTypeField != null &&
-                                                                       _parameter.RelatedTypeField.IsCallerProvided);
+                                                                       _parameter.RelatedTypeField.IsCallerProvided) || _parameter.RelatedTypeField == null;
             }
         }
 
@@ -51,12 +52,12 @@ namespace Skeleton.Templating.Classes
             {
                 if (IsCustomType)
                 {
-                    return Util.CSharpNameFromName(_parameter.ProviderTypeName);
+                    return Util.CSharpNameFromName(SanitizeName(_parameter.ProviderTypeName));
                 }
 
                 if (IsCustomArrayType)
                 {
-                    return $"List<{Util.CSharpNameFromName(_parameter.ProviderTypeName)}>";
+                    return $"List<{Util.CSharpNameFromName(SanitizeName(_parameter.ProviderTypeName))}>";
                 }
                 
                 return Util.FormatClrType(_parameter.ClrType);
@@ -69,7 +70,7 @@ namespace Skeleton.Templating.Classes
             {
                 if (IsCustomType)
                 {
-                    return Util.CSharpNameFromName(_parameter.ProviderTypeName) + NamingConventions.ModelClassNameSuffix;
+                    return Util.CSharpNameFromName(SanitizeName(_parameter.ProviderTypeName)) + NamingConventions.ModelClassNameSuffix;
                 }
                 else
                 {
@@ -84,12 +85,12 @@ namespace Skeleton.Templating.Classes
             {
                 if (IsCustomType)
                 {
-                    return Util.CSharpNameFromName(_parameter.ProviderTypeName);                    
+                    return Util.CSharpNameFromName(SanitizeName(_parameter.ProviderTypeName));                    
                 }
                 
                 if (IsCustomArrayType)
                 {
-                    return $"{Util.CSharpNameFromName(_parameter.ProviderTypeName)}[]";
+                    return $"{Util.CSharpNameFromName(SanitizeName(_parameter.ProviderTypeName))}[]";
                 }
                 
                 return Util.GetTypeScriptTypeForClrType(_parameter.ClrType);
@@ -102,12 +103,12 @@ namespace Skeleton.Templating.Classes
             {
                 if (IsCustomType)
                 {
-                    return Util.CSharpNameFromName(_parameter.ProviderTypeName);                    
+                    return Util.CSharpNameFromName(SanitizeName(_parameter.ProviderTypeName));                    
                 }
                 
                 if (IsCustomArrayType)
                 {
-                    return $"List<{Util.CSharpNameFromName(_parameter.ProviderTypeName)}>";
+                    return $"List<{Util.CSharpNameFromName(SanitizeName(_parameter.ProviderTypeName))}>";
                 }
                 
                 return Util.GetDartTypeForClrType(_parameter.ClrType);
@@ -120,7 +121,7 @@ namespace Skeleton.Templating.Classes
             {
                 if (IsCustomTypeOrCustomArray)
                 {
-                    return Util.CSharpNameFromName(_parameter.ProviderTypeName);                    
+                    return Util.CSharpNameFromName(SanitizeName(_parameter.ProviderTypeName));                    
                 }
                 
                 return Util.GetTypeScriptTypeForClrType(_parameter.ClrType);
@@ -137,7 +138,23 @@ namespace Skeleton.Templating.Classes
             {
                 if (IsCustomTypeOrCustomArray)
                 {
-                    return _domain.ResultTypes.Single(rt => rt.Name == _parameter.ProviderTypeName && rt.Namespace == _parameter.Operation.Namespace);
+                    try
+                    {
+                        var providerTypeName = _parameter.ProviderTypeName;
+                        
+                        if (providerTypeName.Contains(".") && providerTypeName.StartsWith($"{_parameter.Operation.Namespace}."))
+                        {
+                            providerTypeName =  providerTypeName.Substring(_parameter.Operation.Namespace.Length + 1); // trim off the namespace portion
+                        }
+                        
+                        return _domain.ResultTypes.Single(rt =>
+                            rt.Name == providerTypeName && rt.Namespace == _parameter.Operation.Namespace);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, "Unable to find custom result type");
+                        throw;
+                    }
                 }
 
                 return null;
@@ -150,7 +167,7 @@ namespace Skeleton.Templating.Classes
             {
                 if (IsCustomTypeOrCustomArray)
                 {
-                    return new ClientCustomTypeModel(CustomType);
+                    return new ClientCustomTypeModel(CustomType, IsCustomArrayType);
                 }
 
                 return null;
@@ -176,6 +193,18 @@ namespace Skeleton.Templating.Classes
                 
                 return _pagingParameterNames.Contains(Name);
             }  
+        }
+
+        private string SanitizeName(string name)
+        {
+            // handle parameters from non-default domains
+            var ns = _parameter.Operation.Namespace;
+            if (name.Contains(".") && name.StartsWith($"{ns}."))
+            {
+                return name.Substring($"{ns}.".Length);
+            }
+
+            return name;
         }
     }
 }

@@ -8,11 +8,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using {{DomainNamespace}};
-using {{Namespace}}.Data.Repository;
+using {{cs_name Namespace}}.Data.Repository;
 using {{Namespace}}.Models;
-using {{Namespace}}.Services;
+using {{cs_name DefaultNamespace}}.Services;
 {{#if HasCustomResultType}}
 using {{Namespace}}.Data.Model; 
+{{/if}}
+{{#if IsInCustomNamespace}}
+using {{cs_name DefaultNamespace}}.Controllers;    
 {{/if}}
 
 namespace {{Namespace}}.Controllers

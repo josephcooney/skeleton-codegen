@@ -36,14 +36,9 @@ namespace Skeleton.Model
                 return DeleteType.None;
             }
         }
-
-        public bool Ignore => Attributes?.ignore == true;
-
+        
         public List<Constraint> Constraints { get; }
 
-        public bool GenerateUI => GenerateApi && !(Attributes?.ui == false);
-
-        public bool GenerateApi => !Ignore && !(Attributes?.api == false);
 
         public bool IsLink
         {
@@ -70,6 +65,8 @@ namespace Skeleton.Model
 
         public bool IsHelp => Attributes?.isHelp == true;
 
+        public bool IsDynamicUiContent => Attributes.isDynamicUiContent = true; // dynamic UI content allows cms-like functionality for fields
+        
         public int Rank // not as useful as I was hoping it would be
         {
             get { return Fields.Count(f => f.HasReferenceType && !f.ReferencesType.IsReferenceData && !f.ReferencesType.IsSecurityPrincipal && !f.ReferencesType.IsLink && !f.ReferencesType.Ignore && !f.ReferencesType.IsAttachment ); }
@@ -77,6 +74,11 @@ namespace Skeleton.Model
 
         public bool Important => Attributes?.important == true;
         public bool Paged => Attributes?.paged == true;
+
+        public bool IsContextType => Attributes?.isContext == true;
+
+        public List<ApplicationType> LinkedTypes => Domain.Types.Where(t =>
+            t.Fields.Any(f => f.HasReferenceType && f.ReferencesType == this && !f.IsTrackingUser)).ToList();
     }
 
     public enum DeleteType

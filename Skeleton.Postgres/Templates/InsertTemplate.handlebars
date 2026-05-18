@@ -50,6 +50,25 @@ $$
             {{/if}}        
 		{{/if}}
 
+        {{#if HasLinkingTypes}}
+            {{#each LinkingTypes}}
+            -- insert links to {{OtherSideOfLink.Name}}
+            insert into {{{escape_sql LinkType.Namespace}}}.{{{escape_sql LinkType.Name}}} (
+            {{#each InsertFields}}
+                {{#if IsLinkingField}}
+                {{{escape_sql Field.Name}}}{{#unless @last}},{{/unless}}
+                {{else}}
+                {{{escape_sql Name}}}{{#unless @last}},{{/unless}}
+                {{/if}}
+            {{/each}}
+            )
+            select
+            {{#each InsertFields}}
+                {{{escape_sql Value}}}{{#if @last}};{{else}},{{/if}}
+            {{/each}}
+            
+            {{/each}}
+        {{/if}}
         return new_id;
     END
 $$

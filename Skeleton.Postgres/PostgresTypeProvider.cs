@@ -135,7 +135,7 @@ namespace Skeleton.Postgres
                                     var order = int.Parse(fieldRow["ColumnOrdinal"].ToString());
                                     var providerTypeName = fieldRow["DataTypeName"].ToString();
                                     var size = int.Parse(fieldRow["ColumnSize"].ToString());
-                                    var clrType = (System.Type)fieldRow["DataType"];
+                                    var clrType = new PostgresType(providerTypeName).ClrType;
 
                                     // AllowDbNull doesn't seem to be accurate for postgres
                                     // IsIdentity also doesn't seem accurate, however it does accord with what information_schema.columns contains for that table 
@@ -144,9 +144,10 @@ namespace Skeleton.Postgres
                                 }
                             }
                         }
-                    
-                        GetAdditionalFieldInfoFromInformationSchema(catalog, ns, name, cn, t);
+
+                        // we have to get PK information before checking other things because whether something is a key or not determines whether we consider it "generated"
                         GetPrimaryKeyInfoFromInformationSchema(catalog, ns, name, cn, t);
+                        GetAdditionalFieldInfoFromInformationSchema(catalog, ns, name, cn, t);
                         GetUniqueConstraintsFromInformationSchema(catalog, ns, name, cn, t);
 
                         types.Add(t);
@@ -227,11 +228,12 @@ namespace Skeleton.Postgres
                         try
                         {
                             var ns = reader["schema"].ToString();
-                            if (!domain.ExcludedSchemas.Contains(ns))
+                            if (!domain.ExcludedSchemas.Contains(ns) && name?.StartsWith('_') == false) // "system" type functions are usually prefixed with _
                             {
                                 var resultType = reader["result_type"].ToString();
-
+                                var kind = reader["prokind"].ToString();
                                 var op = new Operation {Name = name, Namespace = ns};
+                                Log.Debug("Reading operation {OperationName}", name);
                                 var description = GetField<string>(reader, "description");
 
                                 PopulateOperationAttributes(op, description);
@@ -246,7 +248,7 @@ namespace Skeleton.Postgres
                                     var parameters = reader["argument_types"].ToString();
                                     if (!string.IsNullOrEmpty(parameters))
                                     {
-                                        op.Parameters.AddRange(ReadParameters(parameters, domain, op));
+                                        op.Parameters.AddRange(ReadParameters(parameters, domain, op, kind == "f"));
                                         if (op.RelatedType != null)
                                         {
                                             UpdateParameterNullabilityFromApplicationType(op);
@@ -301,6 +303,41 @@ namespace Skeleton.Postgres
                             {
                                 dynamic attribJson = ReadAttributes(attributes, typeName);
                                 resultType.Attributes = attribJson;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // get attributes on fields for result types
+            using (var cn = new NpgsqlConnection(_connectionString))
+            using (var cmd = new NpgsqlCommand(CustomTypeAttributesQuery, cn))
+            {
+                cn.Open();
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var ns = GetField<string>(reader, "schema_name");
+                        var typeName = SanitizeObjectName(GetField<string>(reader, "type_name"));
+                        var fieldName = SanitizeObjectName(GetField<string>(reader, "column_name"));
+                        var attributes = GetField<string>(reader, "comment");
+
+                        var resultType = domain.ResultTypes.SingleOrDefault(rt => rt.Namespace == ns && rt.Name == typeName);
+                        if (resultType != null)
+                        {
+                            var field = resultType.Fields.SingleOrDefault(f => f.Name == fieldName);
+                            if (field == null)
+                            {
+                                Log.Warning("Custom field {FieldName} on type {TypeName} could not be found", fieldName, typeName);
+                            }
+                            else
+                            {
+                                if (!string.IsNullOrEmpty(attributes))
+                                {
+                                    dynamic attribJson = ReadAttributes(attributes, $"{typeName}.{fieldName}");
+                                    field.Attributes = attribJson;
+                                }
                             }
                         }
                     }
@@ -498,6 +535,11 @@ namespace Skeleton.Postgres
         public bool GenerateCustomTypes => true;
         public string FormatOperationParameterName(string operationName, string name)
         {
+            if (string.IsNullOrEmpty(operationName))
+            {
+                return EscapeSqlName(name);
+            }
+
             return EscapeSqlName(operationName) + "." + EscapeSqlName(name);
         }
 
@@ -1177,6 +1219,12 @@ namespace Skeleton.Postgres
 
         private string GetDropOperationCommandText(Operation op)
         {
+            if (op.Parameters != null && op.Parameters.Any())
+            {
+                var parameterNames = string.Join(", ", op.Parameters.Select(p => p.ProviderTypeName));
+                return $"DROP FUNCTION IF EXISTS {op.Namespace}.{GetSqlName(op.Name)} ({parameterNames});";
+            }
+            
             return $"DROP FUNCTION IF EXISTS {op.Namespace}.{GetSqlName(op.Name)};";
         }
         
@@ -1297,7 +1345,7 @@ namespace Skeleton.Postgres
             {
                 if (!string.IsNullOrEmpty(attributes) && attributes.StartsWith('{'))
                 {
-                    Log.Warning("attribute string {Attributes} was not valid JSON for {ObjectName}", attributes, objectName);
+                    Log.Error("attribute string {Attributes} was not valid JSON for {ObjectName}", attributes, objectName);
                 }
                 return null; // description was not valid JSON
             }
@@ -1340,6 +1388,12 @@ namespace Skeleton.Postgres
 
         private OperationReturn GetReturnTypeFromTypeName(Domain domain, Operation operation, string typeName, bool multiple)
         {
+            typeName = SantizeTypeNameFromDifferentSchema(typeName, operation.Namespace);
+            if (string.IsNullOrEmpty(typeName))
+            {
+                // this could be a procedure that does not return a type
+                return new OperationReturn() { Multiple = false, ReturnType = ReturnType.None };
+            }
             var appType = domain.Types.SingleOrDefault(t => t.Name == typeName && t.Namespace == operation.Namespace);
             if (appType != null)
             {
@@ -1400,8 +1454,10 @@ namespace Skeleton.Postgres
 
         private ResultType ReadCustomOperationType(string typeName, Domain domain, Operation operation)
         {
+            typeName = SantizeTypeNameFromDifferentSchema(typeName, operation.Namespace);
+            
             using var cn = new NpgsqlConnection(_connectionString);
-            using var cmd = new NpgsqlCommand(TypeQuery, cn);
+            using var cmd = new NpgsqlCommand(string.Format(TypeQuery, operation.Namespace), cn);
             // TODO - this code assumes the custom type is in the same namespace as the function that returns it, which may not be a valid assumption
             cmd.Parameters.AddWithValue("schemaName", NpgsqlDbType.Text, EscapeSqlName(operation.Namespace));
             cmd.Parameters.AddWithValue("typeName", NpgsqlDbType.Text, EscapeSqlName(typeName));
@@ -1445,6 +1501,15 @@ namespace Skeleton.Postgres
             }
         }
         
+        private string SantizeTypeNameFromDifferentSchema(string name, string ns)
+        {
+            if (name.Contains(".") && name.StartsWith($"{ns}."))
+            {
+                return name.Substring(ns.Length + 1);
+            }
+            return name;
+        }
+        
         private static Tuple<string, int> ParseTypeAndSize(string providerTypeRaw)
         {
             var regex = new Regex("(\\D+)\\((\\d+)\\)");
@@ -1463,7 +1528,7 @@ namespace Skeleton.Postgres
 
             if (columns.IndexOf(',') < 0)
             {
-                var nameAndType = GetFieldNameAndType(columns);
+                var nameAndType = GetFieldNameAndType(columns, 0);
                 // TODO - create a simple return type that is an array of whatever this type is
             }
             else
@@ -1474,7 +1539,7 @@ namespace Skeleton.Postgres
                 var index = 0;
                 foreach (var s in split)
                 {
-                    var n = GetFieldNameAndType(s);
+                    var n = GetFieldNameAndType(s, index);
                     fields.Add(new Field(domain)
                     {
                         Name = n.Name, ProviderTypeName = n.Type.Name, ClrType = n.Type.ClrType,
@@ -1564,13 +1629,13 @@ namespace Skeleton.Postgres
             return domain.FindTypeByFields(fields, operation, false);
         }
         
-        private IEnumerable<Parameter> ReadParameters(string parameters, Domain domain, Operation operation)
+        private IEnumerable<Parameter> ReadParameters(string parameters, Domain domain, Operation operation, bool isFunction)
         {
             var p = new List<Parameter>();
 
             if (parameters.IndexOf(',') < 0)
             {
-                var prm = ReadSingleParameter(parameters, domain, operation);
+                var prm = ReadSingleParameter(parameters, domain, operation, isFunction);
                 prm.Order = 0;
                 p.Add(prm);
             }
@@ -1580,7 +1645,7 @@ namespace Skeleton.Postgres
                 var index = 0;
                 foreach (var s in split)
                 {
-                    var prm = ReadSingleParameter(s.Trim(), domain, operation);
+                    var prm = ReadSingleParameter(s.Trim(), domain, operation, isFunction);
                     prm.Order = index;
                     p.Add(prm);
                     index++;
@@ -1590,9 +1655,14 @@ namespace Skeleton.Postgres
             return p;
         }
 
-        private Parameter ReadSingleParameter(string p, Domain domain, Operation operation)
+        private Parameter ReadSingleParameter(string p, Domain domain, Operation operation, bool isFunction)
         {
-            var n = GetFieldNameAndType(p);
+            if (!isFunction && p.StartsWith("IN "))
+            {
+                p = p.Substring(3);
+            }
+            
+            var n = GetFieldNameAndType(p, 0);
             var type = n.Type.ClrType;
             if (type == null)
             {
@@ -1623,14 +1693,23 @@ namespace Skeleton.Postgres
             return parameter;
         }
 
-        private NameAndType GetFieldNameAndType(string value)
+        private NameAndType GetFieldNameAndType(string value, int position)
         {
             // TODO - might need to consider quoted parameters (e.g. "parameter name") in the future
             value = value.Trim();
             var space = value.IndexOf(' ');
-            var name = SanitizeFieldName(value.Substring(0, space));
-            var pgType = new PostgresType(SanitizeObjectName(value.Substring(space + 1)));
-            return new NameAndType {Name = name, Type = pgType };
+            if (space < 0)
+            {
+                // for pg functions where the type is specified but not given a name
+                var pgType = new PostgresType(value);
+                return new NameAndType {Name = $"param{position}", Type = pgType };
+            }
+            else
+            {
+                var name = SanitizeFieldName(value.Substring(0, space));
+                var pgType = new PostgresType(SanitizeObjectName(value.Substring(space + 1)));
+                return new NameAndType {Name = name, Type = pgType };
+            }
         }
 
         private static void GetAdditionalFieldInfoFromInformationSchema(string catalog, string ns, string name,
@@ -1644,9 +1723,12 @@ namespace Skeleton.Postgres
                 {
                     while (reader.Read())
                     {
+                        const string always = "ALWAYS";
+                        
                         var fieldName = reader["column_name"].ToString();
                         var isNullable = reader["is_nullable"].ToString() == "YES";
-                        var isGenerated = reader["is_generated"].ToString() == "ALWAYS";
+                        var isGenerated = reader["is_generated"].ToString() == always;
+                        var identityGeneration = reader["identity_generation"].ToString();
                         var colDefault = reader["column_default"] == DBNull.Value ? null : reader["column_default"].ToString();
 
                         var field = type.Fields.FirstOrDefault(f => f.Name == fieldName);
@@ -1657,9 +1739,9 @@ namespace Skeleton.Postgres
                         else
                         {
                             field.IsRequired = !isNullable;
-                            
+                            field.HasDefault = !string.IsNullOrEmpty(colDefault);
                             // nextval is the syntax for use of sequences
-                            if (isGenerated || colDefault?.StartsWith("nextval(") == true)
+                            if ((field.IsKey || field.IsSearch) && (isGenerated || !string.IsNullOrEmpty(colDefault) || identityGeneration == always))
                             {
                                 field.IsGenerated = true;
                             }
@@ -1849,6 +1931,13 @@ AND KCU1.TABLE_SCHEMA = '{type.Namespace}'
                         {
                             prm.UpdateFromField(paramFld);
                         }
+                        else
+                        {
+                            if (prm.ClrType != typeof(string) && prm.ClrType != typeof(ResultType) && !prm.ClrType.IsArray && prm.ClrType != typeof(List<ResultType>))
+                            {
+                                prm.MakeClrTypeNullable();
+                            }
+                        }
                     }
                 }
             }
@@ -1877,8 +1966,7 @@ AND KCU1.TABLE_SCHEMA = '{type.Namespace}'
     FROM pg_catalog.pg_proc p
     LEFT JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
     left join pg_catalog.pg_description dsc on p.oid = dsc.objoid
-    WHERE pg_catalog.pg_function_is_visible(p.oid)
-    AND n.nspname<> 'pg_catalog'
+    WHERE n.nspname<> 'pg_catalog'
     AND n.nspname<> 'information_schema'
     ORDER BY 1, 2, 4;";
 
@@ -1918,6 +2006,26 @@ AND KCU1.TABLE_SCHEMA = '{type.Namespace}'
             AND n.nspname <> 'information_schema'
             AND n.nspname !~ '^pg_toast'
         order by obj_name";
+
+        private const string CustomTypeAttributesQuery = @"
+SELECT
+    n.nspname AS schema_name,
+    t.typname AS type_name,
+    a.attname AS column_name,
+    d.description AS comment
+FROM
+    pg_type t
+    JOIN pg_namespace n ON t.typnamespace = n.oid
+    JOIN pg_class c ON c.oid = t.typrelid
+    JOIN pg_attribute a ON a.attrelid = c.oid
+    JOIN pg_description d ON d.objoid = c.oid AND d.objsubid = a.attnum
+WHERE
+    t.typtype = 'c' -- Composite type
+    AND a.attnum > 0 -- Skip system columns
+    AND NOT a.attisdropped -- Skip dropped columns
+ORDER BY
+    n.nspname, t.typname, a.attnum;
+";
         
         private const string IndividualCustomTypeQuery = @"    
         SELECT n.nspname,
@@ -1948,7 +2056,9 @@ AND KCU1.TABLE_SCHEMA = '{type.Namespace}'
 
         // this query comes from here: https://dba.stackexchange.com/a/35510
         private const string TypeQuery =
-            @"WITH types AS (
+            @"
+            set search_path to {0};
+WITH types AS (
     SELECT n.nspname,
             pg_catalog.format_type ( t.oid, NULL ) AS obj_name,
             CASE

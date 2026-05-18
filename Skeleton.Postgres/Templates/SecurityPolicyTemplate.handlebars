@@ -40,15 +40,10 @@ USING
 			{{/if}}
 	(
 		-- allow admin to read
-		select true
-		from {{{escape_sql UserType.Namespace}}}.{{{escape_sql UserType.Name}}} u
-		left join {{{escape_sql UserType.Namespace}}}."AspNetUserClaims" c
-		on u.aspnet_user_id = c."UserId"
-		where c."ClaimType" = 'role'
-		and c."ClaimValue" = 'admin'
-		and u.id = current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}}
+        select is_system or is_admin
+        from {{{escape_sql UserType.Namespace}}}.{{{escape_sql UserType.Name}}} u
+        where u.id = current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}}
 	)
-	OR current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}} = 1 -- 'system' user can read anything
 		{{/if}}
 	{{/if}}
 {{/if}}
@@ -63,15 +58,10 @@ WITH CHECK
 {{#if UnderlyingType.IsReferenceData}}
 	(
 		-- allow admin to modify reference data
-		select true
-		from {{{escape_sql UserType.Namespace}}}.{{{escape_sql UserType.Name}}} u
-		left join {{{escape_sql UserType.Namespace}}}."AspNetUserClaims" c
-		on u.aspnet_user_id = c."UserId"
-		where c."ClaimType" = 'role'
-		and c."ClaimValue" = 'admin'
-		and u.id = current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}}
+        select is_system or is_admin
+        from {{{escape_sql UserType.Namespace}}}.{{{escape_sql UserType.Name}}} u
+        where u.id = current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}}
 	)
-	OR current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}} = 1 -- 'system' user can also modify reference data 
 {{else}}
 	{{#if AllowAnonAdd}}
 	(TRUE) -- anon can add
@@ -84,15 +74,11 @@ WITH CHECK
 		{{else}}
 	(
 		-- allow admin to modify data
-		select true
-		from {{{escape_sql UserType.Namespace}}}.{{{escape_sql UserType.Name}}} u
-		left join {{{escape_sql UserType.Namespace}}}."AspNetUserClaims" c
-		on u.aspnet_user_id = c."UserId"
-		where c."ClaimType" = 'role'
-		and c."ClaimValue" = 'admin'
-		and u.id = current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}}
+        select is_system or is_admin
+        from {{{escape_sql UserType.Namespace}}}.{{{escape_sql UserType.Name}}} u
+        where u.id = current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}}
 	)
-	OR current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}} = 1 -- 'system' user can insert into anything
+
 
 		{{/if}}
 	{{/if}}
@@ -108,15 +94,10 @@ USING
 {{#if UnderlyingType.IsReferenceData}}
 	(
 		-- allow admin to modify reference data
-		select true
-		from {{{escape_sql UserType.Namespace}}}.{{{escape_sql UserType.Name}}} u
-		left join {{{escape_sql UserType.Namespace}}}."AspNetUserClaims" c
-		on u.aspnet_user_id = c."UserId"
-		where c."ClaimType" = 'role'
-		and c."ClaimValue" = 'admin'
-		and u.id = current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}}
+        select is_system or is_admin
+        from {{{escape_sql UserType.Namespace}}}.{{{escape_sql UserType.Name}}} u
+        where u.id = current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}}
 	)
-	OR current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}} = 1 -- 'system' user can also modify reference data 
 {{else}}
 	{{#if AllowAnonEdit}}
 	(TRUE) -- anon can edit
@@ -134,15 +115,10 @@ USING
 			{{/if}}
 	(
 		-- admin can update {{Name}}
-		select true
-		from {{{escape_sql UserType.Namespace}}}.{{{escape_sql UserType.Name}}} u
-		left join {{{escape_sql UserType.Namespace}}}."AspNetUserClaims" c
-		on u.aspnet_user_id = c."UserId"
-		where c."ClaimType" = 'role'
-		and c."ClaimValue" = 'admin'
-		and u.id = current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}}
+        select is_system or is_admin
+        from {{{escape_sql UserType.Namespace}}}.{{{escape_sql UserType.Name}}} u
+        where u.id = current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}}
 	)
-	OR current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}} = 1 -- 'system' user can update anything
 		{{/if}}
 	{{/if}}
 {{/if}}
@@ -159,15 +135,10 @@ USING
 {{#if UnderlyingType.IsReferenceData}}
 	(
 		-- admin can delete {{Name}} reference data
-		select true
-		from {{{escape_sql UserType.Namespace}}}.{{{escape_sql UserType.Name}}} u
-		left join {{{escape_sql UserType.Namespace}}}."AspNetUserClaims" c
-		on u.aspnet_user_id = c."UserId"
-		where c."ClaimType" = 'role'
-		and c."ClaimValue" = 'admin'
-		and u.id = current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}}
+        select is_system or is_admin
+        from {{{escape_sql UserType.Namespace}}}.{{{escape_sql UserType.Name}}} u
+        where u.id = current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}}
 	)
-	OR current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}} = 1 -- 'system' user can also modify reference data 
 {{else}}
 	{{#if AllowAnonDelete}}
 	(TRUE) -- anon can delete
@@ -179,15 +150,10 @@ USING
 			{{/if}}
 	(
 		-- admin can delete {{Name}}
-		select true
+        select is_system or is_admin
 		from {{{escape_sql UserType.Namespace}}}.{{{escape_sql UserType.Name}}} u
-		left join {{{escape_sql UserType.Namespace}}}."AspNetUserClaims" c
-		on u.aspnet_user_id = c."UserId"
-		where c."ClaimType" = 'role'
-		and c."ClaimValue" = 'admin'
-		and u.id = current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}}
+		where u.id = current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}}
 	)
-	OR current_setting('app.user_id', 't')::{{UserIdField.ProviderTypeName}} = 1 -- 'system' user can delete anything
 		{{/if}}
 {{/if}}
 );

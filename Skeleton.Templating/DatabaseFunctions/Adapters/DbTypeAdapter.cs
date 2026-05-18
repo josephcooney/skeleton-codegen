@@ -127,19 +127,59 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
                 return fields;
             }
         }
+        
+        private void AddLogFields(List<IPseudoField> fields, Operation domainLogOperation)
+        {
+        }
 
-        public List<IPseudoField> UpdateInputFields
+        public bool HasInsertInputFields => InsertInputFields.Any();
+        
+        
+        public List<IPseudoField> DeleteInputFields
         {
             get
             {
-                var fields = PrimaryKeyFields.Union(UserEditableFields.Where(f => f.Edit)).ToList();
+                var fields = PrimaryKeyFields.ToList();
                 if (UserIdField != null)
                 {
                     fields.Add(UserIdField);
                 }
-                if (ModifiedByField != null)
+                return fields.OrderBy(f => f.Order).ToList();
+            }
+        }
+        
+        public List<IPseudoField> InsertTypeFields
+        {
+            get
+            {
+                var fields = UserEditableFields.Where(f => f.Add).ToList();
+                return fields.OrderBy(f => f.Order).ToList();
+            }
+        }
+
+        public List<IPseudoField> InsertFields
+        {
+            get
+            {
+                var fields  = UserEditableFields.Where(f => f.Add).ToList();
+                if (!fields.Any(f => f.IsKey) && _domain.TypeProvider.IncludeIdentityFieldsInInsertStatements)
                 {
-                    fields.Add(ModifiedByField);                    
+                    fields.AddRange(PrimaryKeyFields);
+                }
+                
+                var createdDateTrackingField = _applicationType.Fields.FirstOrDefault(a => a.IsCreatedDate);
+                if (createdDateTrackingField != null)
+                {
+                    fields.Add(_domain.TypeProvider.CreateFieldAdapter(createdDateTrackingField, this));
+                }
+                var searchField = _applicationType.Fields.FirstOrDefault(f => f.IsSearch);
+                if (searchField != null)
+                {
+                    fields.Add(_domain.TypeProvider.CreateFieldAdapter(searchField, this));
+                }
+                if (CreatedByField != null)
+                {
+                    fields.Add(CreatedByField);
                 }
                 return fields.OrderBy(f => f.Order).ToList();
             }
@@ -172,84 +212,79 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
                 return fields.OrderBy(f => f.Order).ToList();
             }
         }
-
-        private void AddLogFields(List<IPseudoField> fields, Operation domainLogOperation)
-        {
-        }
-
-        public bool HasInsertInputFields => InsertInputFields.Any();
-
-        public List<IPseudoField> InsertTypeFields
+        
+        public List<IPseudoField> UpdateInputFields
         {
             get
             {
-                var fields = UserEditableFields.Where(f => f.Add).ToList();
-                return fields.OrderBy(f => f.Order).ToList();
-            }
-        }
-
-        public List<IPseudoField> DeleteInputFields
-        {
-            get
-            {
-                var fields = PrimaryKeyFields.ToList();
+                var fields = PrimaryKeyFields.Union(UserEditableFields.Where(f => f.Edit)).ToList();
                 if (UserIdField != null)
                 {
                     fields.Add(UserIdField);
                 }
-                return fields.OrderBy(f => f.Order).ToList();
-            }
-        }
-
-
-        public List<IPseudoField> InsertFields
-        {
-            get
-            {
-                var fields  = UserEditableFields.Where(f => f.Add).ToList();
-                if (!fields.Any(f => f.IsKey) && _domain.TypeProvider.IncludeIdentityFieldsInInsertStatements)
+                if (ModifiedByField != null)
                 {
-                    fields.AddRange(PrimaryKeyFields);
-                }
-                
-                var createdDateTrackingField = _applicationType.Fields.FirstOrDefault(a => a.IsCreatedDate);
-                if (createdDateTrackingField != null)
-                {
-                    fields.Add(_domain.TypeProvider.CreateFieldAdapter(createdDateTrackingField, this));
-                }
-                var searchField = _applicationType.Fields.FirstOrDefault(f => f.IsSearch);
-                if (searchField != null)
-                {
-                    fields.Add(_domain.TypeProvider.CreateFieldAdapter(searchField, this));
-                }
-                if (CreatedByField != null)
-                {
-                    fields.Add(CreatedByField);
+                    fields.Add(ModifiedByField);                    
                 }
                 return fields.OrderBy(f => f.Order).ToList();
             }
         }
-
+        
         public List<IPseudoField> UpdateFields
         {
             get
             {
-                var fields = UserEditableFields.Where(f => f.Edit).ToList();
-                var updatedDateTrackingField = _applicationType.Fields.FirstOrDefault(a => a.IsModifiedDate);
-                if (updatedDateTrackingField != null)
+                try
                 {
-                    fields.Add(_domain.TypeProvider.CreateFieldAdapter(updatedDateTrackingField, this));
+                    var fields = UserEditableFields.Where(f => f.Edit).ToList();
+                    var updatedDateTrackingField = _applicationType.Fields.FirstOrDefault(a => a.IsModifiedDate);
+                    if (updatedDateTrackingField != null)
+                    {
+                        fields.Add(_domain.TypeProvider.CreateFieldAdapter(updatedDateTrackingField, this));
+                    }
+                    if (ModifiedByField != null)
+                    {
+                        fields.Add(ModifiedByField);
+                    }
+                    var searchField = _applicationType.Fields.FirstOrDefault(f => f.IsSearch);
+                    if (searchField != null)
+                    {
+                        fields.Add(_domain.TypeProvider.CreateFieldAdapter(searchField, this));
+                    }
+                    return fields.OrderBy(f => f.Order).ToList();
                 }
-                if (ModifiedByField != null)
+                catch (Exception ex)
                 {
-                    fields.Add(ModifiedByField);
+                    Log.Error(ex, "Error getting update fields for {ApplicationTypeName}", _applicationType.Name);
+                    throw;
                 }
-                var searchField = _applicationType.Fields.FirstOrDefault(f => f.IsSearch);
-                if (searchField != null)
+            }
+        }
+
+        public bool HasLinkingTypes => LinkingTypes.Any();
+        
+        public List<LinkAdapter> LinkingTypes
+        {
+            get
+            {
+                var linkTypes = new List<LinkAdapter>();
+                foreach (var link in _applicationType.LinkedTypes.Where(t => t.IsLink))
                 {
-                    fields.Add(_domain.TypeProvider.CreateFieldAdapter(searchField, this));
+                    var otherSideOfLink = link.Fields.Where(f => f.HasReferenceType && f.ReferencesType != _applicationType && !f.ReferencesType.IsSecurityPrincipal).Select(f => f.ReferencesType).ToList();
+                    if (otherSideOfLink.Count() > 1)
+                    {
+                        Log.Warning("Looking for links to {TypeName} - Link type {LinkTypeName} links to multiple 'other' things. Templates do not support this.", _applicationType.Name, link.Name); // templates have not been designed for this
+                    }
+                    else
+                    {
+                        if (otherSideOfLink.Any())
+                        {
+                            linkTypes.Add(new LinkAdapter(link, _applicationType, otherSideOfLink.First(), this));
+                        }
+                    }
                 }
-                return fields.OrderBy(f => f.Order).ToList();
+
+                return linkTypes.OrderBy(l => l.OtherSideOfLink.Name).ToList();
             }
         }
 
@@ -266,9 +301,22 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         {
             get
             {
-                var fragments = new List<string>() { _applicationType.Name };
-                fragments.AddRange(_operation);
-                return _domain.NamingConvention.CreateNameFromFragments(fragments);
+                try
+                {
+                    if (_operation == null)
+                    {
+                        return null;
+                    }
+                    
+                    var fragments = new List<string>() { _applicationType.Name };
+                    fragments.AddRange(_operation);
+                    return _domain.NamingConvention.CreateNameFromFragments(fragments);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Error getting name for function {ApplicationTypeName} and Operation {OperationName}", _applicationType?.Name, _operation);
+                    throw;
+                }
             }
         }
         

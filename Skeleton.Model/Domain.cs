@@ -58,6 +58,10 @@ namespace Skeleton.Model
 
         public bool HasHelpType => HelpType != null;
 
+        public ApplicationType? DynamicUiContentType => Types.SingleOrDefault(t => t.IsDynamicUiContent);
+
+        public bool HasDynamicUiContent => DynamicUiContentType != null;
+        
         public Operation? LogOperation => Operations.SingleOrDefault(o => o.IsLog);
         
         public Field? UserIdentity

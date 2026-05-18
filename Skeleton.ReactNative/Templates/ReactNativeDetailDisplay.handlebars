@@ -36,8 +36,8 @@ return (
                     <Text>{{DisplayName}}</Text>
                 </View>
                 <View style={detailStyles.fieldValue}>
-                    {{#if IsDateTime}}
-                        <DateTimeDisplay date={ props.item.{{cml_case Name}} } />
+                    {{#if IsDateOrDateTime}}
+                        <DateTimeDisplay date={ props.item.{{cml_case Name}} } showTime={ {{#if IsDate}}false{{else}}true{{/if}} } />
                     {{else}}
                         {{#if IsBoolean}}
                             <Text>{ props.item.{{cml_case Name}} ? 'Yes' : 'No' }</Text>

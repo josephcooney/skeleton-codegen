@@ -21,18 +21,18 @@ import { {{cs_name Name}} } from './{{cs_name Name}}'
 export interface {{ClientApiInterfaceName}} {
 {{#each ApiOperations}}
     {{#if HasCustomType}}
-        {{cml_case BareName}}(model : {{#if ../IsAttachment}}FormData{{else}}{{cs_name CustomType.Name}} | null{{/if}}) : Promise<{{TypeScriptReturn}}>;
+        {{cml_case BareName}}(model : {{#if ../IsAttachment}}FormData{{else}}{{#if CustomType.IsCustomArray}}{{cs_name CustomType.Name}}[]{{else}}{{cs_name CustomType.Name}}{{/if}} | null{{/if}}) : Promise<{{TypeScriptReturn}}>;
     {{else}}
         {{cml_case BareName}}({{#each UserProvidedParameters}}{{cml_case Name}} : {{ResolvedTypescriptType}} | null {{#unless @last}}, {{/unless}}{{/each}}) : Promise<{{TypeScriptReturn}}>;
     {{/if}}    
-    {{/each}}    
+{{/each}}    
 }
 
 export const {{ClientApiTypeName}}QueryKeys = {
 {{#each ApiOperations}}
     {{#unless ChangesData}}
         {{#if HasCustomType}}
-    {{cml_case BareName}}: (model : {{#if ../IsAttachment}}FormData{{else}}{{cs_name CustomType.Name}} | null{{/if}}) => ["{{cml_case Name}}", model] as const,
+    {{cml_case BareName}}: (model : {{#if ../IsAttachment}}FormData{{else}}{{#if CustomType.IsCustomArray}}{{cs_name CustomType.Name}}[]{{else}}{{cs_name CustomType.Name}}{{/if}} | null{{/if}}) => ["{{cml_case Name}}", model] as const,
         {{else}}
     {{cml_case BareName}}: ({{#each UserProvidedParameters}}{{cml_case Name}} : {{ResolvedTypescriptType}} | null {{#unless @last}}, {{/unless}}{{/each}}) => ["{{cml_case Name}}"{{#each UserProvidedParameters}}, {{cml_case Name}}{{/each}}] as const,
         {{/if}}
@@ -51,25 +51,25 @@ export class {{ClientApiTypeName}} implements {{ClientApiInterfaceName}} {
 
 	{{#each ApiOperations}}
 	{{#if HasCustomType}}
-	public async {{cml_case BareName}}(model : {{#if ../IsAttachment}}FormData{{else}}{{cs_name CustomType.Name}} | null{{/if}}) : Promise<{{TypeScriptReturn}}>  {
+    public async {{cml_case BareName}}(model : {{#if ../IsAttachment}}FormData{{else}}{{#if CustomType.IsCustomArray}}{{cs_name CustomType.Name}}[]{{else}}{{cs_name CustomType.Name}}{{/if}} | null{{/if}}) : Promise<{{TypeScriptReturn}}>  {
 		const uri = 'api/{{kb_case ../Name}}/{{cs_name BareName}}';
 		console.log("calling {{Name}} on " + uri);
 		{{#if ../IsAttachment}}
 		const result = await postForm<{{TypeScriptReturn}}>(uri, model);
 		{{else}}
-		var result = await {{ts_fix_http HttpMethod}}<{{TypeScriptReturn}}>(uri, model);
+		const result = await {{ts_fix_http HttpMethod}}<{{TypeScriptReturn}}>(uri, model);
 		{{/if}}
 		{{#if IsStructuredResult}}
 		{{#if ResultHasAnyDateFields}}
 		if (result.parsedBody) {
         {{#if SingleResult}}
-            let d = result.parsedBody;
+            const d = result.parsedBody;
         {{else}}
-            for (let d of result.parsedBody) {
+            for (const d of result.parsedBody) {
         {{/if}}
                 {{#each SimpleReturnType.Fields}}
                 {{#unless IsExcludedFromResults}}
-				{{#if IsDateTime}}
+				{{#if IsDateOrDateTime}}
 				{{#if IsRequired}}
 				d.{{cml_case Name}} = fixJsonDate(d.{{cml_case Name}});
 				{{else}}
@@ -100,7 +100,7 @@ export class {{ClientApiTypeName}} implements {{ClientApiInterfaceName}} {
 	{{else}}
 	public async {{cml_case BareName}}({{#each UserProvidedParameters}}{{cml_case Name}} : {{ResolvedTypescriptType}} | null {{#unless @last}}, {{/unless}}{{/each}}) : Promise<{{TypeScriptReturn}}>  { 
     {{#if ProvideDataByUri}}
-        const uri = `api/{{kb_case ../Name}}/{{cs_name BareName}}?{{#each UserProvidedParameters}}{{cml_case Name}}=${({{cml_case Name}})}{{#unless @last}}&{{/unless}}{{/each}}`;
+        const uri = `api/{{kb_case ../Name}}/{{cs_name BareName}}?{{#each UserProvidedParameters}}{{cml_case Name}}={{#if IsDateTime}}${({{cml_case Name}}?.toISOString())}{{else}}${({{cml_case Name}})}{{/if}}{{#unless @last}}&{{/unless}}{{/each}}`;
     {{else}}
         const uri = 'api/{{kb_case ../Name}}/{{cs_name BareName}}';
     {{/if}}
@@ -120,7 +120,7 @@ export class {{ClientApiTypeName}} implements {{ClientApiInterfaceName}} {
         {{/if}}
                 {{#each SimpleReturnType.Fields}}
                 {{#unless IsExcludedFromResults}}
-				{{#if IsDateTime}}
+				{{#if IsDateOrDateTime}}
 				{{#if IsRequired}}
 				d.{{cml_case Name}} = fixJsonDate(d.{{cml_case Name}});
 				{{else}}

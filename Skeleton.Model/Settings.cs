@@ -86,7 +86,7 @@ namespace Skeleton.Model
 
         public string ResolveClientAppDirectory() => !string.IsNullOrEmpty(ClientAppDirectory)
             ? ClientAppDirectory
-            : @"ClientApp\src\components\";
+            : @"clientapp/src/components/";
 
         public FlutterSettings FlutterSettings { get; set; }
         

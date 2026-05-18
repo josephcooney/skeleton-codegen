@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Skeleton.Model;
+﻿using Skeleton.Model;
 
 namespace Skeleton.Templating.DatabaseFunctions.Adapters.Fields
 {
