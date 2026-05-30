@@ -487,6 +487,11 @@ namespace Skeleton.Postgres
             return PostgresType.IsDateOnly(typeName);
         }
 
+        public bool IsTimeStampWithoutTimeZone(string typeName)
+        {
+            return _postgresNpgSqlTypes[typeName] == NpgsqlDbType.Timestamp; 
+        }
+
         public bool IsTimeOnly(string typeName)
         {
             return PostgresType.IsTimeOnly(typeName);

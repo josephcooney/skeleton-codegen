@@ -195,6 +195,8 @@ namespace Skeleton.Templating.Classes
             }  
         }
 
+        public override bool IsTimestampWithoutTimeZone => _parameter.IsTimestampWithoutTimeZone;
+        
         private string SanitizeName(string name)
         {
             // handle parameters from non-default domains

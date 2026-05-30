@@ -28,6 +28,8 @@ namespace Skeleton.Model
         public bool CustomTypeExists(string customTypeName);
 
         public bool IsDateOnly(string typeName);
+        
+        public bool IsTimeStampWithoutTimeZone(string typeName);
 
         public bool IsTimeOnly(string typeName);
 

@@ -149,7 +149,11 @@ namespace {{cs_name Namespace}}.Data.Repository
                 {{#if IsCustomTypeOrCustomArray}}
             cmd.Parameters.Add(new NpgsqlParameter{ParameterName = "{{Name}}", Value = {{cml_case Name}} });
                 {{else}}
+                    {{#if IsTimestampWithoutTimeZone}}
+            cmd.Parameters.Add(new NpgsqlParameter<{{{ResolvedClrType}}}>("{{Name}}", DateTime.SpecifyKind({{cml_case Name}}, DateTimeKind.Unspecified)));            
+                    {{else}}
             cmd.Parameters.Add(new NpgsqlParameter<{{{ResolvedClrType}}}>("{{Name}}", {{cml_case Name}}));
+                    {{/if}}
                 {{/if}}
 			{{/if}}
 			{{/each}}

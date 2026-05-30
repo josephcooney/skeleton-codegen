@@ -85,5 +85,7 @@ namespace Skeleton.Model
         {
             ClrType = typeof(Nullable<>).MakeGenericType(ClrType);
         }
+
+        public virtual bool IsTimestampWithoutTimeZone => _domain.TypeProvider.IsTimeStampWithoutTimeZone(ProviderTypeName);
     }
 }

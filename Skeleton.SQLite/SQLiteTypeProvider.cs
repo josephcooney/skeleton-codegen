@@ -63,6 +63,11 @@ public class SQLiteTypeProvider : ITypeProvider
         throw new NotImplementedException();
     }
 
+    public bool IsTimeStampWithoutTimeZone(string typeName)
+    {
+        throw new NotImplementedException();
+    }
+
     public bool IsTimeOnly(string typeName)
     {
         throw new NotImplementedException();

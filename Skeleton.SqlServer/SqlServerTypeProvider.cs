@@ -445,6 +445,11 @@ public class SqlServerTypeProvider : ITypeProvider
         return typeName.ToLowerInvariant() == "date";
     }
 
+    public bool IsTimeStampWithoutTimeZone(string typeName)
+    {
+        return false;
+    }
+
     public bool IsTimeOnly(string typeName)
     {
         return typeName.ToLowerInvariant() == "time";
