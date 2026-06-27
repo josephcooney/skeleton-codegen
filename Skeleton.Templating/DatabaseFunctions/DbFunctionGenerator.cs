@@ -71,7 +71,7 @@ namespace Skeleton.Templating.DatabaseFunctions
                         files.Add(GenerateSelectPagedForDisplayFunction(type, domain));
                     }
                     
-                    if (adapter.UpdateFields.Any() && !adapter.UnderlyingType.IsLink) // for linking types the insert operation is more of a logical "upsert"
+                    if (adapter.UpdateFields.Any() && !adapter.UnderlyingType.IsLink && type.Attributes?.noEdit != true) // for linking types the insert operation is more of a logical "upsert"
                     {
                         files.Add(GenerateUpdateFunction(adapter));
                     }
