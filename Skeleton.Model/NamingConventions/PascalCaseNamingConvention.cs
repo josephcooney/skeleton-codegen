@@ -39,7 +39,7 @@ public class PascalCaseNamingConvention : NamingConventionBase, INamingConventio
         var items = new List<string>();
         // replace any underscores with spaces, and then split on spaces to handle 'hybrid' names better
         var subParts = name.Replace("_", " ").Split(" ");
-        foreach (var subPart in subParts.Reverse())
+        foreach (var subPart in subParts.AsEnumerable().Reverse())
         {
             if (_namePartRegex.IsMatch(subPart))
             {
