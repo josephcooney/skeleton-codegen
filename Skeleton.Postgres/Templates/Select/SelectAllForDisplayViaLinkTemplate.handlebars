@@ -32,7 +32,7 @@ $$
         {{#each RelatedFields}}
         LEFT JOIN {{{escape_sql Field.ReferencesType.Name}}} AS {{ParentAlias}} ON {{PrimaryAlias}}.{{{escape_sql Field.Name}}} = {{ParentAlias}}.{{{escape_sql Field.ReferencesTypeField.Name}}} 
         {{/each}}
-		LEFT JOIN {{{escape_sql LinkingType.Name}}} AS {{LinkTypeAlias}} ON {{LinkTypeAlias}}.{{{escape_sql LinkingTypeField.Name}}} = {{ShortName}}.{{{escape_sql LinkingTypeField.ReferencesTypeField.Name}}}
+		LEFT JOIN {{{escape_sql LinkingType.Namespace}}}.{{{escape_sql LinkingType.Name}}} AS {{LinkTypeAlias}} ON {{LinkTypeAlias}}.{{{escape_sql LinkingTypeField.Name}}} = {{ShortName}}.{{{escape_sql LinkingTypeField.ReferencesTypeField.Name}}}
         WHERE {{LinkTypeAlias}}.{{{escape_sql LinkTypeOtherField.Name}}} = {{{escape_sql FunctionName}}}.{{{escape_sql LinkTypeOtherField.Name}}}
         {{#if FilterListOperation}}
         AND {{OwnershipExpression}}
@@ -48,7 +48,11 @@ $$
         
     END
 $$
+{{#if Domain.HasUserType}}
+  LANGUAGE plpgsql VOLATILE SECURITY INVOKER
+{{else}}
   LANGUAGE plpgsql STABLE SECURITY INVOKER
+{{/if}}
   COST 100;
 
 {{#if UseDbRoleForSecurity}}

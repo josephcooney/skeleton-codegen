@@ -49,5 +49,5 @@ public class LinkingField : IJoiningField
 
     // names need to be fully qualified here eg. select foo_bar.bar_id from foo_bar instead of select bar_id from foo.bar to avoid ambigunity issues 
     // like SQL Error [42702]: ERROR: column reference "bar_id" is ambiguous
-    public string SelectExpression => $"array(select {_domain.TypeProvider.EscapeSqlName(_field.Type.Name)}.{_domain.TypeProvider.EscapeSqlName(_field.Name)} from {_domain.TypeProvider.EscapeSqlName(_field.Type.Name)} where {_domain.TypeProvider.EscapeSqlName(_currentTypeField.Name)} = {_alias}.{_domain.TypeProvider.EscapeSqlName(_currentTypeField.ReferencesTypeField.Name)}) as {_domain.TypeProvider.EscapeSqlName(Name)}";
+    public string SelectExpression => $"array(select {_domain.TypeProvider.EscapeSqlName(_field.Type.Name)}.{_domain.TypeProvider.EscapeSqlName(_field.Name)} from {_domain.TypeProvider.EscapeSqlName(_field.Type.Namespace)}.{_domain.TypeProvider.EscapeSqlName(_field.Type.Name)} where {_domain.TypeProvider.EscapeSqlName(_currentTypeField.Name)} = {_alias}.{_domain.TypeProvider.EscapeSqlName(_currentTypeField.ReferencesTypeField.Name)}) as {_domain.TypeProvider.EscapeSqlName(Name)}";
 }

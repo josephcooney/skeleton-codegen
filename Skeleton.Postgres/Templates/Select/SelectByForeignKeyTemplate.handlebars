@@ -33,7 +33,11 @@ $$
         {{/if}}
     END
 $$
+{{#if Domain.HasUserType}}
+  LANGUAGE plpgsql VOLATILE SECURITY INVOKER
+{{else}}
   LANGUAGE plpgsql STABLE SECURITY INVOKER
+{{/if}}
   COST 100;
 
 {{#if UseDbRoleForSecurity}}
