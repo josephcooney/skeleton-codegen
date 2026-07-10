@@ -225,6 +225,10 @@ namespace Skeleton.Postgres
                     while (reader.Read())
                     {
                         var name = reader["name"].ToString();
+                        if (name == "plpgsql_check_function")
+                        {
+                            continue;    
+                        }
                         try
                         {
                             var ns = reader["schema"].ToString();
