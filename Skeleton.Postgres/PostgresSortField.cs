@@ -34,6 +34,7 @@ public class PostgresSortField : ISortField
     public Type ClrType => _field.ClrType;
     public bool IsGenerated => _field.IsGenerated;
     public bool IsRequired => _field.IsRequired;
+    public bool IsTrackingUser => false;
 
     public string SortExpression => _typeProvider.EscapeReservedWord(_field.Name); // posgres doesn't really  need this...it only exists for SQL Server
     public string SortExpressionWithParentAlias => $"{_field.ParentAlias}.{_field.Name}";

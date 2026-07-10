@@ -33,7 +33,8 @@ public class SqlSortField : ISortField
     public Type ClrType => _field.ClrType;
     public bool IsGenerated => _field.IsGenerated;
     public bool IsRequired => _field.IsRequired;
-
+    public bool IsTrackingUser => false;
+    
     public string SortExpression
     {
         get

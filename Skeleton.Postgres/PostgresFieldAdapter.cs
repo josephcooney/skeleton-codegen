@@ -127,7 +127,8 @@ public class PostgresFieldAdapter : IParamterPrototype
 
     public bool IsGenerated => _field.IsGenerated;
     public bool IsRequired => _field.IsRequired;
-    
+    public bool IsTrackingUser => _field.IsTrackingUser;
+
     public IOperationPrototype Parent => _prototype;
         
 }

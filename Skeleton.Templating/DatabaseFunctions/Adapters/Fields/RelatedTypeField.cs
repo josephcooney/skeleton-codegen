@@ -30,6 +30,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         public Type ClrType => _field.ClrType;
         public bool IsGenerated => false;
         public bool IsRequired => _field.IsRequired;
+        public bool IsTrackingUser => _field.IsTrackingUser;
 
         public bool HasSize => Size != null;
         

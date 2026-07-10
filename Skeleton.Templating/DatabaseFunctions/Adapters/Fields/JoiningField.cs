@@ -37,7 +37,9 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters.Fields
         public Type ClrType => _field.ClrType;
         public bool IsGenerated => false;
         public bool IsRequired => false;
+        public bool IsTrackingUser => _field.IsTrackingUser;
 
         public string PrimaryAlias => _alias;
+        
     }
 }

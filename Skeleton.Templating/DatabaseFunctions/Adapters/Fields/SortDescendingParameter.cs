@@ -33,7 +33,8 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters.Fields
         public Type ClrType => typeof(bool);
         public bool IsGenerated => false;
         public bool IsRequired => false;
-        
+        public bool IsTrackingUser =>  false;
+
         public static string GetNameForNamingConvention(INamingConvention namingConvention)
         {
             return namingConvention.CreateNameFromFragments(new List<string> { "sort", "descending" });

@@ -29,5 +29,7 @@ namespace Skeleton.Model
         bool IsGenerated { get; }
         
         bool IsRequired { get; }
+        
+        bool IsTrackingUser { get; }
     }
 }

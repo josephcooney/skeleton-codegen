@@ -152,4 +152,5 @@ public class SqlFieldAdapter : IParamterPrototype
 
         public bool IsGenerated => _field.IsGenerated;
         public bool IsRequired => _field.IsRequired;
+        public bool IsTrackingUser => _field.IsTrackingUser;
 }

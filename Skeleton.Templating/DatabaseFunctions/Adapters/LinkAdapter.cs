@@ -50,10 +50,26 @@ public class LinkAdapter
             {
                 if (_operationPrototype.OperationType == OperationType.Update)
                 {
-                    // we need to handle "created by" specially here...it is the created by for the LINK
-                    // but we need to use the "modified by" user who is calling the update
-                    var adapedCreatedByField = new LinkingFieldModifiedByAdapter(CreatedByField, ModifiedByField, _operationPrototype);
-                    fields.Add(adapedCreatedByField);
+
+                    if (_operationPrototype.OperationType == OperationType.Update && !_operationPrototype.Fields.Any(f => f.IsTrackingUser && Domain.NamingConvention.IsModifiedByFieldName(f.Name)))
+                    {
+                        //  && _operationPrototype.Fields.Any(f => f.IsTrackingUser)
+                        // there also may not be a modified by field on the type
+                        
+                        if (Domain.UserIdentity != null)
+                        {
+                            var userIdParam = new UserIdParameterPrototype(Domain, _operationPrototype);
+                            var adapedCreatedByField = new LinkingFieldModifiedByAdapter(CreatedByField, userIdParam , _operationPrototype);
+                            fields.Add(adapedCreatedByField);
+                        } 
+                    }
+                    else
+                    {
+                        // we need to handle "created by" specially here...it is the created by for the LINK
+                        // but we need to use the "modified by" user who is calling the update
+                        var adapedCreatedByField = new LinkingFieldModifiedByAdapter(CreatedByField, ModifiedByField, _operationPrototype);
+                        fields.Add(adapedCreatedByField);
+                    }
                 }
                 else
                 {
@@ -104,6 +120,38 @@ public class LinkAdapter
     }
 }
 
+public class UserIdParameterPrototype : IParamterPrototype
+{
+    private IPseudoField _field;
+    
+    public UserIdParameterPrototype(Domain domain, IOperationPrototype parent)
+    {
+        _field = new UserIdField(domain);
+        Parent = parent;
+    }
+
+    public string Name => _field.Name;
+    public string ParentAlias => _field.ParentAlias;
+    public string ProviderTypeName => _field.ProviderTypeName;
+    public bool HasDisplayName => _field.HasDisplayName;
+    public string DisplayName => _field.DisplayName;
+    public int Order => _field.Order;
+    public bool IsUuid => _field.IsUuid;
+    public bool Add => _field.Add;
+    public bool Edit => _field.Edit;
+    public bool IsUserEditable => _field.IsUserEditable;
+    public bool IsKey => _field.IsKey;
+    public bool IsInt => _field.IsInt;
+    public bool HasSize => _field.HasSize;
+    public int? Size => _field.Size;
+    public Type ClrType => _field.ClrType;
+    public bool IsGenerated => _field.IsGenerated;
+    public bool IsRequired => _field.IsRequired;
+    public bool IsTrackingUser => _field.IsTrackingUser;
+    public string Value => _field.Name; //???
+    public IOperationPrototype Parent { get; private set; }
+}
+
 public class LinkingFieldModifiedByAdapter : IParamterPrototype
 {
     private readonly IParamterPrototype _field;
@@ -134,6 +182,7 @@ public class LinkingFieldModifiedByAdapter : IParamterPrototype
     public Type ClrType => _field.ClrType;
     public bool IsGenerated => _field.IsGenerated;
     public bool IsRequired => _field.IsRequired;
+    public bool IsTrackingUser => true;
 
     public string Value => _modifiedField.Value;
     
@@ -175,6 +224,7 @@ public class LinkingFieldAdapter : IParamterPrototype
     public Type ClrType => _field.ClrType;
     public bool IsGenerated => _field.IsGenerated;
     public bool IsRequired => _field.IsRequired;
+    public bool IsTrackingUser => _field.IsTrackingUser;
 
     public bool IsLinkingField => true;
 

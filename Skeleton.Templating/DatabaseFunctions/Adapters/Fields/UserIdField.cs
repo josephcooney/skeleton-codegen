@@ -34,5 +34,6 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
         public Type ClrType => _domain.UserIdentity.ClrType;
         public bool IsGenerated => false;
         public bool IsRequired => false; // sometimes the user is anon?
+        public bool IsTrackingUser => _domain.NamingConvention.IsTrackingUserFieldName(Name);
     }
 }
