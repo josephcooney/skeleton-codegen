@@ -171,6 +171,7 @@ Attributes are set as a JSON text string 'comment' on the respective database en
 - add: true|false - When set to false excludes the field from add operations and from add UI. Default to true.
 - edit: true|false - When set to false excludes the field from edit operations and from edit UI. Default to true.
 - isDisplayForType: true|false - When set to true this field becomes the 'summary' that is shown in other places when referring to that type. For example a 'Name' field might be isDisplayType:true for a product or person. Defaults to false.
+- hidden: true|false - Suppresses display of field in API operations (add/edit) as well as results
 
 Postgres SQL Syntax for adding comments to fields is
 ```sql
