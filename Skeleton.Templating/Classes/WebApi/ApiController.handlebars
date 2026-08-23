@@ -115,7 +115,7 @@ namespace {{Namespace}}.Controllers
             {
                 {{#unless NoResult}}var {{cml_case BareName}}Result = {{/unless}}await _repository.{{cs_name BareName}}Async({{#each Parameters}}{{#if ../ChangesOrCreatesData}}{{#if IsCurrentUser}}{{#if IsNullable}}requestUserId{{else}}requestUserId.Value{{/if}}{{else}}{{cml_case Name}}{{/if}}{{else}}{{#if IsSecurityUser}}requestUserId{{else}}{{cml_case Name}}{{/if}}{{/if}}, {{/each}} token);
 			{{#if ApiHooks}}				
-			    return await After{{cs_name BareName}}(requestUserId, {{#unless NoResult}}{{cml_case BareName}}Result, {{/unless}}{{#each UserProvidedParameters}}{{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}});
+			    return await After{{cs_name BareName}}(requestUserId, {{#unless NoResult}}{{cml_case BareName}}Result{{#if HasUserProvidedParameters}}, {{/if}}{{/unless}}{{#each UserProvidedParameters}}{{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}});
             {{else}}
                 {{#if NoResult}}
                 return Ok();

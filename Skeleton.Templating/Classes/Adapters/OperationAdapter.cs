@@ -56,6 +56,8 @@ namespace Skeleton.Templating.Classes.Adapters
             get { return _op.UserProvidedParameters.Select(p => new ParameterAdapter(_domain, p)).ToList(); }
         }
 
+        public bool HasUserProvidedParameters => UserProvidedParameters.Any();
+        
         public virtual List<ParameterAdapter> UserEditableParameters
         {
             // Int.MaxValue moves related type fields to the bottom of the list
