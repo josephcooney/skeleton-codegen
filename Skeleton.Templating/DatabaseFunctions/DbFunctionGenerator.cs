@@ -61,9 +61,12 @@ namespace Skeleton.Templating.DatabaseFunctions
                     {
                         files.Add(GenerateDisplayType(type, domain));
                     }
-                    
-                    files.Add(GenerateSelectAllFunction(type, domain));
-                    files.Add(GenerateSelectAllForDisplayFunction(type, domain));
+
+                    if (type.Attributes?.noSelectAll != true)
+                    {
+                        files.Add(GenerateSelectAllFunction(type, domain));
+                        files.Add(GenerateSelectAllForDisplayFunction(type, domain));
+                    }
 
                     if (type.Paged)
                     {
@@ -90,8 +93,11 @@ namespace Skeleton.Templating.DatabaseFunctions
                     {
                         foreach (var field in type.Fields.Where(f => f.ReferencesType != null))
                         {
-                            files.Add(GenerateSelectByRelatedTypeFunction(type, field, domain));
-                            files.Add(GenerateSelectAllForDisplayByRelatedTypeFunction(type, field, domain));
+                            if (type.Attributes?.noSelectAll != true)
+                            {
+                                files.Add(GenerateSelectByRelatedTypeFunction(type, field, domain));
+                                files.Add(GenerateSelectAllForDisplayByRelatedTypeFunction(type, field, domain));
+                            }
                             
                             if (type.Paged)
                             {
@@ -101,11 +107,14 @@ namespace Skeleton.Templating.DatabaseFunctions
                         }
                     }
 
-                    if (type.Constraints.Any())
+                    if (type.Attributes?.noSelectAll != true)
                     {
-                        foreach (var constraint in type.Constraints)
+                        if (type.Constraints.Any())
                         {
-                            files.Add(GenerateSelectByConstraint(type, constraint, domain));
+                            foreach (var constraint in type.Constraints)
+                            {
+                                files.Add(GenerateSelectByConstraint(type, constraint, domain));
+                            }
                         }
                     }
 
@@ -124,22 +133,25 @@ namespace Skeleton.Templating.DatabaseFunctions
                         files.Add(GenerateSearchFunction(type, domain));
                     }
 
-                    // find all the link types that reference this type
-                    var linkTypesReferencingCurrentType = domain.FilteredTypes.Where(t => t.IsLink && t.Fields.Any(f => f.HasReferenceType && f.ReferencesType == type && !f.IsTrackingUser));
-                    if (linkTypesReferencingCurrentType.Any())
+                    if (type.Attributes?.noSelectAll != true)
                     {
-                        foreach (var linkingType in linkTypesReferencingCurrentType)
+                        // find all the link types that reference this type
+                        var linkTypesReferencingCurrentType = domain.FilteredTypes.Where(t => t.IsLink && t.Fields.Any(f => f.HasReferenceType && f.ReferencesType == type && !f.IsTrackingUser));
+                        if (linkTypesReferencingCurrentType.Any())
                         {
-                            var linkAdapter = new SelectForDisplayViaLinkDbTypeAdapter(type, SelectAllForDisplayFunctionName, linkingType, domain);
-                            if (linkAdapter.LinkingTypeField != null && linkAdapter.LinkTypeOtherField != null)
+                            foreach (var linkingType in linkTypesReferencingCurrentType)
                             {
-                                files.Add(GenerateTemplateFromAdapter(linkAdapter, "SelectAllForDisplayViaLinkTemplate"));
-                                    
-                                if (type.Paged)
+                                var linkAdapter = new SelectForDisplayViaLinkDbTypeAdapter(type, SelectAllForDisplayFunctionName, linkingType, domain);
+                                if (linkAdapter.LinkingTypeField != null && linkAdapter.LinkTypeOtherField != null)
                                 {
-                                    var pagedLinkAdapter = new SelectPagedForDisplayViaLinkDbTypeAdapter(type,
-                                        SelectAllForDisplayFunctionName, linkingType, domain);
-                                    files.Add(GenerateTemplateFromAdapter(pagedLinkAdapter, "SelectPagedForDisplayViaLink"));
+                                    files.Add(GenerateTemplateFromAdapter(linkAdapter, "SelectAllForDisplayViaLinkTemplate"));
+                                    
+                                    if (type.Paged)
+                                    {
+                                        var pagedLinkAdapter = new SelectPagedForDisplayViaLinkDbTypeAdapter(type,
+                                            SelectAllForDisplayFunctionName, linkingType, domain);
+                                        files.Add(GenerateTemplateFromAdapter(pagedLinkAdapter, "SelectPagedForDisplayViaLink"));
+                                    }
                                 }
                             }
                         }
