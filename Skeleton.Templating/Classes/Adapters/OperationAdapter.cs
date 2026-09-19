@@ -456,8 +456,10 @@ namespace Skeleton.Templating.Classes.Adapters
         {
             get
             {
-                var user = _applicationType.Attributes?.security?.user;
-
+                if (OnlyAdminCanExecute(_op.Attributes?.security)) return true;
+                
+                var user = _applicationType.Attributes?.security?.user;                
+                
                 if (_op.CreatesNew)
                 {
                     if (_op.RelatedType.IsReferenceData && user == null)
@@ -522,9 +524,18 @@ namespace Skeleton.Templating.Classes.Adapters
 
                     return false;
                 }
-
+                
                 return false;
             }
+        }
+
+        private static bool OnlyAdminCanExecute(dynamic security)
+        {
+            var user = security?.user;
+            var admin = security?.admin;
+            var anon = security?.anon;
+            
+            return SecurityUtil.HasExecuteRight(admin) && !SecurityUtil.HasExecuteRight(user) && !SecurityUtil.HasExecuteRight(anon);
         }
 
         public bool ApiHooks
