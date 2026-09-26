@@ -170,13 +170,25 @@ namespace Skeleton.Templating.DatabaseFunctions
                 {
                     Name = namePrefix + adapter.FunctionName + SqlExtension,
                     Contents = Util.GetCompiledTemplateFromTypeProvider(templateName, adapter.Domain.TypeProvider)(adapter),
-                    RelativePath = "./" + adapter.Name + "/"
+                    RelativePath = GetSqlRelativePath(adapter.Namespace, adapter.Name, adapter.Domain)
                 };
             }
             catch (Exception ex)
             {
                 throw new InvalidOperationException($"Unable to generate template {templateName} for type {adapter.Name}", ex);
             }
+        }
+
+        // database scripts for types outside the provider's default namespace are grouped into a
+        // sub-folder named after the namespace to keep them organised
+        private string GetSqlRelativePath(string ns, string typeName, Domain domain)
+        {
+            if (string.IsNullOrEmpty(ns) || ns == domain.TypeProvider.DefaultNamespace)
+            {
+                return "./" + typeName + "/";
+            }
+
+            return "./" + ns + "/" + typeName + "/";
         }
 
         private CodeFile GenerateUpdateFunction(DbTypeAdapter adapter)
@@ -311,7 +323,7 @@ namespace Skeleton.Templating.DatabaseFunctions
             {
                 Name = type.Name + "_policy" + SqlExtension,
                 Contents = Util.GetCompiledTemplateFromTypeProvider(DbTemplates.SecurityPolicy, domain.TypeProvider)(adapter),
-                RelativePath = type.Name
+                RelativePath = GetSqlRelativePath(type.Namespace, type.Name, domain)
             };
         }
 
