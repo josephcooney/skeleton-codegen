@@ -23,7 +23,7 @@ $$
             {{#each Fields}}
             {{{escape_sql Parent.Name}}}.{{{escape_sql Name}}}{{#unless @last}},{{/unless}}
             {{/each}}
-        FROM {{{escape_sql Name}}}
+        FROM {{{EscapedQualifiedName}}}
         WHERE 
         {{#each SelectFields}}
         {{{escape_sql Parent.Name}}}.{{{escape_sql Name}}} = {{{escape_sql Parent.FunctionName}}}.{{{escape_sql Name}}} {{#unless @last}}AND{{/unless}}{{#unless ../SoftDelete}};{{/unless}}

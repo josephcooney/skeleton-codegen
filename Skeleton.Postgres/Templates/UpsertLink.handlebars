@@ -32,7 +32,7 @@ $$
                 new_id = uuid_generate_v1();
             {{/if}}
             
-            insert into {{{escape_sql Name}}} (
+            insert into {{{EscapedQualifiedName}}} (
             {{#each InsertFields}}
                 {{{escape_sql Name}}}{{#unless @last}},{{/unless}}
             {{/each}}

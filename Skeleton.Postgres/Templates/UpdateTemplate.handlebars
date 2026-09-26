@@ -19,7 +19,7 @@ $$
         END IF;
         {{/if}}
 
-        UPDATE {{{escape_sql Name}}}
+        UPDATE {{{EscapedQualifiedName}}}
         SET 
             {{#each UpdateFields}}
             {{{escape_sql Name}}} = {{{Value}}}{{#unless @last}},{{/unless}}

@@ -32,7 +32,7 @@ $$
         {{else}}
             {{ShortName}}.*
         {{/if}}
-        FROM {{{escape_sql Name}}} {{ShortName}}
+        FROM {{{EscapedQualifiedName}}} {{ShortName}}
         {{#if SoftDelete}}
         WHERE deleted_date is NULL
         {{/if}}

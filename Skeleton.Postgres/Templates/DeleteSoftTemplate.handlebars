@@ -16,7 +16,7 @@ $$
         END IF;
         {{/if}}
 
-        UPDATE {{{escape_sql Name}}}
+        UPDATE {{{EscapedQualifiedName}}}
         SET deleted_date = clock_timestamp()
 		WHERE
 			deleted_date IS NULL AND

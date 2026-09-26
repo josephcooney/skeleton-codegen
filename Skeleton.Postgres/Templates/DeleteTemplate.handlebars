@@ -14,7 +14,7 @@ $$
 		    perform set_config('app.user_id', security_user_id_param::text, true);
         END IF;
 
-        DELETE FROM {{{escape_sql Name}}}
+        DELETE FROM {{{EscapedQualifiedName}}}
         WHERE
         {{#each PrimaryKeyFields}}
             {{{escape_sql Parent.Name}}}.{{{escape_sql Name}}} = {{{escape_sql Parent.FunctionName}}}.{{{escape_sql Name}}}{{#unless @last}} AND{{/unless}}{{/each}};
