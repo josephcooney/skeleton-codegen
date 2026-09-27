@@ -13,6 +13,11 @@ namespace Skeleton.Templating.Classes.Repository
         {
             get
             {
+                if (_op.RelatedType.Namespace != _domain.TypeProvider.DefaultNamespace)
+                {
+                    return _op.RelatedType.Namespace + "." + _domain.TypeProvider.GetSqlName(_op.Name);
+                }
+                
                 return _domain.TypeProvider.GetSqlName(_op.Name);
             }
         }
