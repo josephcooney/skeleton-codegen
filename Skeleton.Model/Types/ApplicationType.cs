@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 
 namespace Skeleton.Model
 {
@@ -79,6 +80,20 @@ namespace Skeleton.Model
 
         public List<ApplicationType> LinkedTypes => Domain.Types.Where(t =>
             t.Fields.Any(f => f.HasReferenceType && f.ReferencesType == this && !f.IsTrackingUser)).ToList();
+        
+        public string EscapedQualifiedName
+        {
+            get
+            {
+                var sb = new StringBuilder();
+                if (Namespace != Domain.TypeProvider.DefaultNamespace)
+                {
+                    sb.Append(Domain.TypeProvider.EscapeReservedWord(Namespace) + ".");
+                }
+                sb.Append(Domain.TypeProvider.EscapeReservedWord(Name));
+                return sb.ToString();
+            }
+        }
     }
 
     public enum DeleteType

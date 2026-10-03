@@ -30,7 +30,7 @@ $$
             {{/each}}
         FROM {{{EscapedQualifiedName}}} {{ShortName}}
         {{#each RelatedFields}}
-        LEFT JOIN {{{escape_sql Field.ReferencesType.Name}}} AS {{ParentAlias}} ON {{PrimaryAlias}}.{{{escape_sql Field.Name}}} = {{ParentAlias}}.{{{escape_sql Field.ReferencesTypeField.Name}}} 
+        LEFT JOIN {{{Field.ReferencesType.EscapedQualifiedName}}} AS {{ParentAlias}} ON {{PrimaryAlias}}.{{{escape_sql Field.Name}}} = {{ParentAlias}}.{{{escape_sql Field.ReferencesTypeField.Name}}} 
         {{/each}}
         {{#if FilterListOperation}}
         WHERE {{OwnershipExpression}}

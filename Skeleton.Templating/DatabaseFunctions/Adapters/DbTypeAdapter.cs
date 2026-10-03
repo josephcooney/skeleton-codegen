@@ -292,19 +292,7 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
 
         public string Namespace => _applicationType.Namespace;
 
-        public string EscapedQualifiedName
-        {
-            get
-            {
-                var sb = new StringBuilder();
-                if (_applicationType.Namespace != _domain.TypeProvider.DefaultNamespace)
-                {
-                    sb.Append(_domain.TypeProvider.EscapeReservedWord(_applicationType.Namespace) + ".");
-                }
-                sb.Append(_domain.TypeProvider.EscapeReservedWord(_applicationType.Name));
-                return sb.ToString();
-            }
-        }
+        public string EscapedQualifiedName => _applicationType.EscapedQualifiedName;
 
         public List<IParamterPrototype> Fields => _applicationType.Fields.Where(f => (!f.IsExcludedFromResults)).Select(a => _domain.TypeProvider.CreateFieldAdapter(a, this)).ToList();
         public bool UseDbRoleForSecurity => Domain.Settings.UseDbRoleForSecurity;
