@@ -21,7 +21,7 @@ namespace Skeleton.Console
         {
             if (!_fileSystem.Directory.Exists(_settings.RootDirectory))
             {
-                Log.Error("Unable to removed generated files - root directory does not exist.");
+                Log.Error("Unable to removed generated files - root directory {RootDir} does not exist.", _settings.RootDirectory);
                 return;
             }
 
