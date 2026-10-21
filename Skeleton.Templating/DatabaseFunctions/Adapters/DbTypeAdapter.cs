@@ -181,6 +181,15 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
                 {
                     fields.Add(CreatedByField);
                 }
+
+                // Hidden columns that are derived from other columns by an expression in their
+                // comment (e.g. PostGIS geog from latitude/longitude or a JSON payload). These
+                // are not caller inputs, but they still need to be written by the insert.
+                var derivedInsertFields = _applicationType.Fields
+                    .Where(f => f.Attributes?.insertExpression != null)
+                    .Select(f => _domain.TypeProvider.CreateFieldAdapter(f, this));
+                fields.AddRange(derivedInsertFields);
+
                 return fields.OrderBy(f => f.Order).ToList();
             }
         }
@@ -251,6 +260,13 @@ namespace Skeleton.Templating.DatabaseFunctions.Adapters
                     {
                         fields.Add(_domain.TypeProvider.CreateFieldAdapter(searchField, this));
                     }
+
+                    // Hidden columns derived from other columns by their comment expression.
+                    var derivedUpdateFields = _applicationType.Fields
+                        .Where(f => f.Attributes?.updateExpression != null)
+                        .Select(f => _domain.TypeProvider.CreateFieldAdapter(f, this));
+                    fields.AddRange(derivedUpdateFields);
+
                     return fields.OrderBy(f => f.Order).ToList();
                 }
                 catch (Exception ex)

@@ -26,6 +26,13 @@ public class PostgresFieldAdapter : IParamterPrototype
         {
             if (_prototype.OperationType == OperationType.Insert)
             {
+                var insertExpression = _field.Attributes?.insertExpression;
+                if (insertExpression != null)
+                {
+                    return insertExpression.ToString()
+                        .Replace("{new}", _typeProvider.EscapeSqlName(_prototype.NewRecordParameterName));
+                }
+
                 if (_field.IsKey && _field.ClrType == typeof(int))
                 {
                     return "DEFAULT"; 
@@ -69,6 +76,13 @@ public class PostgresFieldAdapter : IParamterPrototype
 
             if (_prototype.OperationType == OperationType.Update)
             {
+                var updateExpression = _field.Attributes?.updateExpression;
+                if (updateExpression != null)
+                {
+                    return updateExpression.ToString()
+                        .Replace("{function}", _typeProvider.EscapeSqlName(_prototype.FunctionName));
+                }
+
                 if (_field.IsKey)
                 {
                     return _typeProvider.FormatOperationParameterName(_prototype.FunctionName, _field.Name);
