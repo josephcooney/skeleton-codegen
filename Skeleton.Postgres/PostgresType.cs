@@ -47,6 +47,8 @@ namespace Skeleton.Postgres
                 ["line"] = typeof(NpgsqlLine),
                 ["circle"] = typeof(NpgsqlCircle),
                 ["box"] = typeof(NpgsqlBox),
+                ["geometry"] = typeof(NetTopologySuite.Geometries.Geometry),
+                ["geography"] = typeof(NetTopologySuite.Geometries.Geometry),
                 ["bit(1)"] = typeof(bool),
                 ["bit(n)"] = typeof(BitArray),
                 ["bit varying"] = typeof(BitArray),
@@ -99,9 +101,13 @@ namespace Skeleton.Postgres
         {
             get
             {
-                if (_postgresClrTypes.ContainsKey(Name))
+                // Extension types such as PostGIS are reported schema-qualified
+                // (e.g. "postgis.geography") when the extension schema is not on the
+                // connection's search_path. Look up both the qualified and bare name.
+                var lookupName = GetUnqualifiedTypeName(Name);
+                if (_postgresClrTypes.ContainsKey(Name) || _postgresClrTypes.ContainsKey(lookupName))
                 {
-                    var type = _postgresClrTypes[Name];
+                    var type = _postgresClrTypes.ContainsKey(Name) ? _postgresClrTypes[Name] : _postgresClrTypes[lookupName];
                     if (IsArray)
                     {
                         return type.MakeArrayType();
@@ -111,6 +117,12 @@ namespace Skeleton.Postgres
                 }
                 return null;
             }
+        }
+
+        public static string GetUnqualifiedTypeName(string typeName)
+        {
+            var lastDot = typeName.LastIndexOf('.');
+            return lastDot < 0 ? typeName : typeName.Substring(lastDot + 1);
         }
 
         public static string ProviderTypeNameFromClrType(Type clrType)

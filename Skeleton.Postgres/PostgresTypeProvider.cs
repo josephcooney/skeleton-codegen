@@ -51,6 +51,8 @@ namespace Skeleton.Postgres
                 ["line"] = NpgsqlDbType.Line,
                 ["circle"] = NpgsqlDbType.Circle,
                 ["box"] = NpgsqlDbType.Box,
+                ["geometry"] = NpgsqlDbType.Geometry,
+                ["geography"] = NpgsqlDbType.Geography,
                 ["hstore"] = NpgsqlDbType.Hstore,
                 ["uuid"] = NpgsqlDbType.Uuid,
                 ["cidr"] = NpgsqlDbType.Cidr,
@@ -583,6 +585,15 @@ namespace Skeleton.Postgres
             if (_postgresNpgSqlTypes.ContainsKey(postgresTypeName))
             {
                 return _postgresNpgSqlTypes[postgresTypeName];
+            }
+
+            // Extension types such as PostGIS are reported schema-qualified
+            // (e.g. "postgis.geography") when the extension schema is not on the
+            // connection's search_path. Fall back to the bare type name.
+            var unqualifiedName = PostgresType.GetUnqualifiedTypeName(postgresTypeName);
+            if (unqualifiedName != postgresTypeName && _postgresNpgSqlTypes.ContainsKey(unqualifiedName))
+            {
+                return _postgresNpgSqlTypes[unqualifiedName];
             }
 
             return NpgsqlDbType.Unknown;
@@ -1365,6 +1376,14 @@ namespace Skeleton.Postgres
             var pgType = new PostgresType(resultType);
             
             if (pgType.IsVoid)
+            {
+                return new OperationReturn {ReturnType = ReturnType.None};
+            }
+
+            // Trigger functions are not callable from application code (and are not
+            // exposed as API operations); skip them instead of trying to resolve
+            // "trigger" as a custom database type.
+            if (resultType == "trigger" || resultType == "event_trigger")
             {
                 return new OperationReturn {ReturnType = ReturnType.None};
             }
