@@ -165,6 +165,9 @@ namespace {{cs_name Namespace}}.Data.Repository
         {{#unless IsSingular}}
         private {{{ReturnTypeName}}} Read{{cs_name BareName}}Result(DbDataReader reader)
         {
+            {{#if IsPrimitive}}
+            return reader.GetFieldValue<{{{ReturnTypeName}}}>(0);
+            {{else}}
 			{{#each SimpleReturnType.NonExcludedFields}}
                 {{#if IsDate}}
                     {{#if IsRequired}}
@@ -178,6 +181,7 @@ namespace {{cs_name Namespace}}.Data.Repository
 			{{/each}}
             var item = new {{{ReturnTypeName}}}({{#each SimpleReturnType.NonExcludedFields}}{{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}});
             return item;
+            {{/if}}
         }
         {{/unless}}
         {{/unless}}

@@ -131,7 +131,7 @@ namespace Skeleton.Model
             }
         }
 
-        public bool SingleResult => Attributes?.single_result == true || Returns.Multiple == false || Returns.ReturnType == ReturnType.Primitive;
+        public bool SingleResult => Attributes?.single_result == true || Returns.Multiple == false;
     }
 
     public class OperationReturn

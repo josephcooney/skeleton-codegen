@@ -1396,6 +1396,21 @@ namespace Skeleton.Postgres
             if (resultType.StartsWith("SETOF"))
             {
                 var typeName = resultType.Replace("SETOF", "").Trim().Trim('"');
+
+                // A set of a built-in type (e.g. SETOF uuid) is a list of primitives, not a
+                // custom type. Resolving it as a custom type tries to look up e.g.
+                // "public"."uuid" and fails, so handle it here.
+                var elementType = new PostgresType(typeName);
+                if (elementType.ClrType != null)
+                {
+                    return new OperationReturn
+                    {
+                        ReturnType = ReturnType.Primitive,
+                        ClrReturnType = elementType.ClrType,
+                        Multiple = true
+                    };
+                }
+
                 return GetReturnTypeFromTypeName(domain, operation, typeName, true);
             }
 

@@ -204,11 +204,15 @@ namespace {{cs_name Namespace}}.Data.Repository
         {{#unless IsSingular}}
         private {{{ReturnTypeName}}} Read{{cs_name BareName}}Result(DbDataReader reader)
         {
+            {{#if IsPrimitive}}
+            return reader.GetFieldValue<{{{ReturnTypeName}}}>(0);
+            {{else}}
 			{{#each SimpleReturnType.NonExcludedFields}}
 			var {{cml_case Name}} = GetField<{{format_clr_type ClrType}}>(reader, "{{Name}}");
 			{{/each}}
             var item = new {{{ReturnTypeName}}}({{#each SimpleReturnType.NonExcludedFields}}{{cml_case Name}}{{#unless @last}}, {{/unless}}{{/each}});
             return item;
+            {{/if}}
         }
         {{/unless}}
         {{/unless}}

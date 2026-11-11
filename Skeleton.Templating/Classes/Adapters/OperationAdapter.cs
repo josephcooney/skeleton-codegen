@@ -101,6 +101,11 @@ namespace Skeleton.Templating.Classes.Adapters
                         throw new InvalidOperationException($"Scalar return type for operation {_op.Name} was not defined");
                     }
 
+                    if (_op.Returns.Multiple)
+                    {
+                        return $"List<{TypeMapping.GetCSharpShortTypeName(_op.Returns.ClrReturnType)}>";
+                    }
+
                     if (_op.Returns.ClrReturnType.IsArray)
                     {
                         return TypeMapping.GetCSharpShortTypeName(_op.Returns.ClrReturnType.GetElementType()) + "[]";
@@ -128,7 +133,12 @@ namespace Skeleton.Templating.Classes.Adapters
             get
             {
                 var returnValue = Returns;
-                if (_op.Returns.ReturnType == ReturnType.None || _op.Returns.ReturnType == ReturnType.Primitive)
+                if (_op.Returns.ReturnType == ReturnType.None)
+                {
+                    return returnValue;
+                }
+
+                if (_op.Returns.ReturnType == ReturnType.Primitive && !_op.Returns.Multiple)
                 {
                     return returnValue;
                 }
@@ -150,7 +160,8 @@ namespace Skeleton.Templating.Classes.Adapters
 
                 if (_op.Returns?.ReturnType == ReturnType.Primitive)
                 {
-                    return Util.GetTypeScriptTypeForClrType(_op.Returns.ClrReturnType);
+                    var primitiveReturn = Util.GetTypeScriptTypeForClrType(_op.Returns.ClrReturnType);
+                    return _op.Returns.Multiple ? primitiveReturn + "[]" : primitiveReturn;
                 }
 
                 if (_op.Returns?.ReturnType == ReturnType.ApplicationType || _op.Returns?.ReturnType == ReturnType.CustomType)
@@ -178,7 +189,9 @@ namespace Skeleton.Templating.Classes.Adapters
                 
                 if (_op.Returns?.ReturnType == ReturnType.Primitive)
                 {
-                    return Util.GetTypeScriptDefaultValueForClrType(_op.Returns.ClrReturnType);
+                    return _op.Returns.Multiple
+                        ? "[]"
+                        : Util.GetTypeScriptDefaultValueForClrType(_op.Returns.ClrReturnType);
                 }
 
                 if (_op.Returns?.ReturnType == ReturnType.ApplicationType || _op.Returns?.ReturnType == ReturnType.CustomType)
@@ -251,7 +264,9 @@ namespace Skeleton.Templating.Classes.Adapters
 
         public bool NoResult => _op.Returns?.ReturnType == ReturnType.None;
 
-        public bool IsSingular => _op.Returns?.ReturnType == ReturnType.Primitive;
+        public bool IsSingular => _op.Returns?.ReturnType == ReturnType.Primitive && !_op.Returns.Multiple;
+
+        public bool IsPrimitive => _op.Returns?.ReturnType == ReturnType.Primitive;
 
         public bool IsStructuredResult => _op.Returns?.ReturnType == ReturnType.ApplicationType ||
                                           _op.Returns?.ReturnType == ReturnType.CustomType;
